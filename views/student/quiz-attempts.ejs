@@ -1,0 +1,40 @@
+<section class="pe-section-sm bg-white border-bottom">
+  <div class="container">
+    <h1 class="pe-section-title mb-1">Quiz History</h1>
+    <p class="text-muted-pe mb-0">All your past quiz attempts across every course.</p>
+  </div>
+</section>
+
+<section class="pe-section">
+  <div class="container">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table pe-table mb-0">
+          <thead>
+            <tr>
+              <th>Quiz</th>
+              <th>Course</th>
+              <th>Score</th>
+              <th>Result</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (attempts.length === 0) { %>
+              <tr><td colspan="5" class="text-center text-muted-pe py-4">No quiz attempts yet. Start a course to take your first quiz!</td></tr>
+            <% } %>
+            <% attempts.forEach(a => { %>
+              <tr>
+                <td class="fw-semibold"><%= a.quiz_title %></td>
+                <td><a href="/courses/<%= a.course_slug %>"><%= a.course_title %></a></td>
+                <td><%= a.score %>% (<%= a.correct_answers %>/<%= a.total_questions %>)</td>
+                <td><span class="badge <%= a.passed ? 'badge-soft-success' : 'badge-soft-danger' %>"><%= a.passed ? 'Passed' : 'Failed' %></span></td>
+                <td class="text-muted-pe"><%= new Date(a.attempted_at).toLocaleDateString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

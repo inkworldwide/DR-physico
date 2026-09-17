@@ -1,0 +1,766 @@
+<div class="pe-page-head d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="/admin/learning-modules" class="text-decoration-none text-muted small mb-1 d-inline-block">
+      <i class="ri-arrow-left-line me-1"></i> Back to Learning Modules
+    </a>
+    <h2 class="pe-page-title mb-1">Add Questions / Learning Material</h2>
+    <p class="text-muted small mb-0">Add questions individually, enter multiple questions at once, or paste bulk MCQs/Q&As in seconds.</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-11 col-xl-10">
+
+    <!-- Mode Selector Tabs -->
+    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white mb-4">
+      <ul class="nav nav-pills nav-fill gap-2" id="entryModeTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active rounded-pill fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2" id="single-tab" data-bs-toggle="pill" data-bs-target="#single-mode" type="button" role="tab">
+            <i class="ri-edit-2-line fs-5"></i>
+            <span>Single Question Entry</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-pill fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2" id="bulk-tab" data-bs-toggle="pill" data-bs-target="#bulk-mode" type="button" role="tab">
+            <i class="ri-file-copy-2-line fs-5"></i>
+            <span>⚡ Bulk Text / CSV Import</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-pill fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2" id="multi-form-tab" data-bs-toggle="pill" data-bs-target="#multi-form-mode" type="button" role="tab">
+            <i class="ri-play-list-add-line fs-5"></i>
+            <span>📋 Interactive Multi-Card Builder</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="tab-content" id="entryModeTabContent">
+
+      <!-- ========================================== -->
+      <!-- 1. SINGLE QUESTION MODE                    -->
+      <!-- ========================================== -->
+      <div class="tab-pane fade show active" id="single-mode" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
+          <form action="/admin/learning-modules" method="POST" enctype="multipart/form-data">
+            
+            <!-- Subject & Course Selection -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Subject <span class="text-danger">*</span></label>
+                <select name="category_id" class="form-select rounded-3" required id="categorySelect">
+                  <option value="">Select Subject...</option>
+                  <% categories.forEach(cat => { %>
+                    <option value="<%= cat.id %>" <%= prefill.category_id == cat.id ? 'selected' : '' %>>
+                      <%= cat.name %> (Year <%= cat.year || 'Elective' %>)
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Course (Optional)</label>
+                <select name="course_id" class="form-select rounded-3">
+                  <option value="">General for Subject</option>
+                  <% allCourses.forEach(co => { %>
+                    <option value="<%= co.id %>" <%= prefill.course_id == co.id ? 'selected' : '' %>>
+                      <%= co.title %>
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Question Type Selector -->
+            <div class="mb-4">
+              <label class="form-label fw-bold text-dark small d-block mb-2">Question Type <span class="text-danger">*</span></label>
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" name="question_type" id="type_mcq" value="mcq" <%= prefill.type === 'mcq' ? 'checked' : '' %> onchange="toggleQuestionType()">
+                  <label class="btn btn-outline-primary w-100 rounded-3 p-3 text-start d-flex align-items-center gap-2.5" for="type_mcq">
+                    <i class="ri-checkbox-circle-fill fs-4 text-primary"></i>
+                    <div>
+                      <strong class="d-block text-dark">MCQ</strong>
+                      <span class="text-muted small" style="font-size: 0.75rem;">Interactive 4 options</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" name="question_type" id="type_large" value="large_qa" <%= prefill.type === 'large_qa' ? 'checked' : '' %> onchange="toggleQuestionType()">
+                  <label class="btn btn-outline-info w-100 rounded-3 p-3 text-start d-flex align-items-center gap-2.5" for="type_large">
+                    <i class="ri-file-list-3-fill fs-4 text-info"></i>
+                    <div>
+                      <strong class="d-block text-dark">Large Q&A</strong>
+                      <span class="text-muted small" style="font-size: 0.75rem;">10 & 15 Mark Essays</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" name="question_type" id="type_small" value="small_qa" <%= prefill.type === 'small_qa' ? 'checked' : '' %> onchange="toggleQuestionType()">
+                  <label class="btn btn-outline-warning w-100 rounded-3 p-3 text-start d-flex align-items-center gap-2.5" for="type_small">
+                    <i class="ri-question-answer-fill fs-4 text-warning"></i>
+                    <div>
+                      <strong class="d-block text-dark">Small Q&A</strong>
+                      <span class="text-muted small" style="font-size: 0.75rem;">2 & 5 Mark Notes</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- General Question Metadata -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-8">
+                <label class="form-label fw-bold text-dark small">Title / Topic Header (Optional)</label>
+                <input type="text" name="title" class="form-control rounded-3" placeholder="e.g. Brachial Plexus Anatomy & Lesions">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold text-dark small">Marks</label>
+                <input type="number" name="marks" id="marksInput" class="form-control rounded-3" value="1" min="1" max="100">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Topic / Sub-specialty</label>
+                <input type="text" name="topic" class="form-control rounded-3" placeholder="e.g. Upper Limb, Neuromuscular, Gait">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Difficulty</label>
+                <select name="difficulty" class="form-select rounded-3">
+                  <option value="Easy">Easy</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-4">
+              <label class="form-label fw-bold text-dark small">Question Prompt <span class="text-danger">*</span></label>
+              <textarea name="question" class="form-control rounded-3" rows="3" placeholder="Enter the complete question text here..." required></textarea>
+            </div>
+
+            <!-- MCQ Fields -->
+            <div id="mcqFieldsContainer" class="bg-light rounded-4 p-4 mb-4 border">
+              <h6 class="fw-bold text-primary mb-3"><i class="ri-list-check text-primary me-2"></i>Multiple Choice Options</h6>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold text-dark">Option A <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-text bg-white">
+                      <input class="form-check-input mt-0" type="radio" name="correct_option" value="0" checked title="Mark Option A as correct">
+                    </div>
+                    <input type="text" name="option_a" class="form-control" placeholder="Enter Option A">
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold text-dark">Option B <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-text bg-white">
+                      <input class="form-check-input mt-0" type="radio" name="correct_option" value="1" title="Mark Option B as correct">
+                    </div>
+                    <input type="text" name="option_b" class="form-control" placeholder="Enter Option B">
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold text-dark">Option C <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-text bg-white">
+                      <input class="form-check-input mt-0" type="radio" name="correct_option" value="2" title="Mark Option C as correct">
+                    </div>
+                    <input type="text" name="option_c" class="form-control" placeholder="Enter Option C">
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold text-dark">Option D <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-text bg-white">
+                      <input class="form-check-input mt-0" type="radio" name="correct_option" value="3" title="Mark Option D as correct">
+                    </div>
+                    <input type="text" name="option_d" class="form-control" placeholder="Enter Option D">
+                  </div>
+                </div>
+
+                <div class="col-12 mt-3">
+                  <label class="form-label small fw-bold text-dark">Explanation / Clinical Rationale</label>
+                  <textarea name="explanation" class="form-control rounded-3" rows="2" placeholder="Why is the chosen option correct? Provide key clinical takeaway..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Essay & Short Answer Fields -->
+            <div id="qaFieldsContainer" class="bg-light rounded-4 p-4 mb-4 border d-none">
+              <h6 class="fw-bold text-info mb-3"><i class="ri-file-text-line me-2"></i>Model Answer & Key Points</h6>
+              <div class="mb-3">
+                <label class="form-label small fw-bold text-dark">Model Answer (Text or Markdown)</label>
+                <textarea name="model_answer" class="form-control rounded-3" rows="6" placeholder="Structured model answer, key headings, bullet points, clinical steps..."></textarea>
+              </div>
+            </div>
+
+            <!-- Document / PDF Attachment -->
+            <div class="mb-4">
+              <label class="form-label fw-bold text-dark small"><i class="ri-attachment-2 text-primary me-1"></i>Attach PDF / Word Doc (Optional)</label>
+              <input type="file" name="note_file" class="form-control rounded-3" accept=".pdf,.doc,.docx,.txt">
+              <div class="form-text small">Attach detailed solution notes or clinical case presentation file.</div>
+            </div>
+
+            <!-- Actions with Save & Add Another -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-3 border-top">
+              <a href="/admin/learning-modules" class="btn btn-light rounded-pill px-4">Cancel</a>
+              
+              <div class="d-flex align-items-center gap-2">
+                <button type="submit" name="action_submit" value="save_and_add" class="btn btn-outline-primary rounded-pill px-4 fw-bold">
+                  <i class="ri-add-line me-1"></i> Save & Add Another
+                </button>
+                <button type="submit" name="action_submit" value="publish" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                  <i class="ri-check-line me-1"></i> Publish Question
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- 2. BULK TEXT / CSV / JSON IMPORT MODE      -->
+      <!-- ========================================== -->
+      <div class="tab-pane fade" id="bulk-mode" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
+          
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 border-bottom pb-3">
+            <div>
+              <h4 class="fw-bold text-dark mb-1">⚡ Fast Bulk Question Importer</h4>
+              <p class="text-muted small mb-0">Paste 5, 20, or 100+ questions in text format. Automatically parses questions, options, answers, and explanations.</p>
+            </div>
+            <div class="d-flex gap-1.5 flex-wrap">
+              <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="loadSampleTemplate('mcq')">
+                <i class="ri-file-text-line me-1"></i> Sample MCQs
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-info rounded-pill" onclick="loadSampleTemplate('large_qa')">
+                <i class="ri-file-list-line me-1"></i> Sample Essay Q&A
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-warning rounded-pill" onclick="loadSampleTemplate('small_qa')">
+                <i class="ri-question-answer-line me-1"></i> Sample Short Notes
+              </button>
+            </div>
+          </div>
+
+          <form action="/admin/learning-modules/bulk" method="POST" id="bulkImportForm">
+            
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Target Subject <span class="text-danger">*</span></label>
+                <select name="category_id" class="form-select rounded-3" required id="bulkCategorySelect">
+                  <option value="">Select Subject...</option>
+                  <% categories.forEach(cat => { %>
+                    <option value="<%= cat.id %>" <%= prefill.category_id == cat.id ? 'selected' : '' %>>
+                      <%= cat.name %> (Year <%= cat.year || 'Elective' %>)
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Course (Optional)</label>
+                <select name="course_id" class="form-select rounded-3">
+                  <option value="">General for Subject</option>
+                  <% allCourses.forEach(co => { %>
+                    <option value="<%= co.id %>" <%= prefill.course_id == co.id ? 'selected' : '' %>>
+                      <%= co.title %>
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold text-dark small">Default Question Type</label>
+                <select name="default_type" class="form-select rounded-3" id="bulkDefaultType">
+                  <option value="mcq" selected>Multiple Choice Questions (MCQ)</option>
+                  <option value="large_qa">Large Questions & Answers (10-15M)</option>
+                  <option value="small_qa">Small Questions & Answers (2-5M)</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold text-dark small">Default Topic / Sub-specialty</label>
+                <input type="text" name="default_topic" class="form-control rounded-3" placeholder="e.g. General Assessment">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold text-dark small">Default Difficulty</label>
+                <select name="default_difficulty" class="form-select rounded-3">
+                  <option value="Easy">Easy</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label fw-bold text-dark small mb-0">Paste Questions Text (or JSON) <span class="text-danger">*</span></label>
+                <span class="text-muted small">Separate each question with <code>---</code></span>
+              </div>
+              <textarea name="bulk_text" id="bulkTextInput" class="form-control rounded-3 font-monospace" rows="12" placeholder="Paste your questions here. Click 'Sample MCQs' above to see the format..." required oninput="updateLiveParseCount()"></textarea>
+            </div>
+
+            <!-- Live Parser Counter Badge -->
+            <div class="alert alert-light border rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <i class="ri-scan-2-line fs-5 text-primary"></i>
+                <span class="fw-semibold text-dark">Detected Questions in Text:</span>
+                <span class="badge bg-primary rounded-pill px-3 py-1 fw-bold fs-6" id="detectedCountBadge">0</span>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="previewBulkParsed()">
+                <i class="ri-eye-line me-1"></i> Preview Parsed List
+              </button>
+            </div>
+
+            <!-- Preview Modal/Container -->
+            <div id="bulkPreviewContainer" class="d-none mb-4 p-3 bg-light rounded-4 border">
+              <h6 class="fw-bold text-dark mb-3"><i class="ri-list-check me-1.5 text-success"></i>Parsed Questions Preview:</h6>
+              <div id="bulkPreviewList" class="d-flex flex-column gap-2" style="max-height: 280px; overflow-y: auto;"></div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+              <a href="/admin/learning-modules" class="btn btn-light rounded-pill px-4">Cancel</a>
+              <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">
+                <i class="ri-upload-cloud-2-line me-1"></i> Import & Publish All Questions
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- 3. INTERACTIVE MULTI-CARD BUILDER          -->
+      <!-- ========================================== -->
+      <div class="tab-pane fade" id="multi-form-mode" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 border-bottom pb-3">
+            <div>
+              <h4 class="fw-bold text-dark mb-1">📋 Interactive Multi-Question Cards</h4>
+              <p class="text-muted small mb-0">Fill in multiple question cards on one screen and publish them all together.</p>
+            </div>
+            <button type="button" class="btn btn-primary rounded-pill px-3.5 fw-bold" onclick="addMultiQuestionCard()">
+              <i class="ri-add-circle-line me-1"></i> + Add Another Question Card
+            </button>
+          </div>
+
+          <form action="/admin/learning-modules/bulk" method="POST" id="interactiveMultiForm" onsubmit="return submitInteractiveCards(event)">
+            <input type="hidden" name="bulk_json" id="interactiveBulkJson">
+            
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Subject for all questions <span class="text-danger">*</span></label>
+                <select name="category_id" class="form-select rounded-3" required id="multiCategorySelect">
+                  <option value="">Select Subject...</option>
+                  <% categories.forEach(cat => { %>
+                    <option value="<%= cat.id %>" <%= prefill.category_id == cat.id ? 'selected' : '' %>>
+                      <%= cat.name %> (Year <%= cat.year || 'Elective' %>)
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark small">Course (Optional)</label>
+                <select name="course_id" class="form-select rounded-3">
+                  <option value="">General for Subject</option>
+                  <% allCourses.forEach(co => { %>
+                    <option value="<%= co.id %>" <%= prefill.course_id == co.id ? 'selected' : '' %>>
+                      <%= co.title %>
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+
+            <!-- Dynamic Question Cards Container -->
+            <div id="dynamicCardsContainer" class="d-flex flex-column gap-4 mb-4">
+              <!-- Card 1 is rendered by default -->
+            </div>
+
+            <div class="text-center py-2 mb-4">
+              <button type="button" class="btn btn-outline-primary rounded-pill px-4 fw-bold" onclick="addMultiQuestionCard()">
+                <i class="ri-add-line me-1"></i> Add Another Question Card
+              </button>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+              <a href="/admin/learning-modules" class="btn btn-light rounded-pill px-4">Cancel</a>
+              <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                <i class="ri-check-double-line me-1"></i> Publish All Questions Now
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+// 1. Single Question Type Toggle
+function toggleQuestionType() {
+  const isMcq = document.getElementById('type_mcq').checked;
+  const isLarge = document.getElementById('type_large').checked;
+  const isSmall = document.getElementById('type_small').checked;
+
+  const mcqBox = document.getElementById('mcqFieldsContainer');
+  const qaBox = document.getElementById('qaFieldsContainer');
+  const marksInput = document.getElementById('marksInput');
+
+  if (isMcq) {
+    mcqBox.classList.remove('d-none');
+    qaBox.classList.add('d-none');
+    if (marksInput) marksInput.value = '1';
+  } else if (isLarge) {
+    mcqBox.classList.add('d-none');
+    qaBox.classList.remove('d-none');
+    if (marksInput) marksInput.value = '15';
+  } else if (isSmall) {
+    mcqBox.classList.add('d-none');
+    qaBox.classList.remove('d-none');
+    if (marksInput) marksInput.value = '5';
+  }
+}
+
+// 2. Sample Templates for Bulk Mode
+function loadSampleTemplate(type) {
+  const input = document.getElementById('bulkTextInput');
+  const defType = document.getElementById('bulkDefaultType');
+  
+  if (type === 'mcq') {
+    defType.value = 'mcq';
+    input.value = `Q1: Which muscle is the prime mover for initiating shoulder abduction (first 0-15 degrees)?
+A) Supraspinatus
+B) Middle Deltoid
+C) Infraspinatus
+D) Subscapularis
+Ans: A
+Topic: Shoulder Biomechanics
+Diff: Easy
+Expl: The Supraspinatus initiates abduction up to 15 degrees, after which the middle deltoid becomes prime mover.
+
+---
+
+Q2: During gait cycle, at which subphase is the ground reaction force vector anterior to the knee joint?
+A) Initial Contact
+B) Loading Response
+C) Midstance
+D) Terminal Stance
+Ans: D
+Topic: Gait Analysis
+Diff: Medium
+Expl: In Terminal Stance, the GRF line passes anterior to the knee, producing an extension moment.
+
+---
+
+Q3: Which test has the highest clinical specificity for Subacromial Impingement?
+A) Neer Test
+B) Hawkins-Kennedy Test
+C) Yergason Test
+D) Empty Can Test
+Ans: B
+Topic: Special Tests
+Diff: Medium
+Expl: Hawkins-Kennedy test is highly specific for subacromial space encroachment.`;
+  } else if (type === 'large_qa') {
+    defType.value = 'large_qa';
+    input.value = `Title: Comprehensive Management of Adhesive Capsulitis
+Q: A 52-year-old diabetic female presents with 4 months of progressive right shoulder stiffness and night pain. Describe the clinical stages, capsular pattern, and structured physiotherapy management plan.
+Marks: 15
+Topic: Musculoskeletal Rehabilitation
+Model Answer:
+Adhesive Capsulitis (Frozen Shoulder) is characterized by painful loss of both active and passive glenohumeral ROM.
+
+1. Clinical Stages:
+- Stage 1: Freezing / Painful (0-3 months)
+- Stage 2: Frozen / Adhesive (3-9 months)
+- Stage 3: Thawing / Recovery (9-24 months)
+
+2. Capsular Pattern:
+External Rotation > Abduction > Internal Rotation.
+
+3. Structured Management:
+- Stage 1: Gentle pendulum exercises, low-grade Maitland mobilizations (Grade I-II), modalities for pain relief.
+- Stage 2: Sustained stretching, end-range mobilizations (Grade III-IV), scapular stabilization.
+- Stage 3: Progressive resistive strengthening, rotator cuff loading, functional movement patterns.
+
+---
+
+Title: Stroke Rehabilitation: Upper Limb Motor Recovery
+Q: Outline the Brunnstrom stages of motor recovery after ischemic stroke and describe functional task-oriented training for hemiplegic upper limb.
+Marks: 15
+Topic: Neurological Physiotherapy
+Model Answer:
+Brunnstrom recovery stages:
+1. Flaccidity with no voluntary movement.
+2. Spasticity develops; basic synergy begins.
+3. Severe spasticity; voluntary movement in synergy.
+4. Spasticity begins to decline; selective movements.
+5. Synergies lose dominance.
+6. Isolated joint movement with normal coordination.`;
+  } else if (type === 'small_qa') {
+    defType.value = 'small_qa';
+    input.value = `Title: Tinel's Sign in Carpal Tunnel Syndrome
+Q: What is Tinel's sign and how is it performed for the Median Nerve?
+Marks: 5
+Topic: Peripheral Nerve Examination
+Model Answer:
+Tinel's sign is performed by lightly tapping with a reflex hammer over the volar carpal ligament (median nerve) at the wrist crease. A positive sign produces paresthesia/tingling in the thumb, index, middle, and radial half of ring finger.
+
+---
+
+Title: Trendelenburg Sign & Gait
+Q: Explain the positive Trendelenburg test and muscle responsible.
+Marks: 5
+Topic: Hip Biomechanics
+Model Answer:
+A positive Trendelenburg sign occurs due to weakness of the Gluteus Medius on the stance leg. When standing on the affected leg, the contralateral (unsupported) pelvis drops downwards.
+
+---
+
+Title: Dermatome vs Myotome
+Q: Define and differentiate Dermatome and Myotome with 2 examples each.
+Marks: 5
+Topic: Neuroanatomy
+Model Answer:
+- Dermatome: An area of skin supplied by sensory fibers of a single spinal nerve root (e.g., C6 thumb, L4 medial malleolus).
+- Myotome: A group of muscles innervated by motor fibers of a single spinal nerve root (e.g., C5 shoulder abduction, L5 great toe extension).`;
+  }
+  updateLiveParseCount();
+}
+
+function updateLiveParseCount() {
+  const text = document.getElementById('bulkTextInput').value.trim();
+  if (!text) {
+    document.getElementById('detectedCountBadge').innerText = '0';
+    return;
+  }
+  const blocks = text.split(/\n\s*---\s*\n|\n\s*===\s*\n|\n(?=(?:Q\d*|Question\s*\d*)[:.])/i).map(b => b.trim()).filter(Boolean);
+  document.getElementById('detectedCountBadge').innerText = blocks.length;
+}
+
+function previewBulkParsed() {
+  const container = document.getElementById('bulkPreviewContainer');
+  const list = document.getElementById('bulkPreviewList');
+  const text = document.getElementById('bulkTextInput').value.trim();
+
+  if (!text) {
+    alert('Please enter or paste questions first.');
+    return;
+  }
+
+  const blocks = text.split(/\n\s*---\s*\n|\n\s*===\s*\n|\n(?=(?:Q\d*|Question\s*\d*)[:.])/i).map(b => b.trim()).filter(Boolean);
+  list.innerHTML = '';
+
+  blocks.forEach((b, i) => {
+    const lines = b.split('\n');
+    const firstLine = lines[0] || '';
+    const item = document.createElement('div');
+    item.className = 'p-2.5 bg-white rounded-3 border d-flex align-items-center justify-content-between small';
+    item.innerHTML = `
+      <div>
+        <span class="badge bg-primary-subtle text-primary me-2">Q #${i+1}</span>
+        <strong class="text-dark">${firstLine.substring(0, 80)}${firstLine.length > 80 ? '...' : ''}</strong>
+      </div>
+      <span class="badge bg-light text-muted border">${lines.length} lines</span>
+    `;
+    list.appendChild(item);
+  });
+
+  container.classList.remove('d-none');
+}
+
+// 3. Dynamic Multi-Card Interactive Builder
+let cardIndexCounter = 0;
+
+function addMultiQuestionCard(data = {}) {
+  cardIndexCounter++;
+  const id = cardIndexCounter;
+  const container = document.getElementById('dynamicCardsContainer');
+
+  const card = document.createElement('div');
+  card.className = 'card border rounded-4 p-4 bg-light position-relative dynamic-q-card';
+  card.id = 'dynamicCard_' + id;
+  card.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary rounded-pill px-3 py-1 fw-bold">Card #${id}</span>
+        <select class="form-select form-select-sm rounded-pill fw-semibold card-type-select" style="width: 170px;" onchange="changeCardType(${id}, this.value)">
+          <option value="mcq" selected>MCQ (4 Options)</option>
+          <option value="large_qa">Large Q&A (15M)</option>
+          <option value="small_qa">Small Q&A (5M)</option>
+        </select>
+      </div>
+      ${id > 1 ? `<button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2.5" onclick="removeMultiCard(${id})"><i class="ri-delete-bin-line me-1"></i> Remove</button>` : ''}
+    </div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-md-6">
+        <input type="text" class="form-control form-control-sm rounded-3 card-title" placeholder="Title / Topic Header (Optional)">
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control form-control-sm rounded-3 card-topic" placeholder="Topic (e.g. Upper Limb)">
+      </div>
+      <div class="col-md-3">
+        <select class="form-select form-select-sm rounded-3 card-difficulty">
+          <option value="Easy">Easy</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <textarea class="form-control rounded-3 card-question" rows="2" placeholder="Question prompt..." required></textarea>
+    </div>
+
+    <!-- MCQ Subfields -->
+    <div class="card-mcq-section">
+      <div class="row g-2 mb-2">
+        <div class="col-md-6">
+          <div class="input-group input-group-sm">
+            <div class="input-group-text bg-white"><input type="radio" name="card_correct_${id}" value="0" checked></div>
+            <input type="text" class="form-control card-opt-a" placeholder="Option A">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="input-group input-group-sm">
+            <div class="input-group-text bg-white"><input type="radio" name="card_correct_${id}" value="1"></div>
+            <input type="text" class="form-control card-opt-b" placeholder="Option B">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="input-group input-group-sm">
+            <div class="input-group-text bg-white"><input type="radio" name="card_correct_${id}" value="2"></div>
+            <input type="text" class="form-control card-opt-c" placeholder="Option C">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="input-group input-group-sm">
+            <div class="input-group-text bg-white"><input type="radio" name="card_correct_${id}" value="3"></div>
+            <input type="text" class="form-control card-opt-d" placeholder="Option D">
+          </div>
+        </div>
+      </div>
+      <input type="text" class="form-control form-control-sm rounded-3 card-explanation" placeholder="Explanation / Clinical Rationale (Optional)">
+    </div>
+
+    <!-- QA Subfields -->
+    <div class="card-qa-section d-none">
+      <textarea class="form-control rounded-3 card-model-answer" rows="3" placeholder="Model Answer / Clinical Solution..."></textarea>
+    </div>
+  `;
+
+  container.appendChild(card);
+}
+
+function removeMultiCard(id) {
+  const card = document.getElementById('dynamicCard_' + id);
+  if (card) card.remove();
+}
+
+function changeCardType(id, type) {
+  const card = document.getElementById('dynamicCard_' + id);
+  if (!card) return;
+  const mcqSec = card.querySelector('.card-mcq-section');
+  const qaSec = card.querySelector('.card-qa-section');
+  if (type === 'mcq') {
+    mcqSec.classList.remove('d-none');
+    qaSec.classList.add('d-none');
+  } else {
+    mcqSec.classList.add('d-none');
+    qaSec.classList.remove('d-none');
+  }
+}
+
+function submitInteractiveCards(e) {
+  const categoryId = document.getElementById('multiCategorySelect').value;
+  if (!categoryId) {
+    alert('Please select a Subject for all questions.');
+    e.preventDefault();
+    return false;
+  }
+
+  const cards = document.querySelectorAll('.dynamic-q-card');
+  const questionsList = [];
+
+  cards.forEach(card => {
+    const type = card.querySelector('.card-type-select').value;
+    const title = card.querySelector('.card-title').value.trim();
+    const topic = card.querySelector('.card-topic').value.trim();
+    const difficulty = card.querySelector('.card-difficulty').value;
+    const question = card.querySelector('.card-question').value.trim();
+
+    if (!question) return;
+
+    if (type === 'mcq') {
+      const optA = card.querySelector('.card-opt-a').value.trim();
+      const optB = card.querySelector('.card-opt-b').value.trim();
+      const optC = card.querySelector('.card-opt-c').value.trim();
+      const optD = card.querySelector('.card-opt-d').value.trim();
+      const explanation = card.querySelector('.card-explanation').value.trim();
+      
+      const correctRadios = card.querySelectorAll('input[type="radio"]');
+      let correctIdx = 0;
+      correctRadios.forEach(r => { if (r.checked) correctIdx = parseInt(r.value, 10); });
+
+      const options = [optA, optB, optC, optD].filter(Boolean);
+
+      questionsList.push({
+        question_type: 'mcq',
+        title: title || null,
+        topic: topic || null,
+        difficulty: difficulty,
+        question: question,
+        options: options.length > 0 ? options : ['Option A', 'Option B', 'Option C', 'Option D'],
+        correct_option: correctIdx,
+        explanation: explanation || null,
+        marks: 1
+      });
+    } else {
+      const modelAnswer = card.querySelector('.card-model-answer').value.trim();
+      questionsList.push({
+        question_type: type,
+        title: title || null,
+        topic: topic || null,
+        difficulty: difficulty,
+        question: question,
+        model_answer: modelAnswer || null,
+        marks: type === 'large_qa' ? 15 : 5
+      });
+    }
+  });
+
+  if (questionsList.length === 0) {
+    alert('Please fill in at least one question card.');
+    e.preventDefault();
+    return false;
+  }
+
+  document.getElementById('interactiveBulkJson').value = JSON.stringify(questionsList);
+  return true;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  toggleQuestionType();
+  addMultiQuestionCard(); // Add first interactive card
+});
+</script>
+

@@ -1,0 +1,762 @@
+<%
+  const totalSubjects = categories.length;
+  const totalCourses = categories.reduce((sum, c) => sum + (Number(c.course_count) || 0), 0);
+  const totalStudents = categories.reduce((sum, c) => sum + (Number(c.student_count) || 0), 0);
+  const deletedCount = (deletedCategories || []).length;
+%>
+
+<style>
+  .pe-kpi-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    transition: all 0.25s ease;
+  }
+  .pe-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    border-color: #cbd5e1;
+  }
+  .pe-kpi-icon-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+  }
+  .pe-filter-toolbar {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 14px;
+    padding: 0.5rem 0.65rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .pe-admin-year-tabs {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 3px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .admin-year-btn {
+    border-radius: 8px !important;
+    font-size: 0.815rem;
+    font-weight: 600;
+    color: #475569;
+    padding: 6px 12px !important;
+    transition: all 0.18s ease;
+    border: none;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+    line-height: 1.2;
+  }
+  .admin-year-btn:hover {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.8);
+  }
+  .admin-year-btn .tab-count-chip {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1.5px 6.5px;
+    border-radius: 20px;
+    background: #e2e8f0;
+    color: #475569;
+    transition: all 0.18s ease;
+    line-height: 1.2;
+  }
+  .admin-year-btn.active {
+    background: #0a5dc2 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(10, 93, 194, 0.25);
+  }
+  .admin-year-btn.active .tab-count-chip {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+  }
+  .pe-search-input-wrap {
+    position: relative;
+    width: 250px;
+    max-width: 100%;
+  }
+  .pe-search-input-wrap .form-control {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 0.825rem;
+    padding-left: 2rem;
+    padding-right: 1.8rem;
+    height: 34px;
+    transition: all 0.2s ease;
+  }
+  .pe-search-input-wrap .form-control:focus {
+    background: #ffffff;
+    border-color: #0a5dc2;
+    box-shadow: 0 0 0 3px rgba(10, 93, 194, 0.12);
+  }
+  .pe-subject-table tbody tr {
+    transition: background-color 0.18s ease;
+  }
+  .pe-subject-table tbody tr:hover {
+    background-color: #f8fafc;
+  }
+  .subject-icon-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    transition: transform 0.2s ease;
+  }
+  .pe-subject-table tbody tr:hover .subject-icon-avatar {
+    transform: scale(1.08);
+  }
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(10, 93, 194, 0.15) !important;
+  }
+  .action-btn-circle {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+  }
+  .action-btn-circle:hover {
+    transform: scale(1.08);
+  }
+</style>
+
+<!-- ============ PAGE HEADER & TOP ACTION ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-weight-bold px-2.5 py-1 rounded-pill" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+        <i class="ri-stack-line me-1"></i> CURRICULUM ARCHITECTURE
+      </span>
+      <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill small">
+        <%= totalSubjects %> Active Subjects
+      </span>
+    </div>
+    <h3 class="fw-bold text-dark mb-0">Manage Subjects & Academic Years</h3>
+    <p class="text-secondary small mb-0 mt-0.5">Organize BPT & MPT curriculum taxonomy, course modules, interactive portals, and student enrollments.</p>
+  </div>
+
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <button type="button" id="openAddSubjectBtn" class="btn btn-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm d-inline-flex align-items-center gap-2 hover-lift" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%); border: none;" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+      <i class="ri-add-circle-fill fs-5"></i> Add New Subject
+    </button>
+  </div>
+</div>
+
+<!-- ============ TOP METRICS SUMMARY KPI CARDS ============ -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="pe-kpi-card shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;">Total Subjects</div>
+        <div class="h3 fw-bold text-dark mb-0 mt-1"><%= totalSubjects %></div>
+        <div class="text-muted small mt-1"><i class="ri-check-line text-success"></i> 4 Years + Electives</div>
+      </div>
+      <div class="pe-kpi-icon-box bg-primary-subtle text-primary">
+        <i class="ri-book-open-line"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="pe-kpi-card shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;">Published Courses</div>
+        <div class="h3 fw-bold text-dark mb-0 mt-1"><%= totalCourses %></div>
+        <div class="text-muted small mt-1"><i class="ri-folder-shared-line text-primary"></i> Under Subjects</div>
+      </div>
+      <div class="pe-kpi-icon-box bg-info-subtle text-info">
+        <i class="ri-folder-2-line"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="pe-kpi-card shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;">Total Enrolled Students</div>
+        <div class="h3 fw-bold text-success mb-0 mt-1"><%= totalStudents %></div>
+        <div class="text-muted small mt-1"><i class="ri-user-star-line text-success"></i> Active Student Base</div>
+      </div>
+      <div class="pe-kpi-icon-box bg-success-subtle text-success">
+        <i class="ri-user-smile-line"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="pe-kpi-card shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;">Recycle Bin</div>
+        <div class="h3 fw-bold <%= deletedCount > 0 ? 'text-danger' : 'text-muted' %> mb-0 mt-1"><%= deletedCount %></div>
+        <div class="text-muted small mt-1">
+          <% if (deletedCount > 0) { %>
+            <span class="text-danger fw-semibold"><i class="ri-recycle-line"></i> Restorable Items</span>
+          <% } else { %>
+            <span class="text-success"><i class="ri-checkbox-circle-line"></i> Clean (0 in Trash)</span>
+          <% } %>
+        </div>
+      </div>
+      <div class="pe-kpi-icon-box <%= deletedCount > 0 ? 'bg-danger-subtle text-danger' : 'bg-light text-muted' %>">
+        <i class="ri-delete-bin-line"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RESPONSIVE ACADEMIC YEAR FILTER BAR & SEARCH ENGINE ============ -->
+<div class="pe-filter-toolbar mb-4">
+  <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap flex-lg-nowrap">
+    <!-- Modern Segmented Pill Tabs -->
+    <div class="pe-admin-year-tabs flex-nowrap overflow-auto no-scrollbar" id="adminYearTabs">
+      <button class="admin-year-btn active" data-filter="all" type="button">
+        <i class="ri-apps-2-line"></i> All Subjects <span class="tab-count-chip"><%= categories.length %></span>
+      </button>
+      <button class="admin-year-btn" data-filter="1" type="button">
+        1st Year <span class="tab-count-chip"><%= categories.filter(c => c.year === 1).length %></span>
+      </button>
+      <button class="admin-year-btn" data-filter="2" type="button">
+        2nd Year <span class="tab-count-chip"><%= categories.filter(c => c.year === 2).length %></span>
+      </button>
+      <button class="admin-year-btn" data-filter="3" type="button">
+        3rd Year <span class="tab-count-chip"><%= categories.filter(c => c.year === 3).length %></span>
+      </button>
+      <button class="admin-year-btn" data-filter="4" type="button">
+        4th Year <span class="tab-count-chip"><%= categories.filter(c => c.year === 4).length %></span>
+      </button>
+      <button class="admin-year-btn" data-filter="other" type="button">
+        Electives <span class="tab-count-chip"><%= categories.filter(c => !c.year || c.is_other_subject).length %></span>
+      </button>
+    </div>
+
+    <!-- Quick Search Field -->
+    <div class="pe-search-input-wrap ms-auto">
+      <i class="ri-search-line position-absolute top-50 start-0 translate-middle-y ms-2.5 text-muted small" style="pointer-events: none;"></i>
+      <input type="text" id="adminSubjectSearch" class="form-control" placeholder="Search subjects...">
+      <button type="button" id="clearSubjectSearchBtn" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-1 p-0 text-muted d-none" style="text-decoration: none; line-height: 1;">
+        <i class="ri-close-circle-fill"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAIN SUBJECTS TABLE ============ -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
+  <div class="table-responsive">
+    <table class="table pe-table pe-subject-table align-middle mb-0" id="adminSubjectsTable">
+      <thead class="bg-light-subtle text-uppercase" style="font-size: 0.74rem; letter-spacing: 0.6px; border-bottom: 1.5px solid #e2e8f0;">
+        <tr>
+          <th style="width: 70px;" class="ps-4">Icon</th>
+          <th>Subject Name & Portal</th>
+          <th>Academic Year</th>
+          <th>Total Courses</th>
+          <th>Enrolled Students</th>
+          <th class="text-end pe-4">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (categories.length === 0) { %>
+          <tr id="emptyRow">
+            <td colspan="6" class="text-center text-muted py-5">
+              <i class="ri-book-open-line display-4 text-muted opacity-50 d-block mb-2"></i>
+              <h6 class="fw-bold text-dark">No subjects added yet.</h6>
+              <p class="text-muted small mb-0">Click the "+ Add New Subject" button to create your first curriculum subject.</p>
+            </td>
+          </tr>
+        <% } %>
+        <% categories.forEach(cat => { %>
+          <tr class="admin-subject-row" data-year="<%= cat.year ? cat.year : 'other' %>" data-name="<%= (cat.name || '').toLowerCase() %>">
+            <td class="ps-4">
+              <div class="subject-icon-avatar shadow-xs" style="background: <%= cat.year === 1 ? 'rgba(10,93,194,0.1)' : (cat.year === 2 ? 'rgba(14,165,233,0.12)' : (cat.year === 3 ? 'rgba(16,185,129,0.12)' : (cat.year === 4 ? 'rgba(239,68,68,0.12)' : 'rgba(100,116,139,0.12)'))) %>; color: <%= cat.year === 1 ? '#0a5dc2' : (cat.year === 2 ? '#0284c7' : (cat.year === 3 ? '#059669' : (cat.year === 4 ? '#dc2626' : '#475569'))) %>; border: 1px solid rgba(0,0,0,0.04);">
+                <i class="<%= cat.icon || 'ri-book-open-line' %>"></i>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex flex-column">
+                <a href="/admin/categories/<%= cat.id %>/courses" class="text-decoration-none text-dark fw-bold fs-6 hover-primary d-inline-flex align-items-center gap-1.5" title="Click to manage courses in <%= cat.name %>">
+                  <span><%= cat.name %></span>
+                  <i class="ri-arrow-right-line text-muted opacity-50 small"></i>
+                </a>
+                <span class="text-muted small font-monospace" style="font-size: 0.78rem;">
+                  /subjects/<%= cat.slug %>
+                </span>
+              </div>
+            </td>
+            <td>
+              <% if (cat.year === 1) { %>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold px-3 py-1 rounded-pill">Year 1 • Foundation</span>
+              <% } else if (cat.year === 2) { %>
+                <span class="badge bg-info-subtle text-info border border-info-subtle fw-bold px-3 py-1 rounded-pill">Year 2 • Core Clinical</span>
+              <% } else if (cat.year === 3) { %>
+                <span class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-3 py-1 rounded-pill">Year 3 • Advanced Clinical</span>
+              <% } else if (cat.year === 4) { %>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold px-3 py-1 rounded-pill">Year 4 • Specialisation</span>
+              <% } else if (cat.is_other_subject) { %>
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fw-bold px-3 py-1 rounded-pill">Elective / Cross-Cutting</span>
+              <% } else { %>
+                <span class="badge bg-light text-muted border px-3 py-1 rounded-pill">General</span>
+              <% } %>
+            </td>
+            <td>
+              <a href="/admin/categories/<%= cat.id %>/courses" class="badge <%= (cat.course_count > 0) ? 'bg-primary text-white shadow-xs' : 'bg-light text-secondary border' %> px-3 py-1.5 rounded-pill fw-bold text-decoration-none d-inline-flex align-items-center gap-1" title="Click to manage all courses in <%= cat.name %>">
+                <i class="ri-book-2-line"></i>
+                <span><%= cat.course_count %> course<%= cat.course_count !== 1 ? 's' : '' %></span>
+                <i class="ri-arrow-right-s-line opacity-75"></i>
+              </a>
+            </td>
+            <td>
+              <span class="badge <%= (cat.student_count > 0) ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-light text-muted border' %> px-3 py-1.5 rounded-pill fw-bold shadow-xs d-inline-flex align-items-center gap-1">
+                <i class="ri-user-star-line"></i>
+                <span><%= cat.student_count %> student<%= cat.student_count !== 1 ? 's' : '' %></span>
+              </span>
+            </td>
+            <td class="text-end pe-4">
+              <div class="d-inline-flex align-items-center gap-1.5">
+                <a href="/admin/categories/<%= cat.id %>/courses" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-bold d-inline-flex align-items-center gap-1 hover-lift" title="View & Manage Courses">
+                  <i class="ri-folder-2-line"></i> Courses (<%= cat.course_count %>)
+                </a>
+                <a href="/admin/learning-modules?category_id=<%= cat.id %>" class="btn btn-sm btn-outline-info rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 hover-lift" title="Manage MCQs & Q&A for <%= cat.name %>">
+                  <i class="ri-book-read-line"></i> MCQs & Q&A
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-warning action-btn-circle border shadow-xs text-dark" onclick="openEditSubjectModal(<%= JSON.stringify(cat) %>)" title="Edit Subject Details & Curriculum Section">
+                  <i class="ri-edit-line text-warning-emphasis"></i>
+                </button>
+                <a href="/subjects/<%= cat.slug %>" target="_blank" class="btn btn-sm btn-outline-info action-btn-circle border shadow-xs" title="Open Public Interactive Portal">
+                  <i class="ri-external-link-line"></i>
+                </a>
+                <form action="/admin/categories/<%= cat.id %>/delete" method="POST" onsubmit="return confirm('Move subject &quot;<%= cat.name %>&quot; to Deleted Subjects (Recycle Bin)?')" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-outline-danger action-btn-circle border shadow-xs" title="Move to Recycle Bin">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+        <tr id="noResultsRow" style="display: none;">
+          <td colspan="6" class="text-center text-muted py-5">
+            <i class="ri-search-line display-4 text-muted opacity-50 d-block mb-2"></i>
+            <h6 class="fw-bold text-dark">No matching subjects found.</h6>
+            <p class="text-muted small mb-0">Try searching with a different keyword or selecting "All Subjects".</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ DELETED SUBJECTS (RECYCLE BIN / TRASH) ============ -->
+<div class="mt-5 pt-3 border-top">
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <div>
+      <h5 class="fw-bold text-danger mb-0 d-flex align-items-center gap-2">
+        <i class="ri-delete-bin-line"></i> Deleted Subjects & Curriculum Trash (<%= (deletedCategories || []).length %>)
+      </h5>
+      <p class="text-muted small mb-0 mt-0.5">Safely restored back to the curriculum portal or permanently purged with all related data.</p>
+    </div>
+    <% if (deletedCategories && deletedCategories.length > 0) { %>
+      <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 rounded-pill font-weight-bold">
+        <i class="ri-recycle-line me-1"></i> <%= deletedCategories.length %> in Recycle Bin
+      </span>
+    <% } %>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5" style="background: #fffafa; border: 1.5px dashed #f5c2c7 !important;">
+    <div class="table-responsive">
+      <table class="table pe-table align-middle mb-0">
+        <thead style="background: #ffebe9; font-size: 0.74rem; letter-spacing: 0.6px; text-transform: uppercase;">
+          <tr>
+            <th style="color: #842029;" class="ps-4">Icon</th>
+            <th style="color: #842029;">Subject Name</th>
+            <th style="color: #842029;">Academic Year</th>
+            <th style="color: #842029;">Total Courses</th>
+            <th style="color: #842029;">Enrolled Students</th>
+            <th class="text-end pe-4" style="color: #842029;">Recycle Bin Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!deletedCategories || deletedCategories.length === 0) { %>
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="ri-check-double-line text-success fs-5 me-1"></i> No deleted subjects in the recycle bin.
+              </td>
+            </tr>
+          <% } else { %>
+            <% deletedCategories.forEach(cat => { %>
+              <tr>
+                <td class="ps-4">
+                  <div class="subject-icon-avatar opacity-75" style="background: rgba(220,53,69,0.1); color: #dc3545; border-radius: 10px;">
+                    <i class="<%= cat.icon || 'ri-book-open-line' %>"></i>
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold text-decoration-line-through text-muted"><%= cat.name %></span>
+                    <span class="badge bg-danger text-white px-2 py-0.5 rounded-pill" style="font-size: 0.68rem;">Deleted</span>
+                  </div>
+                </td>
+                <td>
+                  <% if (cat.year) { %>
+                    <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill">Year <%= cat.year %></span>
+                  <% } else if (cat.is_other_subject) { %>
+                    <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill">Elective</span>
+                  <% } else { %>
+                    <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill">General</span>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill">
+                    <i class="ri-book-line me-1"></i> <%= cat.course_count %> course<%= cat.course_count !== 1 ? 's' : '' %>
+                  </span>
+                </td>
+                <td>
+                  <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill">
+                    <i class="ri-user-line me-1"></i> <%= cat.student_count || 0 %> student<%= cat.student_count !== 1 ? 's' : '' %>
+                  </span>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <!-- Restore Form -->
+                    <form action="/admin/categories/<%= cat.id %>/restore" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1 font-weight-bold d-inline-flex align-items-center gap-1 shadow-xs hover-lift" title="Restore Subject back to live portal">
+                        <i class="ri-restart-line"></i> Restore
+                      </button>
+                    </form>
+
+                    <!-- Permanent Delete Form -->
+                    <form action="/admin/categories/<%= cat.id %>/permanent-delete" method="POST" class="d-inline" onsubmit="return confirm('WARNING: Are you sure you want to PERMANENTLY delete <%= cat.name %>? This will delete all associated notes and courses forever and CANNOT be undone!')">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 font-weight-bold d-inline-flex align-items-center gap-1" title="Delete Permanently">
+                        <i class="ri-delete-bin-2-line"></i> Delete Permanently
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DYNAMIC SEARCH & FILTER JAVASCRIPT ============ -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    const filterBtns = document.querySelectorAll('.admin-year-btn');
+    const searchInput = document.getElementById('adminSubjectSearch');
+    const clearSearchBtn = document.getElementById('clearSubjectSearchBtn');
+    const rows = document.querySelectorAll('.admin-subject-row');
+    const noResultsRow = document.getElementById('noResultsRow');
+
+    function applyFilters() {
+      let visibleCount = 0;
+      rows.forEach(row => {
+        const rowYear = row.getAttribute('data-year');
+        const rowName = row.getAttribute('data-name') || '';
+
+        const matchesYear = (currentFilter === 'all') || (rowYear === currentFilter);
+        const matchesSearch = !searchQuery || rowName.includes(searchQuery);
+
+        if (matchesYear && matchesSearch) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (noResultsRow) {
+        noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
+      }
+
+      if (clearSearchBtn) {
+        clearSearchBtn.classList.toggle('d-none', !searchQuery);
+      }
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentFilter = this.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        searchQuery = (e.target.value || '').trim().toLowerCase();
+        applyFilters();
+      });
+    }
+
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener('click', function() {
+        if (searchInput) {
+          searchInput.value = '';
+          searchQuery = '';
+          applyFilters();
+          searchInput.focus();
+        }
+      });
+    }
+  });
+</script>
+
+<!-- ============ ADD SUBJECT / SECTION MODAL POP-UP ============ -->
+<div class="modal fade" id="addSubjectModal" tabindex="-1" aria-labelledby="addSubjectModalLabel" aria-hidden="true" style="z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; max-height: 90vh;">
+      <div class="modal-header text-white p-4" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%);">
+        <div>
+          <span class="badge bg-warning text-dark font-weight-bold px-2.5 py-1 rounded-pill small mb-1">
+            <i class="ri-sparkles-fill me-1"></i> NEW SUBJECT
+          </span>
+          <h5 class="modal-title font-weight-bold text-white mb-0" id="addSubjectModalLabel">
+            Add Subject / Curriculum Section
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/categories" method="POST" class="d-flex flex-column h-100">
+        <div class="modal-body p-4" style="overflow-y: auto;">
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Subject / Section Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control form-control-lg rounded-3 border" placeholder="e.g. Anatomy, Biomechanics, Exercise Therapy" required autofocus>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Academic Year Section</label>
+            <select name="year" class="form-select form-select-lg rounded-3 border">
+              <option value="">Other Subject / Section (Elective / Non-Year)</option>
+              <option value="1">Year 1 (Foundation Section)</option>
+              <option value="2">Year 2 (Core Clinical Section)</option>
+              <option value="3">Year 3 (Advanced Clinical Section)</option>
+              <option value="4">Year 4 (Specialisation Section)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Remix Icon Identifier</label>
+            <input type="text" name="icon" id="subjectIconInput" class="form-control rounded-3 border" placeholder="e.g. ri-pulse-line" value="ri-pulse-line">
+            
+            <!-- Quick Icon Preset Chips -->
+            <div class="d-flex align-items-center gap-1.5 flex-wrap mt-2">
+              <span class="text-muted small">Presets:</span>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="document.getElementById('subjectIconInput').value='ri-skull-2-line'"><i class="ri-skull-2-line me-1"></i>Anatomy</button>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="document.getElementById('subjectIconInput').value='ri-pulse-line'"><i class="ri-pulse-line me-1"></i>Physiology</button>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="document.getElementById('subjectIconInput').value='ri-brain-line'"><i class="ri-brain-line me-1"></i>Neuro</button>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="document.getElementById('subjectIconInput').value='ri-heart-pulse-line'"><i class="ri-heart-pulse-line me-1"></i>Cardio</button>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="document.getElementById('subjectIconInput').value='ri-microscope-line'"><i class="ri-microscope-line me-1"></i>Research</button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Subject Overview & Description</label>
+            <textarea name="description" rows="3" class="form-control rounded-3 border" placeholder="Brief overview of curriculum topics, examination syllabus, and clinical focus..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm py-2" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%); border: none;">
+            <i class="ri-check-line me-1"></i> Create Subject
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDIT SUBJECT / SECTION MODAL POP-UP ============ -->
+<div class="modal fade" id="editSubjectModal" tabindex="-1" aria-labelledby="editSubjectModalLabel" aria-hidden="true" style="z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; max-height: 90vh;">
+      <div class="modal-header text-white p-4" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+        <div>
+          <span class="badge bg-white text-primary font-weight-bold px-2.5 py-1 rounded-pill small mb-1">
+            <i class="ri-edit-line me-1"></i> EDIT CURRICULUM SUBJECT
+          </span>
+          <h5 class="modal-title font-weight-bold text-white mb-0" id="editSubjectModalLabel">
+            Edit Subject / Curriculum Section
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form id="editSubjectForm" action="" method="POST" class="d-flex flex-column h-100">
+        <div class="modal-body p-4" style="overflow-y: auto;">
+          <input type="hidden" name="id" id="editSubjectId">
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Subject / Section Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" id="editSubjectName" class="form-control form-control-lg rounded-3 border" placeholder="e.g. Anatomy, Biomechanics" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Portal Slug (URL)</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-muted small">/subjects/</span>
+              <input type="text" name="slug" id="editSubjectSlug" class="form-control font-monospace border-start-0 ps-0" placeholder="anatomy">
+            </div>
+            <div class="form-text text-muted small">Auto-generated or custom URL path for the interactive portal.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Academic Year Section</label>
+            <select name="year" id="editSubjectYear" class="form-select form-select-lg rounded-3 border">
+              <option value="">Other Subject / Section (Elective / Non-Year)</option>
+              <option value="1">Year 1 (Foundation Section)</option>
+              <option value="2">Year 2 (Core Clinical Section)</option>
+              <option value="3">Year 3 (Advanced Clinical Section)</option>
+              <option value="4">Year 4 (Specialisation Section)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Remix Icon Identifier</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-primary fs-5" id="editIconPreview"><i class="ri-book-open-line"></i></span>
+              <input type="text" name="icon" id="editSubjectIcon" class="form-control border-start-0 ps-1" placeholder="e.g. ri-skull-2-line" oninput="updateEditIconPreview(this.value)">
+            </div>
+            
+            <!-- Quick Icon Preset Chips -->
+            <div class="d-flex align-items-center gap-1.5 flex-wrap mt-2">
+              <span class="text-muted small">Presets:</span>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="setEditIcon('ri-skull-2-line')"><i class="ri-skull-2-line me-1"></i>Anatomy</button>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="setEditIcon('ri-pulse-line')"><i class="ri-pulse-line me-1"></i>Physiology</button>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="setEditIcon('ri-brain-line')"><i class="ri-brain-line me-1"></i>Neuro</button>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="setEditIcon('ri-heart-pulse-line')"><i class="ri-heart-pulse-line me-1"></i>Cardio</button>
+              <button type="button" class="btn btn-sm btn-light border rounded-pill py-0.5 px-2.5 small" onclick="setEditIcon('ri-microscope-line')"><i class="ri-microscope-line me-1"></i>Research</button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-uppercase text-secondary" style="letter-spacing: 0.5px;">Subject Overview & Description</label>
+            <textarea name="description" id="editSubjectDescription" rows="3" class="form-control rounded-3 border" placeholder="Brief overview of curriculum topics, examination syllabus, and clinical focus..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm py-2" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none;">
+            <i class="ri-save-line me-1"></i> Save Subject Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateEditIconPreview(iconClass) {
+    const preview = document.getElementById('editIconPreview');
+    if (preview) {
+      preview.innerHTML = `<i class="${iconClass || 'ri-book-open-line'}"></i>`;
+    }
+  }
+
+  function setEditIcon(iconClass) {
+    const input = document.getElementById('editSubjectIcon');
+    if (input) {
+      input.value = iconClass;
+      updateEditIconPreview(iconClass);
+    }
+  }
+
+  function openEditSubjectModal(cat) {
+    if (!cat) return;
+    const form = document.getElementById('editSubjectForm');
+    if (form) {
+      form.action = '/admin/categories/' + cat.id + '/edit';
+    }
+    
+    document.getElementById('editSubjectId').value = cat.id || '';
+    document.getElementById('editSubjectName').value = cat.name || '';
+    document.getElementById('editSubjectSlug').value = cat.slug || '';
+    document.getElementById('editSubjectYear').value = cat.year ? String(cat.year) : '';
+    document.getElementById('editSubjectIcon').value = cat.icon || 'ri-book-open-line';
+    document.getElementById('editSubjectDescription').value = cat.description || '';
+    updateEditIconPreview(cat.icon || 'ri-book-open-line');
+
+    const modalEl = document.getElementById('editSubjectModal');
+    if (modalEl) {
+      if (modalEl.parentElement !== document.body) {
+        document.body.appendChild(modalEl);
+      }
+      if (window.bootstrap && bootstrap.Modal) {
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        bsModal.show();
+      } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+      }
+    }
+  }
+
+(function() {
+  function initAddSubjectModal() {
+    var modalEl = document.getElementById('addSubjectModal');
+    var btn = document.getElementById('openAddSubjectBtn');
+    if (!modalEl || !btn) return;
+
+    if (modalEl.parentElement !== document.body) {
+      document.body.appendChild(modalEl);
+    }
+
+    btn.onclick = function(e) {
+      e.preventDefault();
+      if (window.bootstrap && bootstrap.Modal) {
+        try {
+          var bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+          bsModal.show();
+          return;
+        } catch (err) {}
+      }
+      modalEl.classList.add('show');
+      modalEl.style.display = 'block';
+      modalEl.removeAttribute('aria-hidden');
+      modalEl.setAttribute('aria-modal', 'true');
+      if (!document.querySelector('.modal-backdrop')) {
+        var bd = document.createElement('div');
+        bd.className = 'modal-backdrop fade show';
+        document.body.appendChild(bd);
+      }
+      document.body.classList.add('modal-open');
+    };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAddSubjectModal);
+  } else {
+    initAddSubjectModal();
+  }
+})();
+</script>
+

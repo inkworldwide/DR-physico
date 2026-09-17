@@ -1,0 +1,429 @@
+<!-- ============ ADMIN LEARNING JOURNEY MANAGEMENT HEADER ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-1 small">
+        <li class="breadcrumb-item"><a href="/admin/dashboard" class="text-decoration-none">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Learning Journey</li>
+      </ol>
+    </nav>
+    <h3 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+      <i class="ri-route-line text-primary"></i>
+      <span>Learning Journey Pillar Cards</span>
+    </h3>
+    <p class="text-muted small mb-0">Manage, edit, reorder, or customize the 5 core learning pillar cards displayed directly below the Hero section on the homepage.</p>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <a href="/#journey-section" target="_blank" class="btn btn-outline-primary rounded-pill px-3.5 py-2 fw-semibold">
+      <i class="ri-external-link-line me-1"></i> Preview on Homepage
+    </a>
+    <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addJourneyCardModal" style="background: #0a5dc2; border:none;">
+      <i class="ri-add-circle-line me-1.5"></i> Add New Journey Card
+    </button>
+  </div>
+</div>
+
+<!-- ============ SEGMENTED TAB NAVIGATION ============ -->
+<div class="pe-hero-nav-tabs-container mb-4">
+  <ul class="nav nav-pills pe-hero-segmented-tabs" id="journeyManagerTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active d-flex align-items-center gap-2" id="tab-cards-btn" data-bs-toggle="pill" data-bs-target="#tab-cards" type="button" role="tab" onclick="setJourneyTab('cards')">
+        <i class="ri-layout-masonry-line fs-5"></i>
+        <span>Journey Pillar Cards</span>
+        <span class="badge bg-primary text-white rounded-pill px-2 py-0.5 small ms-1"><%= cards.length %> Cards</span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link d-flex align-items-center gap-2" id="tab-settings-btn" data-bs-toggle="pill" data-bs-target="#tab-settings" type="button" role="tab" onclick="setJourneyTab('settings')">
+        <i class="ri-settings-4-line fs-5"></i>
+        <span>Section Headline & Preview</span>
+      </button>
+    </li>
+  </ul>
+</div>
+
+<!-- ======================================================== -->
+<!-- TAB CONTENT PANELS -->
+<!-- ======================================================== -->
+<div class="tab-content" id="journeyManagerTabContent">
+
+  <!-- ======================================================== -->
+  <!-- TAB 1: JOURNEY PILLAR CARDS MANAGEMENT (FULL WIDTH) -->
+  <!-- ======================================================== -->
+  <div class="tab-pane fade show active" id="tab-cards" role="tabpanel" aria-labelledby="tab-cards-btn">
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
+      <div class="card-header bg-white p-4 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <div class="p-2 bg-primary-subtle text-primary rounded-3 d-inline-flex">
+              <i class="ri-apps-2-fill fs-5"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-0">Active Learning Journey Cards (<%= cards.length %>)</h5>
+          </div>
+          <p class="text-muted small mb-0">Click <strong>Move Up</strong> or <strong>Move Down</strong> arrows to reorder how the cards appear on the homepage.</p>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3.5 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#addJourneyCardModal" style="background:#0a5dc2; border:none;">
+          <i class="ri-add-circle-line me-1"></i> Add Another Card
+        </button>
+      </div>
+
+      <!-- Cards Table -->
+      <div class="p-0">
+        <table class="table pe-table align-middle mb-0" style="table-layout: auto; width: 100%;">
+          <thead class="bg-light text-muted small text-uppercase" style="letter-spacing: 0.5px; border-bottom: 1.5px solid #e2e8f0;">
+            <tr>
+              <th class="ps-4 py-3" style="min-width: 300px;">Card Title & Subtitle</th>
+              <th class="py-3 text-center" style="width: 140px;">Target Link</th>
+              <th class="py-3 text-center" style="width: 130px;">Theme Color</th>
+              <th class="py-3 text-center" style="width: 160px;">Position Order</th>
+              <th class="py-3 text-center" style="width: 100px;">Status</th>
+              <th class="pe-4 py-3 text-end" style="width: 150px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!cards || cards.length === 0) { %>
+              <tr>
+                <td colspan="6" class="text-center text-muted py-5">
+                  <i class="ri-inbox-line fs-1 text-muted d-block mb-2"></i>
+                  No journey cards found. Click <strong>"Add New Journey Card"</strong> to create one.
+                </td>
+              </tr>
+            <% } %>
+            <% cards.forEach((card, idx) => { %>
+              <tr class="border-bottom">
+                <!-- Card Title & Icon Preview -->
+                <td class="ps-4 py-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="p-2.5 rounded-3 bg-<%= card.badge_color || 'primary' %>-subtle text-<%= card.badge_color || 'primary' %> fs-4 d-flex align-items-center justify-content-center" style="width:48px; height:48px; flex-shrink:0;">
+                      <i class="<%= card.icon || 'ri-file-text-line' %>"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold text-dark fs-6 mb-0.5"><%= card.title %></div>
+                      <div class="text-muted small" style="line-height: 1.3;"><%= card.subtitle %></div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Target URL -->
+                <td class="text-center py-3">
+                  <code class="small text-primary font-monospace bg-light px-2.5 py-1 rounded-pill border">
+                    <%= card.url || '/learning-modules' %>
+                  </code>
+                </td>
+
+                <!-- Theme Color Badge -->
+                <td class="text-center py-3">
+                  <span class="badge bg-<%= card.badge_color || 'primary' %> text-capitalize px-3 py-1.5 rounded-pill shadow-xs">
+                    <%= card.badge_color || 'primary' %>
+                  </span>
+                </td>
+
+                <!-- Order Controls & Position Badge -->
+                <td class="text-center py-3">
+                  <div class="d-inline-flex align-items-center gap-1.5 bg-light p-1 rounded-pill border">
+                    <form action="/admin/learning-journey/cards/<%= card.id %>/move-up" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-white bg-white rounded-circle shadow-xs p-1" style="width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center;" title="Move Up" <%= idx === 0 ? 'disabled' : '' %>>
+                        <i class="ri-arrow-up-s-line text-dark font-weight-bold"></i>
+                      </button>
+                    </form>
+
+                    <span class="fw-bold text-primary font-monospace px-2" style="font-size: 0.88rem;">
+                      #<%= card.display_order %>
+                    </span>
+
+                    <form action="/admin/learning-journey/cards/<%= card.id %>/move-down" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-white bg-white rounded-circle shadow-xs p-1" style="width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center;" title="Move Down" <%= idx === cards.length - 1 ? 'disabled' : '' %>>
+                        <i class="ri-arrow-down-s-line text-dark font-weight-bold"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+
+                <!-- Status -->
+                <td class="text-center py-3">
+                  <% if (card.is_active) { %>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 font-weight-semibold">Active</span>
+                  <% } else { %>
+                    <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3 py-1.5">Hidden</span>
+                  <% } %>
+                </td>
+
+                <!-- Actions -->
+                <td class="pe-4 py-3 text-end">
+                  <div class="d-flex align-items-center justify-content-end gap-1.5">
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-semibold" data-bs-toggle="modal" data-bs-target="#editJourneyCardModal_<%= card.id %>">
+                      <i class="ri-edit-line me-1"></i> Edit
+                    </button>
+                    <form action="/admin/learning-journey/cards/<%= card.id %>/delete" method="POST" onsubmit="return confirm('Remove &quot;<%= card.title %>&quot;?')" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-1.5" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;" title="Delete Card">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- TAB 2: SECTION HEADLINE & LIVE PREVIEW SETTINGS -->
+  <!-- ======================================================== -->
+  <div class="tab-pane fade" id="tab-settings" role="tabpanel" aria-labelledby="tab-settings-btn">
+    <form action="/admin/learning-journey/settings" method="POST">
+      <div class="row g-4 mb-4">
+        
+        <!-- Left: Form Inputs -->
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="p-2 bg-primary-subtle text-primary rounded-3 d-inline-flex">
+                  <i class="ri-text-spacing fs-5"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-0">Journey Section Title & Subtitle</h5>
+              </div>
+              <div class="form-check form-switch fs-5 mb-0">
+                <input class="form-check-input" type="checkbox" name="is_enabled" value="1" id="sectionEnabledSwitch" <%= journeySettings.isEnabled ? 'checked' : '' %>>
+                <label class="form-check-label small text-muted ms-1" for="sectionEnabledSwitch">Section Enabled</label>
+              </div>
+            </div>
+
+            <!-- Badge Text & Icon -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-7">
+                <label class="form-label small fw-bold text-dark">Category Eyebrow / Pill Badge</label>
+                <input type="text" name="badge_text" id="inputBadgeText" class="form-control rounded-3" value="<%= journeySettings.badgeText %>" oninput="updateLivePreview()" required>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small fw-bold text-dark">Badge Icon</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light"><i class="<%= journeySettings.badgeIcon || 'ri-compass-3-line' %> text-primary" id="badgeIconPreview"></i></span>
+                  <input type="text" name="badge_icon" id="inputBadgeIcon" class="form-control rounded-end-3" value="<%= journeySettings.badgeIcon || 'ri-compass-3-line' %>" oninput="document.getElementById('badgeIconPreview').className = this.value + ' text-primary'; updateLivePreview();" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main Heading Title -->
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-dark">Section Main Title</label>
+              <input type="text" name="title" id="inputTitle" class="form-control rounded-3 fw-bold text-dark" value="<%= journeySettings.title %>" oninput="updateLivePreview()" required>
+            </div>
+
+            <!-- Subtext / Description -->
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-dark">Section Subtitle & Explanation</label>
+              <textarea name="subtext" id="inputSubtext" class="form-control rounded-3" rows="3" oninput="updateLivePreview()"><%= journeySettings.subtext %></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Live Preview Box -->
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2">
+              <i class="ri-eye-line text-success fs-5"></i>
+              <h6 class="fw-bold text-dark mb-0">Live Section Preview</h6>
+            </div>
+
+            <div class="p-4 rounded-4 border bg-light">
+              <div class="mb-3">
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 fw-bold small d-inline-flex align-items-center" id="previewBadge">
+                  <i class="<%= journeySettings.badgeIcon || 'ri-compass-3-line' %> me-1" id="previewBadgeIcon"></i>
+                  <span id="previewBadgeText"><%= journeySettings.badgeText %></span>
+                </span>
+              </div>
+              <h4 class="fw-bold text-dark mb-2" id="previewTitle"><%= journeySettings.title %></h4>
+              <p class="text-muted small mb-0" id="previewSubtext"><%= journeySettings.subtext %></p>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background:#0a5dc2; border:none;">
+                <i class="ri-save-line me-1.5"></i> Save Section Settings
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<!-- ========================================== -->
+<!-- ADD JOURNEY CARD MODAL -->
+<!-- ========================================== -->
+<div class="modal fade" id="addJourneyCardModal" tabindex="-1" aria-labelledby="addJourneyCardModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="addJourneyCardModalLabel">
+          <i class="ri-add-circle-fill text-warning fs-4"></i> Add Learning Journey Card
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/learning-journey/cards" method="POST">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Card Title</label>
+            <input type="text" name="title" class="form-control rounded-3 fw-bold" placeholder="e.g. MCQs, Case Discussion, Reference Books" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Subtitle / Description</label>
+            <input type="text" name="subtitle" class="form-control rounded-3" placeholder="e.g. Practice subject-wise MCQs with instant results" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Icon Class (RemixIcon)</label>
+              <input type="text" name="icon" class="form-control rounded-3 font-monospace small" value="ri-file-text-line" placeholder="ri-file-text-line" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Target Link URL</label>
+              <input type="text" name="url" class="form-control rounded-3 font-monospace small" value="/learning-modules?type=mcq" placeholder="/learning-modules" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Theme Color Palette</label>
+              <select name="badge_color" class="form-select rounded-3">
+                <option value="primary" selected>Primary (Royal Blue)</option>
+                <option value="info">Info (Sky Blue)</option>
+                <option value="success">Success (Emerald Green)</option>
+                <option value="danger">Danger (Rose Red)</option>
+                <option value="warning">Warning (Amber Orange)</option>
+                <option value="purple">Purple (Violet)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Position Order</label>
+              <input type="number" name="display_order" class="form-control rounded-3 font-monospace" value="<%= cards.length + 1 %>" min="1" required>
+            </div>
+          </div>
+
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" name="is_active" value="1" id="addCardActive" checked>
+            <label class="form-check-label small fw-bold text-dark" for="addCardActive">Visible & Active on Homepage</label>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm py-2" style="background:#0a5dc2; border:none;">
+            <i class="ri-add-circle-line me-1"></i> Add Journey Card
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- EDIT JOURNEY CARD MODALS -->
+<!-- ========================================== -->
+<% cards.forEach(card => { %>
+<div class="modal fade" id="editJourneyCardModal_<%= card.id %>" tabindex="-1" aria-labelledby="editJourneyCardModalLabel_<%= card.id %>" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-dark text-white p-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;">
+        <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="editJourneyCardModalLabel_<%= card.id %>">
+          <i class="ri-edit-line text-primary fs-4"></i> Edit "<%= card.title %>"
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/learning-journey/cards/<%= card.id %>/update" method="POST">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Card Title</label>
+            <input type="text" name="title" class="form-control rounded-3 fw-bold" value="<%= card.title %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Subtitle / Description</label>
+            <input type="text" name="subtitle" class="form-control rounded-3" value="<%= card.subtitle %>" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Icon Class (RemixIcon)</label>
+              <input type="text" name="icon" class="form-control rounded-3 font-monospace small" value="<%= card.icon || 'ri-file-text-line' %>" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Target Link URL</label>
+              <input type="text" name="url" class="form-control rounded-3 font-monospace small" value="<%= card.url || '/learning-modules' %>" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Theme Color Palette</label>
+              <select name="badge_color" class="form-select rounded-3">
+                <option value="primary" <%= card.badge_color === 'primary' ? 'selected' : '' %>>Primary (Royal Blue)</option>
+                <option value="info" <%= card.badge_color === 'info' ? 'selected' : '' %>>Info (Sky Blue)</option>
+                <option value="success" <%= card.badge_color === 'success' ? 'selected' : '' %>>Success (Emerald Green)</option>
+                <option value="danger" <%= card.badge_color === 'danger' ? 'selected' : '' %>>Danger (Rose Red)</option>
+                <option value="warning" <%= card.badge_color === 'warning' ? 'selected' : '' %>>Warning (Amber Orange)</option>
+                <option value="purple" <%= card.badge_color === 'purple' ? 'selected' : '' %>>Purple (Violet)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Position Order</label>
+              <input type="number" name="display_order" class="form-control rounded-3 font-monospace" value="<%= card.display_order %>" min="1" required>
+            </div>
+          </div>
+
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" name="is_active" value="1" id="editCardActive_<%= card.id %>" <%= card.is_active ? 'checked' : '' %>>
+            <label class="form-check-label small fw-bold text-dark" for="editCardActive_<%= card.id %>">Visible & Active on Homepage</label>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm py-2" style="background:#0a5dc2; border:none;">
+            <i class="ri-save-line me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% }) %>
+
+<script>
+function setJourneyTab(tabName) {
+  window.location.hash = tabName;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const hash = (window.location.hash || '').replace('#', '');
+  if (hash === 'settings') {
+    const btn = document.getElementById('tab-settings-btn');
+    if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+  } else {
+    const btn = document.getElementById('tab-cards-btn');
+    if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+  }
+});
+
+function updateLivePreview() {
+  const badgeText = document.getElementById('inputBadgeText').value;
+  const badgeIcon = document.getElementById('inputBadgeIcon').value;
+  const title = document.getElementById('inputTitle').value;
+  const subtext = document.getElementById('inputSubtext').value;
+
+  document.getElementById('previewBadgeText').innerText = badgeText;
+  document.getElementById('previewBadgeIcon').className = badgeIcon + ' me-1';
+  document.getElementById('previewTitle').innerText = title;
+  document.getElementById('previewSubtext').innerText = subtext;
+}
+</script>

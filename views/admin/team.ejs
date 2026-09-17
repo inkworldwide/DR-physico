@@ -1,0 +1,575 @@
+<script>
+  window.toggleInlineAddForm = function(show) {
+    var card = document.getElementById('addTeacherInlineCard');
+    if (!card) return;
+    if (show === undefined) {
+      show = card.style.display === 'none';
+    }
+    card.style.display = show ? 'block' : 'none';
+    if (show) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  window.openAddTeamMemberModal = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    // Toggle inline form card so it opens immediately on page
+    window.toggleInlineAddForm(true);
+
+    var modal = document.getElementById('addTeamMemberModal');
+    if (!modal) return;
+
+    if (modal.parentNode !== document.body) {
+      document.body.appendChild(modal);
+    }
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      try {
+        var bsModal = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+        bsModal.show();
+        return;
+      } catch (err) {}
+    }
+
+    modal.style.display = 'block';
+    modal.style.opacity = '1';
+    modal.classList.add('show');
+    document.body.classList.add('modal-open');
+
+    var backdrop = document.getElementById('customModalBackdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'customModalBackdrop';
+      backdrop.className = 'modal-backdrop fade show';
+      backdrop.style.opacity = '0.5';
+      backdrop.onclick = window.closeAddTeamMemberModal;
+      document.body.appendChild(backdrop);
+    }
+  };
+
+  window.closeAddTeamMemberModal = function() {
+    var modal = document.getElementById('addTeamMemberModal');
+    if (!modal) return;
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      try {
+        var bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+          bsModal.hide();
+        }
+      } catch (e) {}
+    }
+
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.removeAttribute('aria-modal');
+    document.body.classList.remove('modal-open');
+
+    var backdrop = document.getElementById('customModalBackdrop');
+    if (backdrop) backdrop.remove();
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('addTeamMemberModal');
+    if (modal && modal.parentNode !== document.body) {
+      document.body.appendChild(modal);
+    }
+  });
+</script>
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <h3 class="fw-bold text-dark mb-1"><i class="ri-user-star-line me-2 text-primary"></i>Expert Teachers & Faculty Management</h3>
+    <p class="text-muted small mb-0">Add, edit, and manage expert teachers, clinical professors, advisory board members, and team display visibility.</p>
+  </div>
+  <a href="/admin/team/new" class="btn btn-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm text-white">
+    <i class="ri-user-add-fill me-1"></i> + Add Expert Teacher / Faculty
+  </a>
+</div>
+
+<!-- ============ INLINE ADD MEMBER FORM CARD (ALWAYS ACCESSIBLE & FAILSAFE) ============ -->
+<div id="addTeacherInlineCard" class="card border-0 shadow-lg rounded-4 mb-4 bg-white border overflow-hidden" style="display: none; border-left: 5px solid #0a5dc2 !important;">
+  <div class="card-header bg-primary text-white py-3 px-4 d-flex align-items-center justify-content-between">
+    <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+      <i class="ri-user-add-fill text-warning fs-4"></i> Add New Faculty, Teacher or Staff Member
+    </h5>
+    <button type="button" class="btn-close btn-close-white" onclick="window.toggleInlineAddForm(false)" aria-label="Close"></button>
+  </div>
+  <div class="card-body p-4">
+    <form action="/admin/team" method="POST">
+      <div class="row g-3">
+        <!-- Full Name -->
+        <div class="col-md-6">
+          <label class="form-label font-weight-bold">Full Name <span class="text-danger">*</span></label>
+          <input type="text" name="name" class="form-control form-control-lg" required placeholder="e.g. Dr. Rajesh Sharma">
+        </div>
+
+        <!-- Designation / Title -->
+        <div class="col-md-6">
+          <label class="form-label font-weight-bold">Designation / Role Title <span class="text-danger">*</span></label>
+          <input type="text" name="designation" class="form-control form-control-lg" placeholder="e.g. Faculty, Teacher, Worker, Senior Lecturer" required id="inlineDesignationInput">
+          <div class="mt-1.5 d-flex flex-wrap gap-1">
+            <span class="badge bg-light text-primary border cursor-pointer px-2 py-1" onclick="document.getElementById('inlineDesignationInput').value='Academic Faculty'">+ Faculty</span>
+            <span class="badge bg-light text-primary border cursor-pointer px-2 py-1" onclick="document.getElementById('inlineDesignationInput').value='Expert Teacher'">+ Teacher</span>
+            <span class="badge bg-light text-primary border cursor-pointer px-2 py-1" onclick="document.getElementById('inlineDesignationInput').value='Operations Worker'">+ Worker / Staff</span>
+            <span class="badge bg-light text-primary border cursor-pointer px-2 py-1" onclick="document.getElementById('inlineDesignationInput').value='Subject Specialist'">+ Specialist</span>
+          </div>
+        </div>
+
+        <!-- Role Title -->
+        <div class="col-md-6">
+          <label class="form-label font-weight-bold">Role Title (Optional)</label>
+          <input type="text" name="role" class="form-control form-control-lg" placeholder="e.g. Lead Instructor, Senior Faculty">
+        </div>
+
+        <!-- Staff Group Category -->
+        <div class="col-md-6">
+          <label class="form-label font-weight-bold">Staff Group Section <span class="text-danger">*</span></label>
+          <select name="group_name" class="form-select form-select-lg" required>
+            <option value="teaching_staff" selected>🎓 Teaching Staff (Academic Faculty / Teacher)</option>
+            <option value="non_teaching_staff">💼 Non-Teaching Staff (Admin & Operations Worker)</option>
+            <option value="subject_experts">🔬 Experts for all subjects (Subject Specialist)</option>
+            <option value="technical_assistance">💻 Technical Assistance (Platform Support Worker)</option>
+            <option value="other_staff">👥 Other Staff & Collaborators</option>
+            <option value="founding">🏆 Founding / Leadership Board</option>
+            <option value="advisory">🏛️ Advisory Board Member</option>
+            <option value="legal_business">⚖️ Legal & Business Advisory</option>
+          </select>
+        </div>
+
+        <!-- Qualification -->
+        <div class="col-md-6">
+          <label class="form-label font-weight-bold">Qualifications / Degrees</label>
+          <input type="text" name="qualification" class="form-control form-control-lg" placeholder="e.g. BPT, MPT (Cardio), PhD">
+        </div>
+
+        <!-- Display Order -->
+        <div class="col-md-6">
+          <label class="form-label font-weight-bold text-primary">
+            <i class="ri-sort-asc me-1"></i> Position / Display Order
+          </label>
+          <input type="number" name="display_order" class="form-control form-control-lg fw-bold text-primary border-primary" value="<%= members.length + 1 %>" min="1" required>
+        </div>
+
+        <!-- Photo URL -->
+        <div class="col-md-12">
+          <label class="form-label font-weight-bold">Photo URL (Optional)</label>
+          <input type="text" name="photo" class="form-control form-control-lg" placeholder="/images/team/default-avatar.png">
+          <small class="text-muted">Leave empty to use standard profile avatar icon.</small>
+        </div>
+
+        <!-- Bio / Overview -->
+        <div class="col-12">
+          <label class="form-label font-weight-bold">Bio / Responsibilities Overview</label>
+          <textarea name="bio" rows="2" class="form-control" placeholder="Brief summary of member experience and teaching subjects..."></textarea>
+        </div>
+
+        <!-- Showcase on About Page -->
+        <div class="col-12">
+          <div class="form-check form-switch p-3 bg-light rounded-3 border">
+            <input class="form-check-input ms-0 me-2" type="checkbox" name="show_on_about" value="1" id="inlineShowAbout">
+            <label class="form-check-label font-weight-bold text-dark" for="inlineShowAbout">
+              <i class="ri-star-fill text-warning me-1"></i> Showcase on About Us Page Leadership Cards
+            </label>
+          </div>
+        </div>
+
+        <!-- Leadership Statement -->
+        <div class="col-12">
+          <label class="form-label font-weight-bold">About Page Quote Statement (Optional)</label>
+          <textarea name="statement" rows="3" class="form-control" placeholder="Quote or vision statement to highlight on About page..."></textarea>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" onclick="window.toggleInlineAddForm(false)">Cancel</button>
+        <button type="submit" class="btn btn-primary rounded-pill px-5 font-weight-bold shadow-sm py-2.5">
+          <i class="ri-check-line me-1"></i> Save & Add Team Member
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ STAFF GROUP VISIBILITY CONTROL PANEL (5 GROUPS) ============ -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 bg-white border overflow-hidden">
+  <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+    <h5 class="mb-0 fw-bold text-dark"><i class="ri-toggle-line text-primary me-2"></i>Staff Group Visibility</h5>
+    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 font-weight-bold">5 Staff Sections</span>
+  </div>
+  <div class="card-body p-4">
+    <form action="/admin/team/toggle-groups" method="POST" id="toggleGroupsForm">
+      <div class="row g-3">
+        <!-- 1. Teaching Staff -->
+        <div class="col-md-4 col-sm-6">
+          <div class="p-3 border rounded-3 bg-white d-flex align-items-center justify-content-between shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-3 p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                <i class="ri-book-open-line fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold text-dark mb-0" style="font-size:0.92rem;">Teaching Staff</h6>
+                <small class="text-muted">Academic Faculty</small>
+              </div>
+            </div>
+            <div class="form-check form-switch fs-5 mb-0">
+              <input class="form-check-input" type="checkbox" name="teaching_staff" value="1" <%= (typeof groupStatuses !== 'undefined' && groupStatuses.teaching_staff) ? 'checked' : '' %> onchange="document.getElementById('toggleGroupsForm').submit()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Non-Teaching Staff -->
+        <div class="col-md-4 col-sm-6">
+          <div class="p-3 border rounded-3 bg-white d-flex align-items-center justify-content-between shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-3 p-2 bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                <i class="ri-user-settings-line fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold text-dark mb-0" style="font-size:0.92rem;">Non - Teaching staff</h6>
+                <small class="text-muted">Admin & Operations</small>
+              </div>
+            </div>
+            <div class="form-check form-switch fs-5 mb-0">
+              <input class="form-check-input" type="checkbox" name="non_teaching_staff" value="1" <%= (typeof groupStatuses !== 'undefined' && groupStatuses.non_teaching_staff) ? 'checked' : '' %> onchange="document.getElementById('toggleGroupsForm').submit()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Experts for all Subjects -->
+        <div class="col-md-4 col-sm-6">
+          <div class="p-3 border rounded-3 bg-white d-flex align-items-center justify-content-between shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-3 p-2 bg-info-subtle text-info d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                <i class="ri-microscope-line fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold text-dark mb-0" style="font-size:0.92rem;">Experts for all subjects</h6>
+                <small class="text-muted">Subject Specialists</small>
+              </div>
+            </div>
+            <div class="form-check form-switch fs-5 mb-0">
+              <input class="form-check-input" type="checkbox" name="subject_experts" value="1" <%= (typeof groupStatuses !== 'undefined' && groupStatuses.subject_experts) ? 'checked' : '' %> onchange="document.getElementById('toggleGroupsForm').submit()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Technical Assistance -->
+        <div class="col-md-4 col-sm-6">
+          <div class="p-3 border rounded-3 bg-white d-flex align-items-center justify-content-between shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-3 p-2 bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                <i class="ri-computer-line fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold text-dark mb-0" style="font-size:0.92rem;">Technical Assistance</h6>
+                <small class="text-muted">Platform Support</small>
+              </div>
+            </div>
+            <div class="form-check form-switch fs-5 mb-0">
+              <input class="form-check-input" type="checkbox" name="technical_assistance" value="1" <%= (typeof groupStatuses !== 'undefined' && groupStatuses.technical_assistance) ? 'checked' : '' %> onchange="document.getElementById('toggleGroupsForm').submit()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Other Staff -->
+        <div class="col-md-4 col-sm-6">
+          <div class="p-3 border rounded-3 bg-white d-flex align-items-center justify-content-between shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-3 p-2 bg-light-subtle text-dark border d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                <i class="ri-group-line fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold text-dark mb-0" style="font-size:0.92rem;">Other staff</h6>
+                <small class="text-muted">Collaborators</small>
+              </div>
+            </div>
+            <div class="form-check form-switch fs-5 mb-0">
+              <input class="form-check-input" type="checkbox" name="other_staff" value="1" <%= (typeof groupStatuses !== 'undefined' && groupStatuses.other_staff) ? 'checked' : '' %> onchange="document.getElementById('toggleGroupsForm').submit()">
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <h5 class="mb-0 fw-bold text-dark"><i class="ri-list-check me-2 text-primary"></i>Team Roster & Visibility</h5>
+    <span class="badge bg-primary text-white rounded-pill px-3 py-1 font-weight-bold"><%= members.length %> Total Members</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table pe-table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Designation / Role Title</th>
+          <th>Staff Group</th>
+          <th class="text-center">Team Page Status</th>
+          <th class="text-center">About Page Highlight</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (members.length === 0) { %>
+          <tr><td colspan="6" class="text-center text-muted py-4">No team members added yet.</td></tr>
+        <% } %>
+        <% members.forEach(m => { %>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <img src="<%= m.photo || '/images/team/default-avatar.png' %>" alt="<%= m.name %>" class="rounded-circle border" style="width:42px; height:42px; object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(m.name) %>&background=0a5dc2&color=fff&size=256'">
+                <div>
+                  <div class="fw-bold text-dark fs-6">
+                    <%= m.name %>
+                    <span class="badge bg-light text-primary border ms-1 font-weight-bold">Pos #<%= m.display_order %></span>
+                  </div>
+                  <div class="text-muted small"><%= m.qualification || m.role %></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="fw-semibold text-dark"><%= m.designation || m.role %></span></td>
+            <td>
+              <% 
+                const groupLabels = {
+                  'teaching_staff': 'Teaching Staff',
+                  'teaching': 'Teaching Staff',
+                  'non_teaching_staff': 'Non-Teaching Staff',
+                  'subject_experts': 'Subject Experts',
+                  'technical_assistance': 'Technical Assistance',
+                  'other_staff': 'Other Staff',
+                  'founding': 'Founding / Leadership',
+                  'advisory': 'Advisory Board',
+                  'legal_business': 'Legal & Business'
+                };
+              %>
+              <span class="badge bg-light text-dark border text-capitalize px-3 py-1.5 rounded-pill font-weight-semibold">
+                <i class="ri-user-follow-line text-primary me-1"></i> <%= groupLabels[m.group_name] || m.group_name.replace('_',' ') %>
+              </span>
+            </td>
+
+            <!-- Public Team Page Display Toggle -->
+            <td class="text-center">
+              <form action="/admin/team/<%= m.id %>/toggle-active" method="POST" class="d-inline">
+                <% if (m.is_active) { %>
+                  <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm font-weight-bold" title="Click to hide from public Team page">
+                    <i class="ri-checkbox-circle-fill me-1"></i> Displayed on Team Page
+                  </button>
+                <% } else { %>
+                  <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3" title="Click to display on public Team page">
+                    <i class="ri-eye-off-line me-1"></i> Hidden from Team Page
+                  </button>
+                <% } %>
+              </form>
+            </td>
+
+            <!-- About Page Showcase Toggle -->
+            <td class="text-center">
+              <form action="/admin/team/<%= m.id %>/toggle-about" method="POST" class="d-inline">
+                <% if (m.show_on_about) { %>
+                  <button type="submit" class="btn btn-sm btn-warning text-dark font-weight-bold rounded-pill px-3 shadow-sm" title="Click to hide from About page leadership quotes">
+                    <i class="ri-star-fill me-1"></i> Shown on About
+                  </button>
+                <% } else { %>
+                  <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3" title="Click to show on About page leadership quotes">
+                    <i class="ri-star-line me-1"></i> Add to About
+                  </button>
+                <% } %>
+              </form>
+            </td>
+
+            <td class="text-end">
+              <div class="d-flex align-items-center justify-content-end gap-2">
+                <a href="/admin/team/<%= m.id %>/edit" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Edit Details & Group">
+                  <i class="ri-edit-line me-1"></i> Edit
+                </a>
+                <form action="/admin/team/<%= m.id %>/delete" method="POST" onsubmit="return confirm('Remove this team member?')" class="d-inline">
+                  <button class="btn btn-sm btn-outline-danger rounded-circle p-2" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;" title="Delete Member">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ ADD TEAM MEMBER / FACULTY MODAL POP-UP ============ -->
+<div class="modal fade" id="addTeamMemberModal" tabindex="-1" aria-labelledby="addTeamMemberModalLabel" aria-hidden="true" style="z-index: 1055;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; max-height: 90vh;">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title font-weight-bold text-white d-flex align-items-center gap-2" id="addTeamMemberModalLabel">
+          <i class="ri-user-add-fill text-warning fs-4"></i> Add New Faculty, Teacher or Staff Member
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="window.closeAddTeamMemberModal()" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/team" method="POST" class="d-flex flex-column h-100">
+        <div class="modal-body p-4" style="overflow-y: auto;">
+          <div class="row g-3">
+            
+            <!-- Full Name -->
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control form-control-lg" required placeholder="e.g. Dr. Rajesh Sharma">
+            </div>
+
+            <!-- Designation / Title -->
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Designation / Role Title <span class="text-danger">*</span></label>
+              <input type="text" name="designation" class="form-control form-control-lg" placeholder="e.g. Faculty, Teacher, Worker, Senior Lecturer" required id="designationInput">
+              <div class="mt-1.5 d-flex flex-wrap gap-1">
+                <span class="badge bg-light text-primary border cursor-pointer px-2 py-1" onclick="document.getElementById('designationInput').value='Academic Faculty'">+ Faculty</span>
+                <span class="badge bg-light text-primary border cursor-pointer px-2 py-1" onclick="document.getElementById('designationInput').value='Expert Teacher'">+ Teacher</span>
+                <span class="badge bg-light text-primary border cursor-pointer px-2 py-1" onclick="document.getElementById('designationInput').value='Operations Worker'">+ Worker / Staff</span>
+                <span class="badge bg-light text-primary border cursor-pointer px-2 py-1" onclick="document.getElementById('designationInput').value='Subject Specialist'">+ Specialist</span>
+              </div>
+            </div>
+
+            <!-- Role Title -->
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Role Title (Optional)</label>
+              <input type="text" name="role" class="form-control form-control-lg" placeholder="e.g. Lead Instructor, Senior Faculty">
+            </div>
+
+            <!-- Staff Group Category -->
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Staff Group Section <span class="text-danger">*</span></label>
+              <select name="group_name" class="form-select form-select-lg" required>
+                <option value="teaching_staff" selected>🎓 Teaching Staff (Academic Faculty / Teacher)</option>
+                <option value="non_teaching_staff">💼 Non-Teaching Staff (Admin & Operations Worker)</option>
+                <option value="subject_experts">🔬 Experts for all subjects (Subject Specialist)</option>
+                <option value="technical_assistance">💻 Technical Assistance (Platform Support Worker)</option>
+                <option value="other_staff">👥 Other Staff & Collaborators</option>
+                <option value="founding">🏆 Founding / Leadership Board</option>
+                <option value="advisory">🏛️ Advisory Board Member</option>
+                <option value="legal_business">⚖️ Legal & Business Advisory</option>
+              </select>
+            </div>
+
+            <!-- Qualification -->
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Qualifications / Degrees</label>
+              <input type="text" name="qualification" class="form-control form-control-lg" placeholder="e.g. BPT, MPT (Cardio), PhD">
+            </div>
+
+            <!-- Display Order -->
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold text-primary">
+                <i class="ri-sort-asc me-1"></i> Position / Display Order
+              </label>
+              <input type="number" name="display_order" class="form-control form-control-lg fw-bold text-primary border-primary" value="<%= members.length + 1 %>" min="1" required>
+            </div>
+
+            <!-- Photo URL -->
+            <div class="col-md-12">
+              <label class="form-label font-weight-bold">Photo URL (Optional)</label>
+              <input type="text" name="photo" class="form-control form-control-lg" placeholder="/images/team/default-avatar.png">
+              <small class="text-muted">Leave empty to use standard profile avatar icon.</small>
+            </div>
+
+            <!-- Bio / Overview -->
+            <div class="col-12">
+              <label class="form-label font-weight-bold">Bio / Responsibilities Overview</label>
+              <textarea name="bio" rows="2" class="form-control" placeholder="Brief summary of member experience and teaching subjects..."></textarea>
+            </div>
+
+            <!-- Showcase on About Page -->
+            <div class="col-12">
+              <div class="form-check form-switch p-3 bg-light rounded-3 border">
+                <input class="form-check-input ms-0 me-2" type="checkbox" name="show_on_about" value="1" id="showAboutModalNew">
+                <label class="form-check-label font-weight-bold text-dark" for="showAboutModalNew">
+                  <i class="ri-star-fill text-warning me-1"></i> Showcase on About Us Page Leadership Cards
+                </label>
+              </div>
+            </div>
+
+            <!-- Leadership Statement -->
+            <div class="col-12">
+              <label class="form-label font-weight-bold">About Page Quote Statement (Optional)</label>
+              <textarea name="statement" rows="3" class="form-control" placeholder="Quote or vision statement to highlight on About page..."></textarea>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal" onclick="window.closeAddTeamMemberModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-5 font-weight-bold shadow-sm py-2">
+            <i class="ri-check-line me-1"></i> Save & Add Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openAddTeamMemberModal() {
+    var modal = document.getElementById('addTeamMemberModal');
+    if (!modal) return;
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      try {
+        var bsModal = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+        bsModal.show();
+        return;
+      } catch (e) {}
+    }
+
+    modal.style.display = 'block';
+    modal.classList.add('show');
+    modal.removeAttribute('aria-hidden');
+    modal.setAttribute('aria-modal', 'true');
+    document.body.classList.add('modal-open');
+
+    var backdrop = document.getElementById('customModalBackdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'customModalBackdrop';
+      backdrop.className = 'modal-backdrop fade show';
+      backdrop.onclick = closeAddTeamMemberModal;
+      document.body.appendChild(backdrop);
+    }
+  }
+
+  function closeAddTeamMemberModal() {
+    var modal = document.getElementById('addTeamMemberModal');
+    if (!modal) return;
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      try {
+        var bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+          bsModal.hide();
+        }
+      } catch (e) {}
+    }
+
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.removeAttribute('aria-modal');
+    document.body.classList.remove('modal-open');
+
+    var backdrop = document.getElementById('customModalBackdrop');
+    if (backdrop) backdrop.remove();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('openAddTeacherModalBtn');
+    if (btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        openAddTeamMemberModal();
+      });
+    }
+  });
+</script>

@@ -1,0 +1,119 @@
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <a href="/admin/team" class="btn btn-outline-secondary rounded-pill px-3 py-2">
+      <i class="ri-arrow-left-line me-1"></i> Back to Team
+    </a>
+    <div>
+      <h4 class="mb-0 fw-bold">Edit Member: <%= member.name %></h4>
+      <span class="text-muted small">Update profile details and About page quote/statement</span>
+    </div>
+  </div>
+  <a href="/about" target="_blank" class="btn btn-outline-primary rounded-pill px-3 py-2">
+    <i class="ri-external-link-line me-1"></i> View About Page
+  </a>
+</div>
+
+<form action="/admin/team/<%= member.id %>/update" method="POST">
+  <div class="row g-4">
+    <!-- Left Column: Member Profile Details -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 mb-4" style="border-radius: 16px;">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="mb-0 fw-bold text-dark"><i class="ri-user-settings-line me-2 text-primary"></i>Member Information</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-semibold">Full Name</label>
+              <input type="text" name="name" class="form-control form-control-lg" value="<%= member.name %>" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-semibold">Designation / Role Title</label>
+              <input type="text" name="designation" class="form-control form-control-lg" value="<%= member.designation || '' %>" placeholder="e.g. Founder, Co-Founder, Chairman, Trustee, Lead Instructor" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Role</label>
+              <input type="text" name="role" class="form-control" value="<%= member.role || '' %>" placeholder="e.g. Leadership Board">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Qualification</label>
+              <input type="text" name="qualification" class="form-control" value="<%= member.qualification || '' %>" placeholder="e.g. BPT, MPT, PhD">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Group Category</label>
+              <select name="group_name" class="form-select form-select-lg">
+                <option value="teaching_staff" <%= (member.group_name === 'teaching_staff' || member.group_name === 'teaching') ? 'selected' : '' %>>Teaching Staff (Academic Faculty)</option>
+                <option value="non_teaching_staff" <%= member.group_name === 'non_teaching_staff' ? 'selected' : '' %>>Non-Teaching Staff (Admin & Operations)</option>
+                <option value="subject_experts" <%= member.group_name === 'subject_experts' ? 'selected' : '' %>>Experts for all subjects (Subject Specialists)</option>
+                <option value="technical_assistance" <%= member.group_name === 'technical_assistance' ? 'selected' : '' %>>Technical Assistance (Platform Support)</option>
+                <option value="other_staff" <%= member.group_name === 'other_staff' ? 'selected' : '' %>>Other Staff (Collaborators)</option>
+                <option value="founding" <%= member.group_name === 'founding' ? 'selected' : '' %>>Founding / Leadership</option>
+                <option value="advisory" <%= member.group_name === 'advisory' ? 'selected' : '' %>>Advisory Board / Trustees</option>
+                <option value="legal_business" <%= member.group_name === 'legal_business' ? 'selected' : '' %>>Legal & Business</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold text-primary">
+                <i class="ri-sort-asc me-1"></i> Position / Display Order
+              </label>
+              <input type="number" name="display_order" class="form-control form-control-lg fw-bold text-primary border-primary" value="<%= member.display_order || 1 %>" min="1" required>
+              <span class="text-muted small">1 = First, 2 = Second, 3 = Third...</span>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Photo URL</label>
+              <div class="input-group">
+                <input type="text" name="photo" class="form-control" value="<%= member.photo || '/images/team/default-avatar.png' %>" id="photoUrlInput">
+              </div>
+              <div class="d-flex align-items-center gap-3 mt-3 p-3 bg-light rounded-3 border">
+                <img src="<%= member.photo || '/images/team/default-avatar.png' %>" alt="Preview" class="rounded-circle border" style="width: 54px; height: 54px; object-fit: cover;" onerror="this.src='/images/team/default-avatar.png'">
+                <div>
+                  <span class="fw-bold d-block text-dark">Avatar Preview</span>
+                  <span class="text-muted small">Path: <%= member.photo || '/images/team/default-avatar.png' %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: About Page Statement & Vision -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 mb-4" style="border-radius: 16px;">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="mb-0 fw-bold text-dark"><i class="ri-chat-quote-line me-2 text-warning"></i>About Page Display</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="form-check form-switch p-3 bg-light rounded-3 border mb-4">
+            <input class="form-check-input ms-0 me-3" type="checkbox" name="show_on_about" value="1" id="showOnAboutSwitch" <%= member.show_on_about ? 'checked' : '' %>>
+            <label class="form-check-label font-weight-bold fs-6 text-dark" for="showOnAboutSwitch">
+              <i class="ri-star-fill text-warning me-1"></i> Display Statement on About Page
+            </label>
+            <span class="text-muted small d-block mt-1">Enabling this makes this member's quote visible in the Leadership Messages section on `/about`.</span>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label font-weight-bold text-dark fs-6">About Page Statement / Quote Message</label>
+            <textarea name="statement" rows="6" class="form-control fs-6 p-3" placeholder="Enter quote or vision statement to showcase on the About page..."><%= member.statement || '' %></textarea>
+            <span class="text-muted small mt-1 d-block">This message will appear inside the leader's quote card on the About Us page.</span>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-semibold">General Bio</label>
+            <textarea name="bio" rows="3" class="form-control" placeholder="Short biography..."><%= member.bio || '' %></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Action Bar -->
+  <div class="card shadow-sm border-0 p-3 bg-white d-flex flex-row align-items-center justify-content-between rounded-4 mt-2 mb-5">
+    <a href="/admin/team" class="btn btn-light rounded-pill px-4 text-muted">
+      Cancel
+    </a>
+    <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow">
+      <i class="ri-check-line me-1"></i> Save Changes
+    </button>
+  </div>
+</form>

@@ -1,0 +1,95 @@
+<section class="pe-section-sm bg-white border-bottom">
+  <div class="container">
+    <h1 class="pe-section-title mb-1">My Profile</h1>
+    <p class="text-muted-pe mb-0">Manage your personal information and password.</p>
+  </div>
+</section>
+
+<section class="pe-section">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card p-4 text-center">
+          <form action="/profile" method="POST" enctype="multipart/form-data" id="avatarForm">
+            <!-- Click anywhere on the avatar to open file picker -->
+            <label for="avatarInput" class="pe-avatar-upload-wrap mb-3 d-block" title="Click to upload a new photo" style="width:6.5rem;margin:0 auto;">
+              <img id="avatarPreview"
+                src="<%= profileUser.avatar || '' %>"
+                class="rounded-circle d-block"
+                style="width:6.5rem;height:6.5rem;object-fit:cover;border:3px solid var(--pe-primary-light);"
+                onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(profileUser.name) %>&background=0a5dc2&color=fff&size=256'">
+              <div class="pe-avatar-cam"><i class="ri-camera-line"></i></div>
+            </label>
+            <p class="text-muted-pe" style="font-size:.7rem;margin-top:.25rem;">Click photo to change (max 3MB)</p>
+            <input type="file" id="avatarInput" name="avatar"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              class="d-none"
+              onchange="previewAndSubmitAvatar(this)">
+            <script>
+            function previewAndSubmitAvatar(input) {
+              if (!input.files || !input.files[0]) return;
+              var reader = new FileReader();
+              reader.onload = function(e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+              };
+              reader.readAsDataURL(input.files[0]);
+              // brief delay so preview shows before submit
+              setTimeout(function() { input.closest('form').submit(); }, 300);
+            }
+            </script>
+            <input type="hidden" name="name" value="<%= currentUser.name %>">
+            <input type="hidden" name="phone" value="<%= profileUser.phone || '' %>">
+            <input type="hidden" name="bio" value="<%= profileUser.bio || '' %>">
+          </form>
+          <h5 class="mb-0"><%= currentUser.name %></h5>
+          <p class="text-muted-pe small"><%= currentUser.email %></p>
+          <span class="badge badge-soft-primary text-capitalize"><%= currentUser.role %></span>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card p-4 mb-4">
+          <h6 class="mb-3">Personal Information</h6>
+          <form action="/profile" method="POST">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="name" class="form-control" value="<%= currentUser.name %>" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone</label>
+                <input type="text" name="phone" class="form-control" value="<%= profileUser.phone || '' %>" placeholder="+91 90000 00000">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Bio</label>
+                <textarea name="bio" class="form-control" rows="3" placeholder="Tell us a bit about yourself..."><%= profileUser.bio || '' %></textarea>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+          </form>
+        </div>
+
+        <div class="card p-4">
+          <h6 class="mb-3">Change Password</h6>
+          <form action="/profile/password" method="POST">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Current Password</label>
+                <input type="password" name="currentPassword" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">New Password</label>
+                <input type="password" name="newPassword" class="form-control" minlength="6" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" name="confirmPassword" class="form-control" minlength="6" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-outline-primary mt-3">Update Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

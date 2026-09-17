@@ -1,0 +1,175 @@
+/* =========================================================
+   PhysioEdvance - Core Theme (Edufast LMS Style)
+   ========================================================= */
+
+:root {
+  --pe-primary:        #0a5dc2;
+  --pe-primary-dark:   #07408a;
+  --pe-primary-light:  #e7f0fb;
+  --pe-secondary:      #00264d;
+  --pe-success:        #2FA75F;
+  --pe-info:           #2d9cdb;
+  --pe-warning:        #FFC700;
+  --pe-danger:         #F05D5D;
+  --pe-dark:           #00264d;
+  --pe-body-bg:        #FAFAFB;
+  --pe-card-bg:        #FFFFFF;
+  --pe-border:         #EBECEF;
+  --pe-text:           #343E56;
+  --pe-text-muted:     #6A7283;
+  --pe-heading:        #071431;
+  --pe-sidebar-bg:        #00264d;
+  --pe-sidebar-bg-active: #0a5dc2;
+  --pe-sidebar-text:      #b9cce3;
+  --pe-sidebar-text-active: #fff;
+  --pe-sidebar-width: 250px;
+  --pe-radius:      5px;
+  --pe-radius-lg:   8px;
+  --pe-radius-pill: 100px;
+  --pe-shadow:    0px 5px 25px rgba(0,0,0,0.07);
+  --pe-shadow-md: 0px 6px 30px rgba(0,0,0,0.10);
+  --pe-transition: all 0.3s ease-in-out;
+  --pe-font-body:    'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --pe-font-display: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+
+body{font-family:var(--pe-font-body);background:var(--pe-body-bg);color:var(--pe-text);font-size:16px;line-height:1.6;font-weight:400;overflow-x:hidden;}
+
+h1,.h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;}
+h2,.h2{font-size:clamp(1.6rem,3.5vw,2.5rem);font-weight:700;line-height:1.15;letter-spacing:-0.015em;}
+h3,.h3{font-size:clamp(1.25rem,2.5vw,1.75rem);font-weight:700;line-height:1.2;}
+h4,.h4{font-size:clamp(1.1rem,2vw,1.375rem);font-weight:700;line-height:1.3;}
+h5,.h5{font-size:1.125rem;font-weight:600;line-height:1.4;}
+h6,.h6{font-size:1rem;font-weight:600;line-height:1.5;}
+h1,h2,h3,h4,h5,h6,.pe-display{font-family:var(--pe-font-display);color:var(--pe-heading);}
+
+a{color:var(--pe-primary);text-decoration:none;transition:var(--pe-transition);}
+a:hover{color:var(--pe-primary-dark);}
+.text-muted-pe{color:var(--pe-text-muted)!important;}
+.text-primary-pe{color:var(--pe-primary)!important;}
+.text-info{color:var(--pe-info)!important;}
+
+/* Buttons - Edufast pill style */
+.btn{border-radius:var(--pe-radius-pill);font-weight:600;font-size:0.9375rem;padding:0.6rem 1.5rem;transition:all 0.25s cubic-bezier(.4,0,.2,1);display:inline-flex;align-items:center;gap:0.4rem;white-space:nowrap;}
+.btn:active{transform:scale(0.97);}
+.btn-lg{padding:0.8rem 2rem;font-size:1rem;}
+.btn-sm{padding:0.35rem 1rem;font-size:0.8125rem;}
+.btn-primary{background:var(--pe-primary);border-color:var(--pe-primary);color:#fff;}
+.btn-primary:hover{background:var(--pe-primary-dark);border-color:var(--pe-primary-dark);color:#fff;box-shadow:0 6px 18px rgba(10,93,194,.28);transform:translateY(-2px);}
+.btn-outline-primary{color:var(--pe-primary);border:2px solid var(--pe-primary);background:transparent;}
+.btn-outline-primary:hover{background:var(--pe-primary);color:#fff;transform:translateY(-2px);box-shadow:0 6px 18px rgba(10,93,194,.2);}
+.btn-success{background:var(--pe-success);border-color:var(--pe-success);color:#fff;}
+.btn-success:hover{background:#229e54;border-color:#229e54;color:#fff;transform:translateY(-2px);}
+.btn-outline-secondary{color:var(--pe-secondary);border:2px solid var(--pe-secondary);background:transparent;}
+.btn-outline-secondary:hover{background:var(--pe-secondary);color:#fff;transform:translateY(-2px);}
+.btn-soft-primary{background:var(--pe-primary-light);color:var(--pe-primary);border:none;}
+.btn-soft-primary:hover{background:var(--pe-primary);color:#fff;transform:translateY(-2px);}
+
+/* Cards - Edufast lightweight */
+.card{border:1px solid var(--pe-border);border-radius:var(--pe-radius-lg);box-shadow:var(--pe-shadow);background:var(--pe-card-bg);transition:box-shadow .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1);}
+.card:hover{box-shadow:var(--pe-shadow-md);}
+.card-header{background:transparent;border-bottom:1px solid var(--pe-border);font-weight:700;padding:1rem 1.25rem;}
+
+/* Badges */
+.badge{font-weight:600;border-radius:var(--pe-radius-pill);padding:0.35em 0.85em;font-size:0.75rem;}
+.badge-soft-primary{background:var(--pe-primary-light);color:var(--pe-primary);}
+.badge-soft-success{background:rgba(47,167,95,.12);color:var(--pe-success);}
+.badge-soft-warning{background:rgba(255,199,0,.15);color:#8a6900;}
+.badge-soft-danger{background:rgba(240,93,93,.12);color:var(--pe-danger);}
+.badge-soft-info{background:rgba(45,156,219,.12);color:var(--pe-info);}
+
+/* Forms */
+.form-control,.form-select{border-radius:var(--pe-radius);border:1px solid var(--pe-border);padding:0.6rem 1rem;font-size:0.9375rem;background:#fff;transition:var(--pe-transition);}
+.form-control:focus,.form-select:focus{border-color:var(--pe-primary);box-shadow:0 0 0 3px rgba(10,93,194,.12);outline:none;}
+.form-label{font-weight:600;font-size:0.875rem;color:var(--pe-heading);margin-bottom:0.45rem;}
+
+/* Utility */
+.pe-section{padding:5rem 0;}
+.pe-section-sm{padding:3rem 0;}
+.rounded-pe{border-radius:var(--pe-radius-lg)!important;}
+.shadow-pe{box-shadow:var(--pe-shadow-md)!important;}
+.avatar-xs{width:2rem;height:2rem;border-radius:50%;object-fit:cover;}
+.avatar-sm{width:2.75rem;height:2.75rem;border-radius:50%;object-fit:cover;}
+.avatar-md{width:3.5rem;height:3.5rem;border-radius:50%;object-fit:cover;}
+.avatar-lg{width:4.75rem;height:4.75rem;border-radius:50%;object-fit:cover;}
+.avatar-title{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;font-weight:700;color:#fff;}
+
+/* Progress */
+.progress{height:6px;border-radius:100px;background:#eef1f7;}
+.progress-bar{background:var(--pe-primary);border-radius:100px;}
+
+/* Star */
+.star-rating{color:var(--pe-warning);font-size:0.85rem;}
+
+/* Section label chip (Edufast style) */
+.pe-section-label{display:inline-flex;align-items:center;gap:0.4rem;background:var(--pe-primary-light);color:var(--pe-primary);border-radius:var(--pe-radius-pill);padding:0.3rem 1rem;font-size:0.75rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.75rem;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:#c8d3e8;border-radius:6px;}
+
+/* Focus */
+a:focus-visible,button:focus-visible{outline:2px solid var(--pe-primary);outline-offset:2px;}
+
+/* Admin sidebar */
+.pe-sidebar-nav .nav-link{color:var(--pe-sidebar-text);font-weight:500;font-size:0.875rem;border-radius:var(--pe-radius);padding:0.6rem 1rem;}
+.pe-sidebar-nav .nav-link:hover,.pe-sidebar-nav .nav-link.active{background:var(--pe-sidebar-bg-active);color:var(--pe-sidebar-text-active);}
+
+/* Avatar upload widget (shared across public/student/instructor/admin profile pages) */
+.pe-avatar-upload-wrap{position:relative;display:inline-block;cursor:pointer;}
+.pe-avatar-upload-wrap:hover .pe-avatar-cam{opacity:1;}
+.pe-avatar-cam{position:absolute;inset:0;border-radius:50%;background:rgba(10,93,194,.65);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;color:#fff;font-size:1.5rem;}
+
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;}}
+
+/* =========================================================
+   GLOBAL ANIMATION & UI POLISH (applies site-wide)
+   ========================================================= */
+
+/* Smooth page-load fade-in for main content */
+body { animation: peFadeIn .35s ease both; }
+@keyframes peFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Scroll-reveal utility: add data-pe-animate to any element */
+[data-pe-animate] { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+[data-pe-animate].pe-in-view { opacity: 1; transform: translateY(0); }
+
+/* Modals — smoother entrance */
+.modal.fade .modal-dialog { transition: transform .3s cubic-bezier(.4,0,.2,1), opacity .3s ease; transform: translateY(-16px) scale(.98); opacity: 0; }
+.modal.show .modal-dialog { transform: translateY(0) scale(1); opacity: 1; }
+.modal-content { border-radius: var(--pe-radius-lg); border: none; box-shadow: var(--pe-shadow-md); }
+
+/* Dropdowns — subtle pop */
+.dropdown-menu { animation: peDropdownPop .18s ease both; }
+@keyframes peDropdownPop { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Alerts */
+.alert { border-radius: var(--pe-radius-lg); border: none; animation: peFadeIn .3s ease both; }
+
+/* Tables */
+.table { --bs-table-hover-bg: var(--pe-primary-light); }
+.table thead th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--pe-text-muted); font-weight: 700; border-bottom-width: 1px; }
+.table tbody tr { transition: background-color .15s ease; }
+
+/* Sidebar / nav link micro-interaction */
+.pe-sidebar-nav .nav-link { transition: background-color .2s ease, color .2s ease, transform .2s ease; }
+.pe-sidebar-nav .nav-link:hover { transform: translateX(2px); }
+
+/* Empty states */
+.pe-empty-state { animation: peFadeIn .4s ease both; }
+
+/* Loading spinner (lightweight, no extra markup needed beyond .pe-spinner) */
+.pe-spinner { width: 2rem; height: 2rem; border: 3px solid var(--pe-primary-light); border-top-color: var(--pe-primary); border-radius: 50%; animation: peSpin .7s linear infinite; }
+@keyframes peSpin { to { transform: rotate(360deg); } }
+
+/* Badges — tiny hover lift where interactive */
+a .badge, button .badge { transition: transform .2s ease; }
+
+/* Form controls — smoother focus ring */
+.form-control,.form-select { transition: border-color .2s ease, box-shadow .2s ease; }
+
+@media(prefers-reduced-motion:reduce){
+  body,[data-pe-animate],.dropdown-menu,.alert,.pe-empty-state{animation:none!important;}
+}

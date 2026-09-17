@@ -1,0 +1,76 @@
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <a href="/admin/specialties" class="btn btn-outline-secondary rounded-pill px-3 py-2">
+      <i class="ri-arrow-left-line me-1"></i> Back to Clinical Specialties
+    </a>
+    <div>
+      <h4 class="mb-0 fw-bold">Edit Clinical Specialty: <%= specialty.name %></h4>
+      <span class="text-muted small">Update specialty name, clinical items, icon, theme badge, position, and active status</span>
+    </div>
+  </div>
+  <a href="/" target="_blank" class="btn btn-outline-primary rounded-pill px-3 py-2">
+    <i class="ri-external-link-line me-1"></i> View Homepage
+  </a>
+</div>
+
+<form action="/admin/specialties/<%= specialty.id %>/update" method="POST">
+  <div class="row g-4 justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0" style="border-radius: 16px;">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="mb-0 fw-bold text-dark"><i class="ri-pulse-line me-2 text-primary"></i>Specialty Card Configuration</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Specialty Name</label>
+              <input type="text" name="name" class="form-control form-control-lg" value="<%= specialty.name %>" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Badge Label</label>
+              <input type="text" name="badge" class="form-control form-control-lg" value="<%= specialty.badge %>" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Remix Icon Class</label>
+              <input type="text" name="icon" class="form-control" value="<%= specialty.icon %>">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Theme Accent Color</label>
+              <select name="theme" class="form-select">
+                <option value="primary" <%= specialty.theme === 'primary' ? 'selected' : '' %>>Primary (Royal Blue)</option>
+                <option value="success" <%= specialty.theme === 'success' ? 'selected' : '' %>>Success (Emerald Green)</option>
+                <option value="warning" <%= specialty.theme === 'warning' ? 'selected' : '' %>>Warning (Amber Gold)</option>
+                <option value="danger" <%= specialty.theme === 'danger' ? 'selected' : '' %>>Danger (Coral Red)</option>
+                <option value="info" <%= specialty.theme === 'info' ? 'selected' : '' %>>Info (Cyan Sky)</option>
+                <option value="purple" <%= specialty.theme === 'purple' ? 'selected' : '' %>>Purple (Amethyst)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold text-primary">
+                <i class="ri-sort-asc me-1"></i> Position / Display Order
+              </label>
+              <input type="number" name="display_order" class="form-control form-control-lg fw-bold text-primary border-primary" value="<%= specialty.display_order || 1 %>" min="1" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Status (Enable / Disable)</label>
+              <select name="is_active" class="form-select form-select-lg">
+                <option value="1" <%= specialty.is_active ? 'selected' : '' %>>Active (Enabled on Homepage)</option>
+                <option value="0" <%= !specialty.is_active ? 'selected' : '' %>>Inactive (Disabled/Hidden)</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label font-weight-bold">Clinical Items List (1 item per line or comma separated)</label>
+              <textarea name="items" rows="5" class="form-control" required><%= specialty.itemsRaw %></textarea>
+            </div>
+          </div>
+          <div class="d-flex gap-3 mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 font-weight-bold shadow-sm">
+              <i class="ri-save-line me-1"></i> Save Changes
+            </button>
+            <a href="/admin/specialties" class="btn btn-outline-secondary rounded-pill px-4 py-2">Cancel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

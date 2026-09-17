@@ -1,0 +1,428 @@
+<!-- ============ COURSE SYSTEM HERO BANNER ============ -->
+<section class="pe-course-hero position-relative py-5 text-white overflow-hidden" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+  <div class="container position-relative z-2 py-3">
+    
+    <!-- Breadcrumb -->
+    <nav class="pe-breadcrumb mb-3" style="font-size: 0.88rem; color: rgba(255,255,255,0.85);">
+      <a href="/subjects" class="text-white text-decoration-none"><i class="ri-home-3-line"></i> Subjects</a>
+      <i class="ri-arrow-right-s-line mx-1 text-white-50"></i>
+      <a href="/subjects/<%= category.slug %>" class="text-white text-decoration-none"><%= category.name %></a>
+      <i class="ri-arrow-right-s-line mx-1 text-white-50"></i>
+      <span class="text-warning font-weight-bold">Complete Course Platform</span>
+    </nav>
+
+    <div class="row align-items-center g-4">
+      <div class="col-lg-12">
+        <div class="d-flex align-items-center gap-3 mb-2 flex-wrap">
+          <% if (category.year) { %>
+            <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3 py-1.5 rounded-pill shadow-sm" style="font-size: 0.8rem; background-color: #f59e0b !important;">
+              <i class="ri-book-open-line me-1"></i> Year <%= category.year %> Course
+            </span>
+          <% } %>
+          <% if (courseData.course_type === 'pdf_document') { %>
+            <span class="badge bg-danger text-white font-weight-bold px-3 py-1.5 rounded-pill shadow-sm" style="font-size: 0.8rem;">
+              <i class="ri-file-pdf-2-fill me-1"></i> 100% Reading & PDF Notes Mode (No Video)
+            </span>
+          <% } else { %>
+            <span class="badge bg-white-20 text-white font-weight-bold px-3 py-1.5 rounded-pill shadow-sm" style="font-size: 0.8rem; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+              <i class="ri-verified-badge-fill text-warning me-1"></i> Accredited BPT Curriculum
+            </span>
+          <% } %>
+        </div>
+
+        <h1 class="text-white fw-bold display-5 mb-2"><%= courseData.title %></h1>
+        <p class="text-white-75 lead mb-4" style="font-size: 1.05rem; max-width: 780px;"><%= courseData.subtitle %></p>
+
+        <!-- Course Stats Pills -->
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+          <span class="badge bg-white-20 text-white px-3 py-2 rounded-pill font-weight-semibold shadow-sm" style="font-size: 0.85rem; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
+            <i class="ri-folder-2-line me-1 text-warning"></i> <strong><%= courseData.stats.modulesCount %></strong> Modules
+          </span>
+          <% if (courseData.course_type !== 'pdf_document') { %>
+            <span class="badge bg-white-20 text-white px-3 py-2 rounded-pill font-weight-semibold shadow-sm" style="font-size: 0.85rem; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
+              <i class="ri-film-line me-1 text-info"></i> <strong><%= courseData.stats.videoCount %></strong> Video Lessons
+            </span>
+          <% } %>
+          <span class="badge bg-white-20 text-white px-3 py-2 rounded-pill font-weight-semibold shadow-sm" style="font-size: 0.85rem; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
+            <i class="ri-file-text-line me-1 text-success"></i> <strong><%= courseData.stats.notesCount %></strong> Complete Notes & Handouts
+          </span>
+          <span class="badge bg-white-20 text-white px-3 py-2 rounded-pill font-weight-semibold shadow-sm" style="font-size: 0.85rem; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
+            <i class="ri-box-3-line me-1 text-warning"></i> <strong><%= courseData.stats.threeDModelsCount %></strong> 3D Models
+          </span>
+        </div>
+
+        <% if (typeof allCategoryCourses !== 'undefined' && allCategoryCourses.length > 1) { %>
+          <!-- Multi-Course Switcher in this Subject -->
+          <div class="p-3 rounded-4 mb-3" style="background: rgba(255,255,255,0.12); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.25);">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="text-white small fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                <i class="ri-stack-line text-warning me-1"></i> Switch Course in <%= category.name %>:
+              </span>
+            </div>
+            <div class="d-flex align-items-center gap-2 overflow-x-auto pb-1 no-scrollbar flex-wrap">
+              <% allCategoryCourses.forEach(ac => { %>
+                <a href="/subjects/<%= category.slug %>/course?courseId=<%= ac.id %>" class="btn btn-sm rounded-pill font-weight-bold px-3 py-1.5 <%= (dbCourse && dbCourse.id === ac.id) ? 'btn-warning text-dark shadow-sm' : 'btn-outline-light text-white' %>">
+                  <i class="<%= ac.course_type === 'pdf_document' ? 'ri-file-pdf-2-fill text-danger' : 'ri-play-circle-fill text-primary' %> me-1"></i>
+                  <%= ac.title %>
+                </a>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ NAVIGATION TABS BAR ============ -->
+<nav class="pe-course-nav bg-white border-bottom sticky-top z-3 shadow-sm">
+  <div class="container">
+    <div class="d-flex align-items-center gap-2 overflow-x-auto py-2.5 no-scrollbar">
+      <button type="button" onclick="switchCourseTab('modules')" id="tab-btn-modules" class="pe-course-tab-btn btn btn-sm btn-primary text-white rounded-pill font-weight-semibold text-nowrap px-3.5 py-2 active">
+        <i class="ri-folder-2-line me-1"></i> Modules & Lessons
+      </button>
+      <button type="button" onclick="switchCourseTab('3d')" id="tab-btn-3d" class="pe-course-tab-btn btn btn-sm btn-outline-primary rounded-pill font-weight-semibold text-nowrap px-3.5 py-2">
+        <i class="ri-box-3-line me-1"></i> 3D Learning
+      </button>
+      <button type="button" onclick="switchCourseTab('flashcards')" id="tab-btn-flashcards" class="pe-course-tab-btn btn btn-sm btn-outline-primary rounded-pill font-weight-semibold text-nowrap px-3.5 py-2">
+        <i class="ri-cards-line me-1"></i> Flashcards
+      </button>
+      <button type="button" onclick="switchCourseTab('cases')" id="tab-btn-cases" class="pe-course-tab-btn btn btn-sm btn-outline-primary rounded-pill font-weight-semibold text-nowrap px-3.5 py-2">
+        <i class="ri-stethoscope-line me-1"></i> Clinical Cases
+      </button>
+      <button type="button" onclick="switchCourseTab('interactive')" id="tab-btn-interactive" class="pe-course-tab-btn btn btn-sm btn-outline-primary rounded-pill font-weight-semibold text-nowrap px-3.5 py-2">
+        <i class="ri-focus-3-line me-1"></i> Interactive Atlas
+      </button>
+      <a href="/subjects/<%= category.slug %>" class="btn btn-sm btn-outline-secondary rounded-pill font-weight-semibold text-nowrap px-3.5 py-2 ms-auto">
+        <i class="ri-arrow-left-line me-1"></i> Subject Hub
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ MAIN CONTENT AREA ============ -->
+<div class="pe-course-body bg-light-subtle py-5">
+  <div class="container">
+
+    <!-- 1. MODULES & LESSONS TREE -->
+    <div id="sec-modules" class="pe-course-tab-pane mb-5">
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+          <span class="badge bg-primary text-white font-weight-bold px-3 py-1 rounded-pill small mb-2">CURRICULUM ARCHITECTURE</span>
+          <h3 class="fw-bold text-dark mb-1"><i class="ri-book-open-line text-primary me-2"></i>Structured Course Modules & Lessons</h3>
+          <p class="text-muted small mb-0">Select any lesson to open its video tutorial, full study notes, 💡 key points, and end-of-lesson quiz.</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <% courseData.modules.forEach((mod, mIdx) => { %>
+          <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white border">
+              
+              <!-- Module Header Bar -->
+              <div class="p-4 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                <div class="d-flex align-items-center gap-3">
+                  <span class="badge bg-primary text-white font-weight-bold px-3 py-2 rounded-circle fs-6" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #0a5dc2 !important;">
+                    <%= mod.number %>
+                  </span>
+                  <div>
+                    <h5 class="fw-bold text-dark mb-1"><%= mod.title %></h5>
+                    <p class="text-muted small mb-0"><%= mod.description %></p>
+                  </div>
+                </div>
+                <span class="badge bg-white text-dark border font-weight-semibold px-3 py-1.5 rounded-pill small">
+                  <i class="ri-file-list-3-line text-primary me-1"></i> <%= mod.lessons.length %> Lessons
+                </span>
+              </div>
+
+              <!-- Lessons List -->
+              <div class="list-group list-group-flush">
+                <% mod.lessons.forEach((les, lIdx) => { %>
+                  <div class="list-group-item p-4 d-flex align-items-center justify-content-between flex-wrap gap-3 hover-bg-light transition-all">
+                    <div class="d-flex align-items-center gap-3 flex-grow-1">
+                      <div class="rounded-circle bg-primary-subtle text-primary p-2.5 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="ri-play-circle-line fs-5"></i>
+                      </div>
+                      <div>
+                        <h6 class="fw-bold text-dark mb-1">
+                          <a href="/subjects/<%= category.slug %>/lesson/<%= les.id %>" class="text-dark text-decoration-none hover-primary">
+                            <%= les.title %>
+                          </a>
+                        </h6>
+                        <p class="text-secondary small mb-0 line-clamp-1" style="font-size: 0.88rem;"><%= les.summary %></p>
+                      </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3">
+                      <span class="badge bg-light text-muted border px-2.5 py-1.5 rounded-pill small">
+                        <i class="ri-time-line me-1"></i> <%= les.duration %>
+                      </span>
+                      <a href="/subjects/<%= category.slug %>/lesson/<%= les.id %>" class="btn btn-sm btn-outline-primary rounded-pill px-3.5 font-weight-bold">
+                        Learn Lesson <i class="ri-arrow-right-line ms-1"></i>
+                      </a>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- 2. REUSABLE 3D LEARNING VIEWER -->
+    <div id="sec-3d" class="pe-course-tab-pane mb-5 pt-3 d-none">
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2 border-bottom pb-3">
+        <div>
+          <span class="badge bg-info text-white font-weight-bold px-3 py-1 rounded-pill small mb-2">3D VISUAL LEARNING</span>
+          <h3 class="fw-bold text-dark mb-1"><i class="ri-box-3-line text-info me-2"></i>Interactive 3D Anatomical & Biomechanical Viewer</h3>
+          <p class="text-muted small mb-0">Orbit, zoom, rotate 360°, and inspect high-yield anatomical structures in GPU-accelerated 3D.</p>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border">
+        <% if (courseData.threeDViewer && courseData.threeDViewer.embedUrl) { %>
+          <div class="ratio ratio-21x9 rounded-4 overflow-hidden border shadow-inner bg-dark mb-3">
+            <iframe src="<%= courseData.threeDViewer.embedUrl %>" title="3D Model Viewer" allowfullscreen style="border:none;"></iframe>
+          </div>
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 text-muted small">
+            <div><i class="ri-information-line text-primary me-1"></i> <strong>Controls:</strong> <%= (courseData.threeDViewer.controls || []).join(' • ') %></div>
+            <span class="badge bg-light text-dark border">Interactive WebGL 3D Model</span>
+          </div>
+        <% } else { %>
+          <div class="text-center py-5 bg-light rounded-4">
+            <i class="ri-box-3-line display-4 text-muted mb-2"></i>
+            <h6 class="fw-bold text-dark mb-1">3D Viewer Model Active</h6>
+            <p class="text-muted small mb-0">Explore rotatable skeletal and muscular structures across lessons.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- 3. FLASHCARD STUDY DECK -->
+    <div id="sec-flashcards" class="pe-course-tab-pane mb-5 pt-3 d-none">
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2 border-bottom pb-3">
+        <div>
+          <span class="badge bg-warning text-dark font-weight-bold px-3 py-1 rounded-pill small mb-2">SPACED REPETITION</span>
+          <h3 class="fw-bold text-dark mb-1"><i class="ri-cards-line text-warning me-2"></i>High-Yield Subject Flashcard Deck</h3>
+          <p class="text-muted small mb-0">Click the card to flip between Question and Answer. Test your recall for exam prep!</p>
+        </div>
+      </div>
+
+      <% const cards = courseData.flashcards || []; %>
+      <% if (cards.length > 0) { %>
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border text-center mx-auto" style="max-width: 680px;">
+          
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="badge bg-light text-dark border font-weight-bold px-3 py-1 rounded-pill small" id="fcCounter">Card 1 of <%= cards.length %></span>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="flipFlashcard()">
+              <i class="ri-repeat-line me-1"></i> Flip Card (Click)
+            </button>
+          </div>
+
+          <div class="pe-flashcard-box p-5 rounded-4 border bg-light-subtle cursor-pointer transition-all my-3 position-relative d-flex align-items-center justify-content-center" style="min-height: 220px;" onclick="flipFlashcard()">
+            <div id="fcFront" class="fw-bold fs-4 text-dark"><%= cards[0].front %></div>
+            <div id="fcBack" class="fw-bold fs-4 text-primary d-none"><%= cards[0].back %></div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-center gap-3 mt-3">
+            <button type="button" class="btn btn-outline-primary rounded-pill px-4" onclick="prevFlashcard()">
+              <i class="ri-arrow-left-line me-1"></i> Previous
+            </button>
+            <button type="button" class="btn btn-primary rounded-pill px-4" style="background: #0a5dc2; border-color: #0a5dc2;" onclick="nextFlashcard()">
+              Next Card <i class="ri-arrow-right-line ms-1"></i>
+            </button>
+          </div>
+
+        </div>
+      <% } %>
+    </div>
+
+    <!-- 4. CLINICAL CASE STUDIES -->
+    <div id="sec-cases" class="pe-course-tab-pane mb-5 pt-3 d-none">
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2 border-bottom pb-3">
+        <div>
+          <span class="badge bg-danger text-white font-weight-bold px-3 py-1 rounded-pill small mb-2">CLINICAL PRACTICE</span>
+          <h3 class="fw-bold text-dark mb-1"><i class="ri-stethoscope-line text-danger me-2"></i>Physiotherapy Clinical Case Studies</h3>
+          <p class="text-muted small mb-0">Real-world patient presentations, diagnostic examination findings, and rehabilitation protocols.</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <% (courseData.clinicalCases || []).forEach(cs => { %>
+          <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white border">
+              <span class="badge bg-danger-subtle text-danger font-weight-bold px-3 py-1.5 rounded-pill w-fit mb-3" style="font-size: 0.8rem;">
+                <i class="ri-hospital-fill me-1"></i> Clinical Case Model
+              </span>
+              <h5 class="fw-bold text-dark mb-3"><%= cs.title %></h5>
+              
+              <div class="bg-light rounded-3 p-3 mb-3 border">
+                <div class="fw-bold text-dark small mb-1"><i class="ri-user-search-line me-1 text-primary"></i> Patient Presentation:</div>
+                <p class="text-secondary small mb-0" style="line-height: 1.6;"><%= cs.patientProfile %></p>
+              </div>
+
+              <div class="fw-bold text-dark small mb-2"><i class="ri-stethoscope-line me-1 text-warning"></i> Key Symptoms & Findings:</div>
+              <ul class="list-unstyled mb-3">
+                <% (cs.symptoms || []).forEach(sym => { %>
+                  <li class="small text-secondary mb-1.5 d-flex align-items-center"><i class="ri-checkbox-circle-fill text-danger me-2"></i> <%= sym %></li>
+                <% }) %>
+              </ul>
+
+              <div class="bg-primary-subtle text-primary rounded-3 p-3 mt-auto border border-primary-subtle">
+                <div class="fw-bold small mb-1"><i class="ri-heart-pulse-fill me-1"></i> Physiotherapy Rehabilitation Protocol:</div>
+                <div class="small fw-semibold"><%= cs.rehabProtocol %></div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- 5. INTERACTIVE HOTSPOT ATLAS -->
+    <% if (courseData.interactiveHotspots && courseData.interactiveHotspots.length > 0) { %>
+      <div id="sec-interactive" class="pe-course-tab-pane mb-5 pt-3 d-none">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2 border-bottom pb-3">
+          <div>
+            <span class="badge bg-warning text-dark font-weight-bold px-3 py-1 rounded-pill small mb-2">INTERACTIVE ATLAS</span>
+            <h3 class="fw-bold text-dark mb-1"><i class="ri-focus-3-line text-warning me-2"></i>Interactive Hotspot Diagram Explorer</h3>
+            <p class="text-muted small mb-0">Click numbered pin buttons on the diagram to inspect anatomical structures, nerve supply, and biomechanics.</p>
+          </div>
+        </div>
+
+        <% const hsData = courseData.interactiveHotspots[0]; %>
+        <div class="row g-4 align-items-stretch">
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-light-subtle text-center h-100 position-relative">
+              <div class="position-relative d-inline-block mx-auto my-auto" style="max-width: 100%;">
+                <img src="<%= hsData.diagramImage %>" alt="Hotspot Diagram" class="img-fluid rounded-4 shadow-sm" style="max-height: 420px; object-fit: cover;">
+                <% hsData.pins.forEach(pin => { %>
+                  <button type="button" class="btn btn-warning btn-sm rounded-circle position-absolute translate-middle fw-bold shadow-lg" style="left: <%= pin.x %>%; top: <%= pin.y %>%; width: 34px; height: 34px; border: 3px solid #ffffff;" onclick="showPinInfo(<%= pin.id %>)">
+                    <%= pin.id %>
+                  </button>
+                <% }) %>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column justify-content-center border">
+              <% const firstPin = hsData.pins[0] || {}; %>
+              <span class="badge bg-primary text-white font-weight-bold px-3 py-1.5 rounded-pill w-fit mb-3" id="pinBadge">
+                Pin Structure #<span id="pinId"><%= firstPin.id || 1 %></span>
+              </span>
+              <h4 class="fw-bold text-dark mb-2" id="pinTitle"><%= firstPin.title || 'Structure Details' %></h4>
+              <p class="text-secondary leading-relaxed mb-4" id="pinDesc" style="font-size: 0.95rem; line-height: 1.6;"><%= firstPin.description %></p>
+
+              <div class="bg-light rounded-4 p-3.5 mb-3 border">
+                <div class="fw-bold text-dark small mb-1"><i class="ri-flashlight-line text-warning me-1"></i> Innervation / Supply:</div>
+                <div class="text-primary font-weight-semibold small" id="pinNerve"><%= firstPin.nerve || '-' %></div>
+              </div>
+
+              <div class="bg-light rounded-4 p-3.5 border">
+                <div class="fw-bold text-dark small mb-1"><i class="ri-run-line text-success me-1"></i> Clinical Action / Biomechanics:</div>
+                <div class="text-dark small fw-semibold" id="pinAction"><%= firstPin.action || '-' %></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+  </div>
+</div>
+
+<script>
+  // Tab Content Pane Switcher Engine
+  function switchCourseTab(tabName) {
+    document.querySelectorAll('.pe-course-tab-btn').forEach(btn => {
+      btn.classList.remove('btn-primary', 'text-white', 'active');
+      btn.classList.add('btn-outline-primary');
+    });
+    const activeBtn = document.getElementById('tab-btn-' + tabName);
+    if (activeBtn) {
+      activeBtn.classList.remove('btn-outline-primary');
+      activeBtn.classList.add('btn-primary', 'text-white', 'active');
+    }
+
+    document.querySelectorAll('.pe-course-tab-pane').forEach(pane => {
+      pane.classList.add('d-none');
+    });
+
+    const targetPane = document.getElementById('sec-' + tabName);
+    if (targetPane) {
+      targetPane.classList.remove('d-none');
+    }
+  }
+
+  // Flashcard Engine
+  const flashcardDeck = <%- JSON.stringify(courseData.flashcards || []) %>;
+  let currentCardIndex = 0;
+  let isCardFlipped = false;
+
+  function updateCardDisplay() {
+    if (flashcardDeck.length === 0) return;
+    const card = flashcardDeck[currentCardIndex];
+    document.getElementById('fcFront').innerText = card.front;
+    document.getElementById('fcBack').innerText = card.back;
+    document.getElementById('fcCounter').innerText = `Card ${currentCardIndex + 1} of ${flashcardDeck.length}`;
+    
+    // Reset flip
+    isCardFlipped = false;
+    document.getElementById('fcFront').classList.remove('d-none');
+    document.getElementById('fcBack').classList.add('d-none');
+  }
+
+  function flipFlashcard() {
+    isCardFlipped = !isCardFlipped;
+    if (isCardFlipped) {
+      document.getElementById('fcFront').classList.add('d-none');
+      document.getElementById('fcBack').classList.remove('d-none');
+    } else {
+      document.getElementById('fcFront').classList.remove('d-none');
+      document.getElementById('fcBack').classList.add('d-none');
+    }
+  }
+
+  function nextFlashcard() {
+    if (flashcardDeck.length === 0) return;
+    currentCardIndex = (currentCardIndex + 1) % flashcardDeck.length;
+    updateCardDisplay();
+  }
+
+  function prevFlashcard() {
+    if (flashcardDeck.length === 0) return;
+    currentCardIndex = (currentCardIndex - 1 + flashcardDeck.length) % flashcardDeck.length;
+    updateCardDisplay();
+  }
+
+  // Hotspot Pin Engine
+  const hotspotPins = <%- JSON.stringify((courseData.interactiveHotspots && courseData.interactiveHotspots[0]) ? courseData.interactiveHotspots[0].pins : []) %>;
+  function showPinInfo(id) {
+    const pin = hotspotPins.find(p => p.id === id);
+    if (!pin) return;
+    document.getElementById('pinId').innerText = pin.id;
+    document.getElementById('pinTitle').innerText = pin.title;
+    document.getElementById('pinDesc').innerText = pin.description;
+    document.getElementById('pinNerve').innerText = pin.nerve || '-';
+    document.getElementById('pinAction').innerText = pin.action || '-';
+  }
+
+  // Progress Tracking LocalStorage Simulation
+  document.addEventListener('DOMContentLoaded', () => {
+    const subjectSlug = '<%= category.slug %>';
+    const completedLessons = JSON.parse(localStorage.getItem(`completed_lessons_${subjectSlug}`) || '[]');
+    const totalLessons = <%= courseData.stats.videoCount || 12 %>;
+    
+    const percentage = Math.min(100, Math.round((completedLessons.length / totalLessons) * 100));
+    document.getElementById('progressBarFill').style.width = `${percentage}%`;
+    document.getElementById('progressPercentBadge').innerText = `${percentage}% Complete`;
+    
+    if (percentage > 0) {
+      document.getElementById('progressText').innerText = `Great job! You have completed ${completedLessons.length} out of ${totalLessons} lessons in this course.`;
+    }
+  });
+</script>

@@ -1,0 +1,64 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h5 class="mb-1"><%= quiz.title %></h5>
+    <p class="text-muted-pe small mb-0">Course: <%= course.title %> &middot; Pass mark: <%= quiz.pass_percentage %>%</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addQuestionModal"><i class="ri-add-line"></i> Add Question</button>
+    <a href="/instructor/courses/<%= course.id %>/edit" class="btn btn-outline-primary btn-sm">Back to Course</a>
+  </div>
+</div>
+
+<% questions.forEach((q, idx) => { %>
+  <div class="card p-4 mb-3">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <h6 class="mb-0"><%= idx + 1 %>. <%= q.question %></h6>
+      <form action="/instructor/courses/<%= course.id %>/quizzes/<%= quiz.id %>/questions/<%= q.id %>/delete" method="POST" onsubmit="return confirm('Delete this question?')">
+        <button class="btn btn-sm btn-outline-danger"><i class="ri-delete-bin-line"></i></button>
+      </form>
+    </div>
+    <div class="row g-2">
+      <% ['a','b','c','d'].forEach(opt => { %>
+        <div class="col-md-6">
+          <div class="p-2 border rounded small <%= q.correct_option === opt ? 'border-success bg-success-subtle' : '' %>">
+            <%= opt.toUpperCase() %>. <%= q['option_' + opt] %>
+            <% if (q.correct_option === opt) { %><i class="ri-checkbox-circle-fill text-success ms-1"></i><% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+    <% if (q.explanation) { %><p class="small text-muted-pe mt-2 mb-0"><i class="ri-lightbulb-line me-1"></i> <%= q.explanation %></p><% } %>
+  </div>
+<% }) %>
+
+<% if (questions.length === 0) { %>
+  <div class="text-center py-5 text-muted-pe">No questions yet. Add your first question above.</div>
+<% } %>
+
+<!-- Add Question Modal -->
+<div class="modal fade" id="addQuestionModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form action="/instructor/courses/<%= course.id %>/quizzes/<%= quiz.id %>/questions" method="POST">
+        <div class="modal-header"><h6 class="modal-title">Add Question</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">Question</label><textarea name="question" rows="2" class="form-control" required></textarea></div>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Option A</label><input type="text" name="option_a" class="form-control" required></div>
+            <div class="col-md-6"><label class="form-label">Option B</label><input type="text" name="option_b" class="form-control" required></div>
+            <div class="col-md-6"><label class="form-label">Option C</label><input type="text" name="option_c" class="form-control" required></div>
+            <div class="col-md-6"><label class="form-label">Option D</label><input type="text" name="option_d" class="form-control" required></div>
+            <div class="col-md-6">
+              <label class="form-label">Correct Option</label>
+              <select name="correct_option" class="form-select" required>
+                <option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option>
+              </select>
+            </div>
+            <div class="col-12"><label class="form-label">Explanation (optional)</label><textarea name="explanation" rows="2" class="form-control"></textarea></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="submit" class="btn btn-primary">Add Question</button></div>
+      </form>
+    </div>
+  </div>
+</div>

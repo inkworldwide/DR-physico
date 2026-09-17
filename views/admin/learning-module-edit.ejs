@@ -1,0 +1,216 @@
+﻿<div class="pe-page-head d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="/admin/learning-modules" class="text-decoration-none text-muted small mb-1 d-inline-block">
+      <i class="ri-arrow-left-line me-1"></i> Back to Learning Modules
+    </a>
+    <h2 class="pe-page-title mb-1">Edit Question #<%= question.id %></h2>
+    <p class="text-muted small mb-0">Update question details, options, model answers, or attachments.</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-10 col-xl-9">
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-md-5">
+      
+      <form action="/admin/learning-modules/<%= question.id %>/update" method="POST" enctype="multipart/form-data">
+        <!-- 1. Subject & Course Selection -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark small">Subject <span class="text-danger">*</span></label>
+            <select name="category_id" class="form-select rounded-3" required id="categorySelect">
+              <option value="">Select Subject...</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.id %>" <%= question.category_id == cat.id ? 'selected' : '' %>>
+                  <%= cat.name %> (Year <%= cat.year || 'Elective' %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark small">Course (Optional)</label>
+            <select name="course_id" class="form-select rounded-3">
+              <option value="">General for Subject</option>
+              <% allCourses.forEach(co => { %>
+                <option value="<%= co.id %>" <%= question.course_id == co.id ? 'selected' : '' %>>
+                  <%= co.title %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- 2. Question Type Selector -->
+        <div class="mb-4">
+          <label class="form-label fw-bold text-dark small d-block mb-2">Question Type <span class="text-danger">*</span></label>
+          <div class="row g-2">
+            <div class="col-md-4">
+              <input type="radio" class="btn-check" name="question_type" id="type_mcq" value="mcq" <%= question.question_type === 'mcq' ? 'checked' : '' %> onchange="toggleQuestionType()">
+              <label class="btn btn-outline-primary w-100 rounded-3 p-3 text-start d-flex align-items-center gap-2.5" for="type_mcq">
+                <i class="ri-checkbox-circle-fill fs-4 text-primary"></i>
+                <div>
+                  <strong class="d-block text-dark">MCQ</strong>
+                  <span class="text-muted small" style="font-size: 0.75rem;">Interactive 4 options</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="col-md-4">
+              <input type="radio" class="btn-check" name="question_type" id="type_large" value="large_qa" <%= question.question_type === 'large_qa' ? 'checked' : '' %> onchange="toggleQuestionType()">
+              <label class="btn btn-outline-info w-100 rounded-3 p-3 text-start d-flex align-items-center gap-2.5" for="type_large">
+                <i class="ri-file-list-3-fill fs-4 text-info"></i>
+                <div>
+                  <strong class="d-block text-dark">Large Q&A</strong>
+                  <span class="text-muted small" style="font-size: 0.75rem;">10 & 15 Mark Essays</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="col-md-4">
+              <input type="radio" class="btn-check" name="question_type" id="type_small" value="small_qa" <%= question.question_type === 'small_qa' ? 'checked' : '' %> onchange="toggleQuestionType()">
+              <label class="btn btn-outline-warning w-100 rounded-3 p-3 text-start d-flex align-items-center gap-2.5" for="type_small">
+                <i class="ri-question-answer-fill fs-4 text-warning"></i>
+                <div>
+                  <strong class="d-block text-dark">Small Q&A</strong>
+                  <span class="text-muted small" style="font-size: 0.75rem;">2 & 5 Mark Notes</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. General Question Metadata -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-8">
+            <label class="form-label fw-bold text-dark small">Title / Topic Header</label>
+            <input type="text" name="title" class="form-control rounded-3" value="<%= question.title || '' %>" placeholder="e.g. Brachial Plexus Anatomy & Lesions">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-dark small">Marks</label>
+            <input type="number" name="marks" id="marksInput" class="form-control rounded-3" value="<%= question.marks || 1 %>" min="1" max="100">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark small">Topic / Sub-specialty</label>
+            <input type="text" name="topic" class="form-control rounded-3" value="<%= question.topic || '' %>" placeholder="e.g. Upper Limb, Neuromuscular, Gait">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark small">Difficulty</label>
+            <select name="difficulty" class="form-select rounded-3">
+              <option value="Easy" <%= question.difficulty === 'Easy' ? 'selected' : '' %>>Easy</option>
+              <option value="Medium" <%= question.difficulty === 'Medium' ? 'selected' : '' %>>Medium</option>
+              <option value="Hard" <%= question.difficulty === 'Hard' ? 'selected' : '' %>>Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 4. Question Text -->
+        <div class="mb-4">
+          <label class="form-label fw-bold text-dark small">Question Prompt <span class="text-danger">*</span></label>
+          <textarea name="question" class="form-control rounded-3" rows="3" required><%= question.question %></textarea>
+        </div>
+
+        <!-- ============ 5A. MCQ FIELDS ============ -->
+        <div id="mcqFieldsContainer" class="bg-light rounded-4 p-4 mb-4 border <%= question.question_type !== 'mcq' ? 'd-none' : '' %>">
+          <h6 class="fw-bold text-primary mb-3"><i class="ri-list-check text-primary me-2"></i>Multiple Choice Options</h6>
+          
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Option A</label>
+              <div class="input-group">
+                <div class="input-group-text bg-white">
+                  <input class="form-check-input mt-0" type="radio" name="correct_option" value="0" <%= question.correct_option === 0 ? 'checked' : '' %>>
+                </div>
+                <input type="text" name="option_a" class="form-control" value="<%= parsedOptions[0] || '' %>">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Option B</label>
+              <div class="input-group">
+                <div class="input-group-text bg-white">
+                  <input class="form-check-input mt-0" type="radio" name="correct_option" value="1" <%= question.correct_option === 1 ? 'checked' : '' %>>
+                </div>
+                <input type="text" name="option_b" class="form-control" value="<%= parsedOptions[1] || '' %>">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Option C</label>
+              <div class="input-group">
+                <div class="input-group-text bg-white">
+                  <input class="form-check-input mt-0" type="radio" name="correct_option" value="2" <%= question.correct_option === 2 ? 'checked' : '' %>>
+                </div>
+                <input type="text" name="option_c" class="form-control" value="<%= parsedOptions[2] || '' %>">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark">Option D</label>
+              <div class="input-group">
+                <div class="input-group-text bg-white">
+                  <input class="form-check-input mt-0" type="radio" name="correct_option" value="3" <%= question.correct_option === 3 ? 'checked' : '' %>>
+                </div>
+                <input type="text" name="option_d" class="form-control" value="<%= parsedOptions[3] || '' %>">
+              </div>
+            </div>
+
+            <div class="col-12 mt-3">
+              <label class="form-label small fw-bold text-dark">Explanation / Clinical Rationale</label>
+              <textarea name="explanation" class="form-control rounded-3" rows="2"><%= question.explanation || '' %></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ 5B. ESSAY & SHORT ANSWER FIELDS ============ -->
+        <div id="qaFieldsContainer" class="bg-light rounded-4 p-4 mb-4 border <%= question.question_type === 'mcq' ? 'd-none' : '' %>">
+          <h6 class="fw-bold text-info mb-3"><i class="ri-file-text-line me-2"></i>Model Answer & Key Points</h6>
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Model Answer (Text or Markdown)</label>
+            <textarea name="model_answer" class="form-control rounded-3" rows="6"><%= question.model_answer || '' %></textarea>
+          </div>
+        </div>
+
+        <!-- 6. Document / PDF Attachment -->
+        <div class="mb-4">
+          <label class="form-label fw-bold text-dark small"><i class="ri-attachment-2 text-primary me-1"></i>Attach New PDF / Word Doc (Optional)</label>
+          <input type="file" name="note_file" class="form-control rounded-3" accept=".pdf,.doc,.docx,.txt">
+          <% if (question.document_url) { %>
+            <div class="mt-2 small text-muted">
+              Current Attachment: <a href="<%= question.document_url %>" target="_blank" class="fw-semibold"><%= question.document_url %></a>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <a href="/admin/learning-modules" class="btn btn-light rounded-pill px-4">Cancel</a>
+          <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+            <i class="ri-save-line me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleQuestionType() {
+  const isMcq = document.getElementById('type_mcq').checked;
+  const mcqBox = document.getElementById('mcqFieldsContainer');
+  const qaBox = document.getElementById('qaFieldsContainer');
+
+  if (isMcq) {
+    mcqBox.classList.remove('d-none');
+    qaBox.classList.add('d-none');
+  } else {
+    mcqBox.classList.add('d-none');
+    qaBox.classList.remove('d-none');
+  }
+}
+</script>

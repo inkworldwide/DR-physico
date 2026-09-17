@@ -1,0 +1,343 @@
+﻿<!-- ============ EXECUTIVE LEARNING MODULES HERO ============ -->
+<section class="pe-learning-hero position-relative py-5 text-white overflow-hidden" style="background: linear-gradient(135deg, #072b61 0%, #0a5dc2 55%, #0284c7 100%);">
+  <!-- Ambient background glow elements -->
+  <div class="position-absolute top-0 start-50 translate-middle-x w-100 h-100 pe-none opacity-20" style="background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.4) 0%, transparent 60%);"></div>
+  <div class="position-absolute end-0 bottom-0 opacity-10 pe-none me-4 mb-2 d-none d-lg-block">
+    <i class="ri-book-open-fill" style="font-size: 16rem; color: #ffffff;"></i>
+  </div>
+
+  <div class="container position-relative z-2 py-4">
+    <div class="row align-items-center justify-content-between g-4">
+      <div class="col-lg-8">
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-3 border border-white border-opacity-25 bg-white bg-opacity-10 backdrop-blur shadow-sm">
+          <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-2.5 py-1 rounded-pill" style="font-size: 0.72rem; letter-spacing: 0.06em;">
+            <i class="ri-sparkling-fill me-1"></i> Interactive LMS
+          </span>
+          <span class="text-white small fw-medium">NCAHP Syllabus Aligned Question Bank</span>
+        </div>
+
+        <h1 class="display-4 font-weight-bold text-white mb-3" style="letter-spacing: -0.025em; font-weight: 800; line-height: 1.15;">
+          Physiotherapy Learning Modules
+        </h1>
+        <p class="text-white-75 lead mb-4" style="font-size: 1.12rem; line-height: 1.65; max-width: 680px;">
+          Elevate your academic preparation and clinical reasoning with interactive <strong>MCQs</strong>, structured <strong>10–15 Mark Model Answers</strong>, and rapid-recall <strong>Short Notes</strong> across all 4 academic years.
+        </p>
+
+        <!-- Key Metrics Badges -->
+        <div class="d-flex flex-wrap gap-2.5 pt-1">
+          <div class="d-flex align-items-center gap-2 bg-white bg-opacity-15 px-3 py-1.5 rounded-pill border border-white border-opacity-10">
+            <i class="ri-checkbox-circle-line text-warning"></i>
+            <span class="small fw-semibold text-white">Interactive MCQs</span>
+          </div>
+          <div class="d-flex align-items-center gap-2 bg-white bg-opacity-15 px-3 py-1.5 rounded-pill border border-white border-opacity-10">
+            <i class="ri-file-list-3-line text-info"></i>
+            <span class="small fw-semibold text-white">10 & 15 Marker Long Essays</span>
+          </div>
+          <div class="d-flex align-items-center gap-2 bg-white bg-opacity-15 px-3 py-1.5 rounded-pill border border-white border-opacity-10">
+            <i class="ri-question-answer-line text-warning"></i>
+            <span class="small fw-semibold text-white">2 & 5 Marker Short Q&A</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Search Widget -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-lg rounded-4 p-4 bg-white text-dark">
+          <h6 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+            <i class="ri-search-2-line text-primary"></i> Search Any Subject
+          </h6>
+          <p class="text-muted small mb-3">Instant filter by subject, code, or topic</p>
+          <div class="position-relative">
+            <i class="ri-search-line position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+            <input type="text" id="liveSubjectSearch" class="form-control bg-light border-0 ps-5 rounded-pill py-2.5" placeholder="e.g. Anatomy, Orthopedics, Neuro..." onkeyup="filterSubjectsBySearch()">
+          </div>
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+            <span class="text-muted small" id="subjectCountBadge">Showing <strong><%= allCategories.length %></strong> Subjects</span>
+            <span class="badge bg-primary-subtle text-primary rounded-pill small fw-bold">All 4 Years</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 CORE STUDY MODES (PREMIUM FEATURE CARDS) ============ -->
+<section class="py-5 bg-white border-bottom shadow-sm">
+  <div class="container">
+    <div class="pe-section-head text-center mb-4">
+      <span class="badge bg-primary-subtle text-primary font-weight-bold text-uppercase px-3 py-1.5 rounded-pill mb-2" style="font-size: 0.75rem;">
+        <i class="ri-stack-line me-1"></i> Core Assessment Formats
+      </span>
+      <h3 class="fw-bold text-dark mb-2">Choose Your Study Mode</h3>
+      <p class="text-muted mx-auto" style="max-width: 580px;">Select a question format below to focus your practice, or pick a subject to study all formats together.</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <!-- 1. MCQ Practice Mode -->
+      <div class="col-md-4">
+        <a href="/learning-modules?type=mcq" class="text-decoration-none">
+          <div class="card h-100 border-0 rounded-4 p-4 bg-light transition-all pe-study-card <%= filterType === 'mcq' ? 'active-study-card' : '' %>" style="border-top: 4px solid #0a5dc2 !important;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
+                <i class="ri-checkbox-circle-fill fs-4"></i>
+              </div>
+              <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill fw-bold small">Instant Evaluation</span>
+            </div>
+            <h5 class="fw-bold text-dark mb-2">Multiple Choice Questions (MCQs)</h5>
+            <p class="text-secondary small mb-4">High-yield clinical and factual MCQs with instant right/wrong evaluation and comprehensive explanation rationales.</p>
+            <div class="mt-auto d-flex align-items-center text-primary fw-bold small">
+              <span>Practice MCQs</span>
+              <i class="ri-arrow-right-line ms-1.5 transition-transform"></i>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 2. Large Q&A Mode -->
+      <div class="col-md-4">
+        <a href="/learning-modules?type=large-qa" class="text-decoration-none">
+          <div class="card h-100 border-0 rounded-4 p-4 bg-light transition-all pe-study-card <%= filterType === 'large-qa' ? 'active-study-card' : '' %>" style="border-top: 4px solid #0284c7 !important;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="rounded-3 bg-info text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
+                <i class="ri-file-list-3-fill fs-4"></i>
+              </div>
+              <span class="badge bg-info-subtle text-info px-3 py-1 rounded-pill fw-bold small">10 & 15 Mark Essays</span>
+            </div>
+            <h5 class="fw-bold text-dark mb-2">Large Questions & Answers</h5>
+            <p class="text-secondary small mb-4">University model answers, structured clinical case studies, assessment protocols, and phase-wise physiotherapy plans.</p>
+            <div class="mt-auto d-flex align-items-center text-info fw-bold small">
+              <span>Study Long Answers</span>
+              <i class="ri-arrow-right-line ms-1.5 transition-transform"></i>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 3. Small Q&A Mode -->
+      <div class="col-md-4">
+        <a href="/learning-modules?type=small-qa" class="text-decoration-none">
+          <div class="card h-100 border-0 rounded-4 p-4 bg-light transition-all pe-study-card <%= filterType === 'small-qa' ? 'active-study-card' : '' %>" style="border-top: 4px solid #f59e0b !important;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="rounded-3 bg-warning text-dark d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
+                <i class="ri-question-answer-fill fs-4"></i>
+              </div>
+              <span class="badge bg-warning-subtle text-warning px-3 py-1 rounded-pill fw-bold small">2 & 5 Mark Notes</span>
+            </div>
+            <h5 class="fw-bold text-dark mb-2">Small Questions & Answers</h5>
+            <p class="text-secondary small mb-4">High-yield definitions, comparison tables, anatomical landmarks, and high-frequency short notes for quick exam revision.</p>
+            <div class="mt-auto d-flex align-items-center text-warning fw-bold small" style="color: #d97706 !important;">
+              <span>Revise Short Q&A</span>
+              <i class="ri-arrow-right-line ms-1.5 transition-transform"></i>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SUBJECTS & MODULES GRID ============ -->
+<section class="pe-section bg-light-subtle py-5">
+  <div class="container py-2">
+
+    <!-- Filter Header & Sticky Nav Pills -->
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-4">
+      <div>
+        <h4 class="fw-bold text-dark mb-1">Subjects & Curriculum Directory</h4>
+        <p class="text-muted small mb-0">Select an academic year to filter all subjects</p>
+      </div>
+
+      <!-- Year Filter Nav Pills -->
+      <ul class="nav nav-pills pe-year-nav-pills justify-content-center align-items-center gap-1.5 p-1.5 bg-white rounded-pill border shadow-sm flex-nowrap overflow-auto" id="learningYearFilter" style="max-width: 100%;">
+        <li class="nav-item">
+          <button class="nav-link pe-year-filter-btn active px-3.5 py-2 rounded-pill fw-bold text-nowrap" data-year="all" type="button">
+            <i class="ri-apps-line me-1"></i> All
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link pe-year-filter-btn px-3 py-2 rounded-pill fw-bold text-nowrap" data-year="1" type="button">
+            <span class="pe-year-dot" style="background:#0a5dc2;">1</span> Year 1
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link pe-year-filter-btn px-3 py-2 rounded-pill fw-bold text-nowrap" data-year="2" type="button">
+            <span class="pe-year-dot" style="background:#2d9cdb;">2</span> Year 2
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link pe-year-filter-btn px-3 py-2 rounded-pill fw-bold text-nowrap" data-year="3" type="button">
+            <span class="pe-year-dot" style="background:#2FA75F;">3</span> Year 3
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link pe-year-filter-btn px-3 py-2 rounded-pill fw-bold text-nowrap" data-year="4" type="button">
+            <span class="pe-year-dot" style="background:#F05D5D;">4</span> Year 4
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link pe-year-filter-btn px-3 py-2 rounded-pill fw-bold text-nowrap" data-year="other" type="button">
+            <span class="pe-year-dot" style="background:#6A7283;">+</span> Other
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Grid of Subjects -->
+    <div class="row g-4" id="learningModulesGrid">
+      <% allCategories.forEach(cat => { %>
+        <% 
+          const yearColor = cat.year === 1 ? '#0a5dc2' : cat.year === 2 ? '#2d9cdb' : cat.year === 3 ? '#2FA75F' : cat.year === 4 ? '#F05D5D' : '#6A7283';
+          const abbrev = typeof SUBJECT_ABBREVIATIONS !== 'undefined' && SUBJECT_ABBREVIATIONS[cat.name] ? SUBJECT_ABBREVIATIONS[cat.name] : 'PT';
+        %>
+        <div class="col-md-6 col-lg-4 learning-module-card-col" data-year="<%= cat.year || 'other' %>" data-name="<%= cat.name.toLowerCase() %>" data-abbrev="<%= abbrev.toLowerCase() %>">
+          <div class="card h-100 border-0 shadow-sm rounded-4 bg-white d-flex flex-column pe-subject-module-card transition-all overflow-hidden">
+            
+            <!-- Top Color Stripe -->
+            <div style="height: 4px; background: <%= yearColor %>;"></div>
+
+            <div class="p-4 d-flex flex-column flex-grow-1">
+              <!-- Badges row -->
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="badge text-white px-3 py-1 rounded-pill fw-bold" style="background-color: <%= yearColor %>; font-size: 0.75rem;">
+                  <%= cat.year ? 'Year ' + cat.year + ' ' + (cat.year === 1 ? 'Foundation' : cat.year === 2 ? 'Clinical' : cat.year === 3 ? 'Advanced' : 'Specialty') : 'Elective Subject' %>
+                </span>
+                <span class="badge bg-light text-dark border px-2.5 py-1 small fw-bold font-monospace">
+                  <%= abbrev %>
+                </span>
+              </div>
+
+              <!-- Title & Description -->
+              <h5 class="fw-bold text-dark mb-2 module-subject-title" style="font-size: 1.15rem; line-height: 1.35;">
+                <%= cat.name %>
+              </h5>
+              <p class="text-secondary small mb-4 line-clamp-2" style="min-height: 2.6rem; font-size: 0.875rem;">
+                <%= cat.description || ('Curriculum learning module covering interactive MCQs, clinical long questions and rapid-recall short answers for ' + cat.name + '.') %>
+              </p>
+
+              <!-- Quick direct mode chips -->
+              <div class="d-flex flex-wrap gap-1.5 mb-4 mt-auto">
+                <a href="/learning-modules/<%= cat.slug %>/mcq" class="badge bg-primary-subtle text-primary border border-primary-subtle text-decoration-none px-2.5 py-1.5 rounded-pill hover-badge-pill" title="Practice MCQs">
+                  <i class="ri-checkbox-circle-line me-1"></i> MCQs
+                </a>
+                <a href="/learning-modules/<%= cat.slug %>/large-qa" class="badge bg-info-subtle text-info border border-info-subtle text-decoration-none px-2.5 py-1.5 rounded-pill hover-badge-pill" title="Large Q&A (10-15 Marks)">
+                  <i class="ri-file-list-3-line me-1"></i> Large Q&A
+                </a>
+                <a href="/learning-modules/<%= cat.slug %>/small-qa" class="badge bg-warning-subtle text-warning border border-warning-subtle text-decoration-none px-2.5 py-1.5 rounded-pill hover-badge-pill" title="Small Q&A (2-5 Marks)">
+                  <i class="ri-question-answer-line me-1"></i> Small Q&A
+                </a>
+              </div>
+
+              <!-- Main Button -->
+              <a href="/learning-modules/<%= cat.slug %><%= filterType && filterType !== 'all' ? '?tab=' + filterType : '' %>" class="btn btn-primary w-100 rounded-pill font-weight-bold shadow-sm d-flex align-items-center justify-content-center gap-2" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%); border: none; padding: 0.55rem 1rem;">
+                <span>Open Subject Module</span>
+                <i class="ri-arrow-right-line"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- Empty search result state -->
+    <div id="noSubjectMatchState" class="card border-0 shadow-sm rounded-4 text-center py-5 bg-white mx-auto d-none" style="max-width: 500px;">
+      <div class="my-2 text-muted">
+        <i class="ri-search-eye-line display-4"></i>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">No Matching Subjects Found</h5>
+      <p class="text-muted small mb-0">Try searching for a different keyword, subject name, or abbreviation.</p>
+    </div>
+
+  </div>
+</section>
+
+<style>
+.pe-study-card {
+  box-shadow: 0 4px 16px rgba(0, 30, 60, 0.04);
+  cursor: pointer;
+}
+.pe-study-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px rgba(10, 93, 194, 0.12) !important;
+  background: #ffffff !important;
+}
+.active-study-card {
+  background: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(10, 93, 194, 0.12) !important;
+  border-left: 1px solid rgba(10, 93, 194, 0.2);
+  border-right: 1px solid rgba(10, 93, 194, 0.2);
+  border-bottom: 1px solid rgba(10, 93, 194, 0.2);
+}
+.pe-subject-module-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(10, 93, 194, 0.1) !important;
+}
+.hover-badge-pill {
+  transition: all 0.2s ease;
+}
+.hover-badge-pill:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filterBtns = document.querySelectorAll('#learningYearFilter .pe-year-filter-btn');
+  const cards = document.querySelectorAll('.learning-module-card-col');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      filterCards();
+    });
+  });
+
+  // Check URL hash for year filter (e.g. #year-1)
+  if (window.location.hash) {
+    const hash = window.location.hash.replace('#year-', '');
+    const targetBtn = document.querySelector(`#learningYearFilter [data-year="${hash}"]`);
+    if (targetBtn) {
+      targetBtn.click();
+    }
+  }
+});
+
+function filterCards() {
+  const activeBtn = document.querySelector('#learningYearFilter .pe-year-filter-btn.active');
+  const selectedYear = activeBtn ? activeBtn.getAttribute('data-year') : 'all';
+  const searchQuery = (document.getElementById('liveSubjectSearch').value || '').toLowerCase().trim();
+  const cards = document.querySelectorAll('.learning-module-card-col');
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    const cardYear = card.getAttribute('data-year');
+    const cardName = card.getAttribute('data-name') || '';
+    const cardAbbrev = card.getAttribute('data-abbrev') || '';
+
+    const matchesYear = (selectedYear === 'all' || cardYear === selectedYear);
+    const matchesSearch = (!searchQuery || cardName.includes(searchQuery) || cardAbbrev.includes(searchQuery));
+
+    if (matchesYear && matchesSearch) {
+      card.style.display = 'block';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  const countBadge = document.getElementById('subjectCountBadge');
+  if (countBadge) {
+    countBadge.innerHTML = `Showing <strong>${visibleCount}</strong> Subjects`;
+  }
+
+  const emptyState = document.getElementById('noSubjectMatchState');
+  if (emptyState) {
+    emptyState.classList.toggle('d-none', visibleCount > 0);
+  }
+}
+
+function filterSubjectsBySearch() {
+  filterCards();
+}
+</script>

@@ -1,0 +1,224 @@
+<section class="pe-course-hero">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <nav class="small text-white-50 mb-3">
+          <a href="/subjects" class="text-white-50">Subjects</a> /
+          <a href="/courses?category=<%= course.category_slug %>" class="text-white-50"><%= course.category_name %></a>
+        </nav>
+        <h1 class="text-white mb-2" style="font-size:2rem;"><%= course.title %></h1>
+        <p class="text-white-50 fs-6"><%= course.subtitle %></p>
+        <div class="d-flex align-items-center gap-3 flex-wrap mb-3">
+          <span class="text-warning"><i class="ri-star-fill"></i> <%= course.rating_avg.toFixed(1) %></span>
+          <span class="text-white-50 small">(<%= course.rating_count %> ratings)</span>
+          <span class="text-white-50 small"><i class="ri-group-line"></i> <%= course.students_count.toLocaleString() %> students</span>
+          <span class="badge badge-soft-info"><%= course.target_exam %></span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <img src="<%= course.instructor_avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(course.instructor_name) + '&background=0a5dc2&color=fff') %>" class="rounded-circle avatar-xs" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(course.instructor_name) %>&background=0a5dc2&color=fff'">
+          <a href="/instructors/<%= course.instructor_id %>" class="text-white-50 small">Created by <strong class="text-white"><%= course.instructor_name %></strong></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pe-section">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+
+        <!-- 🚀 3D INTERACTIVE COURSE PLATFORM BANNER -->
+        <div class="card border-0 shadow-lg rounded-4 p-4 text-white mb-4 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 position-relative z-2">
+            <div>
+              <span class="badge bg-warning text-dark font-weight-bold px-3 py-1 rounded-pill mb-2 shadow-sm" style="background-color: #f59e0b !important;">
+                <i class="ri-box-3-line me-1"></i> Interactive Learning Hub
+              </span>
+              <h4 class="fw-bold text-white mb-1">Enter Complete <%= course.category_name || 'Subject' %> Course Platform</h4>
+              <p class="text-white-75 small mb-0" style="max-width: 520px;">Access 3D rotatable WebGL models, internal video lectures, spaced-repetition flashcards, clinical case studies, and end-of-lesson quizzes.</p>
+            </div>
+            <a href="/subjects/<%= course.category_slug || 'anatomy' %>/course" class="btn btn-warning btn-lg rounded-pill font-weight-bold px-4 py-2.5 text-dark shadow-lg d-flex align-items-center gap-2" style="background-color: #f59e0b !important; border: none;">
+              <i class="ri-play-circle-fill fs-4"></i> Open 3D Platform <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- What you'll learn -->
+        <div class="card p-4 mb-4">
+          <h5 class="mb-3">What you'll learn</h5>
+          <div class="row g-2">
+            <% (course.learning_outcomes || '').split('\n').filter(Boolean).forEach(item => { %>
+              <div class="col-md-6 d-flex gap-2 align-items-start">
+                <i class="ri-checkbox-circle-fill text-success mt-1"></i>
+                <span class="small"><%= item %></span>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="card p-4 mb-4">
+          <h5 class="mb-3">About this course</h5>
+          <p class="small text-muted-pe" style="line-height:1.8;"><%= course.description %></p>
+        </div>
+
+        <!-- Curriculum -->
+        <div class="card p-4 mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Course Curriculum</h5>
+            <span class="small text-muted-pe"><%= modules.length %> modules • <%= totalLessons %> lessons</span>
+          </div>
+          <div class="accordion" id="curriculumAccordion">
+            <% modules.forEach((mod, idx) => { %>
+              <div class="pe-curriculum-module">
+                <h2 class="accordion-header">
+                  <button class="accordion-button <%= idx !== 0 ? 'collapsed' : '' %>" type="button" data-bs-toggle="collapse" data-bs-target="#mod<%= mod.id %>">
+                    <span class="me-2">Module <%= idx + 1 %>:</span> <%= mod.title %>
+                    <span class="ms-auto text-muted-pe small fw-normal"><%= mod.lessons.length %> lessons</span>
+                  </button>
+                </h2>
+                <div id="mod<%= mod.id %>" class="accordion-collapse collapse <%= idx === 0 ? 'show' : '' %>" data-bs-parent="#curriculumAccordion">
+                  <% mod.lessons.forEach(lesson => { %>
+                    <div class="pe-lesson-row">
+                      <span>
+                        <i class="<%= lesson.type === 'quiz' ? 'ri-questionnaire-line text-warning' : lesson.type === 'article' ? 'ri-file-text-line text-info' : 'ri-play-circle-line text-primary-pe' %> me-2"></i>
+                        <%= lesson.title %>
+                        <% if (lesson.is_preview) { %><span class="badge badge-soft-success ms-2">Preview</span><% } %>
+                      </span>
+                      <span class="text-muted-pe small"><%= lesson.duration_minutes %> min</span>
+                    </div>
+                  <% }) %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <!-- Requirements -->
+        <div class="card p-4 mb-4">
+          <h5 class="mb-3">Requirements</h5>
+          <ul class="small text-muted-pe mb-0">
+            <% (course.requirements || '').split('\n').filter(Boolean).forEach(item => { %>
+              <li><%= item %></li>
+            <% }) %>
+          </ul>
+        </div>
+
+        <!-- Instructor -->
+        <div class="card p-4 mb-4">
+          <h5 class="mb-3">Your Instructor</h5>
+          <div class="d-flex gap-3">
+            <img src="<%= course.instructor_avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(course.instructor_name) + '&background=0a5dc2&color=fff&size=128') %>" class="rounded-circle avatar-lg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(course.instructor_name) %>&background=0a5dc2&color=fff&size=128'">
+            <div>
+              <h6 class="mb-1"><%= course.instructor_name %></h6>
+              <p class="text-muted-pe small mb-2"><%= course.instructor_headline %></p>
+              <p class="small mb-0"><%= course.instructor_bio %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="card p-4">
+          <h5 class="mb-3">Student Reviews (<%= reviews.length %>)</h5>
+          <% if (reviews.length === 0) { %>
+            <p class="text-muted-pe small">No reviews yet. Be the first to review this course!</p>
+          <% } %>
+          <% reviews.forEach(r => { %>
+            <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+              <img src="<%= r.user_avatar %>" class="rounded-circle avatar-sm flex-shrink-0" onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(r.user_name) %>&background=0a5dc2&color=fff'">
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <strong class="small"><%= r.user_name %></strong>
+                  <span class="star-rating"><% for(let i=0;i<5;i++){ %><i class="ri-star-<%= i < r.rating ? 'fill' : 'line' %>"></i><% } %></span>
+                </div>
+                <p class="small text-muted-pe mb-0 mt-1"><%= r.comment %></p>
+              </div>
+            </div>
+          <% }) %>
+
+          <% if (isEnrolled) { %>
+            <form action="/reviews" method="POST" class="mt-3">
+              <input type="hidden" name="courseId" value="<%= course.id %>">
+              <h6 class="small mb-2">Leave a review</h6>
+              <div class="mb-2">
+                <select name="rating" class="form-select form-select-sm" style="width:auto;" required>
+                  <option value="5">5 — Excellent</option>
+                  <option value="4">4 — Good</option>
+                  <option value="3">3 — Average</option>
+                  <option value="2">2 — Below Average</option>
+                  <option value="1">1 — Poor</option>
+                </select>
+              </div>
+              <textarea name="comment" class="form-control form-control-sm mb-2" rows="2" placeholder="Share your experience..." required></textarea>
+              <button class="btn btn-primary btn-sm">Submit Review</button>
+            </form>
+          <% } %>
+        </div>
+
+      </div>
+
+      <!-- Sticky buy card -->
+      <div class="col-lg-4">
+        <div class="card pe-sticky-buy-card overflow-hidden">
+          <!-- Subject identifier banner - shows which subject this course belongs to -->
+          <div class="pe-course-subject-banner">
+            <div class="pe-course-subject-icon">
+              <i class="<%= course.category_icon || 'ri-book-2-line' %>"></i>
+            </div>
+            <div>
+              <p class="pe-course-subject-label">Subject</p>
+              <h6 class="pe-course-subject-name"><%= course.category_name || 'Physiotherapy' %></h6>
+              <% if (course.target_exam) { %>
+                <span class="pe-course-subject-year"><%= course.target_exam %></span>
+              <% } %>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+              <h3 class="mb-0 text-success">Free</h3>
+            </div>
+
+            <% if (isEnrolled) { %>
+              <a href="/courses/<%= course.slug %>/learn" class="btn btn-success w-100 mb-3"><i class="ri-play-circle-line me-1"></i> Continue Learning</a>
+              <div class="mb-2 small text-muted-pe">Your progress</div>
+              <div class="progress mb-3"><div class="progress-bar" style="width:<%= enrollment.progress_percent %>%"></div></div>
+              <div class="text-center small text-muted-pe"><%= enrollment.progress_percent %>% complete</div>
+            <% } else if (currentUser) { %>
+                <form action="/enroll/<%= course.id %>/free" method="POST">
+                  <button class="btn btn-primary w-100 mb-2" type="submit">Enroll Free</button>
+                </form>
+            <% } else { %>
+              <a href="/auth/login?redirect=/courses/<%= course.slug %>" class="btn btn-primary w-100 mb-2">Log In to Enroll</a>
+            <% } %>
+
+            <hr>
+            <h6 class="small fw-bold mb-3">This course includes:</h6>
+            <ul class="list-unstyled small text-muted-pe d-flex flex-column gap-2">
+              <li><i class="ri-vidicon-line me-2 text-primary-pe"></i> <%= course.duration_hours %> hours on-demand video</li>
+              <li><i class="ri-file-list-3-line me-2 text-primary-pe"></i> <%= totalLessons %> lessons across <%= modules.length %> modules</li>
+              <li><i class="ri-questionnaire-line me-2 text-primary-pe"></i> Practice quizzes with explanations</li>
+              <li><i class="ri-infinity-line me-2 text-primary-pe"></i> Full lifetime access</li>
+              <li><i class="ri-medal-line me-2 text-primary-pe"></i> Certificate of completion</li>
+            </ul>
+          </div>
+        </div>
+
+        <% if (related.length) { %>
+          <div class="mt-4">
+            <h6 class="mb-3">Related Courses</h6>
+            <% related.forEach(rc => { %>
+              <a href="/courses/<%= rc.slug %>" class="d-flex gap-2 mb-3 text-decoration-none">
+                <div class="pe-category-icon flex-shrink-0" style="width:2.75rem;height:2.75rem;"><i class="ri-pulse-line"></i></div>
+                <div>
+                  <div class="small fw-semibold text-dark"><%= rc.title %></div>
+                  <div class="small text-muted-pe">by <%= rc.instructor_name %></div>
+                </div>
+              </a>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>

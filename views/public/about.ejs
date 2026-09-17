@@ -1,0 +1,269 @@
+<!-- Hero Header -->
+<section class="pe-about-hero text-center py-5 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%);">
+  <div class="container py-4 position-relative z-1 text-center">
+    <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3 py-1.5 rounded-pill mb-3" style="font-size: 0.8rem;">
+      <i class="ri-heart-pulse-fill me-1"></i> About PhysioEdvance
+    </span>
+    <h1 class="text-white fw-bold display-5 mb-3">Empowering the Next Generation of Physiotherapists</h1>
+    <p class="text-white-75 mx-auto lead" style="max-width: 680px; font-size: 1.15rem;">
+      PhysioEdvance is a dedicated digital learning ecosystem created specifically for BPT & MPT physiotherapy students across India.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 1. LEADERSHIP MESSAGES SECTION (100% FULL WIDTH) ============ -->
+<% if (typeof aboutStatements !== 'undefined' && aboutStatements.length > 0) { %>
+<section class="pe-section bg-light py-5">
+  <div class="container">
+    <div class="pe-section-head text-center mb-5">
+      <span class="badge bg-primary-subtle text-primary font-weight-bold text-uppercase px-3 py-1.5 rounded-pill mb-2" style="font-size: 0.75rem;">
+        <i class="ri-user-star-line me-1"></i> Leadership & Philosophy
+      </span>
+      <h2 class="pe-section-title font-weight-bold display-6 mb-2 text-dark">Leadership Messages</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px; font-size: 1.05rem;">
+        Insights, philosophy, and learning vision from the leaders building PhysioEdvance.
+      </p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <% aboutStatements.forEach((stmt, sIdx) => { %>
+        <div class="col-12">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white pe-leadership-card transition-all">
+            <div class="row g-0 align-items-stretch">
+              
+              <!-- LEFT SIDE: IMAGE, NAME & QUALIFICATIONS -->
+              <div class="col-md-4 col-lg-3 p-4 text-center text-white d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+                <div class="position-relative d-inline-block mb-3">
+                  <img src="<%= stmt.photo || '/images/team/default-avatar.png' %>" alt="<%= stmt.name %>" class="rounded-circle border border-4 border-white shadow" style="width: 125px; height: 125px; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(stmt.name) %>&background=0a5dc2&color=fff&size=256'">
+                  <span class="position-absolute bottom-0 end-0 bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center border border-2 border-white shadow-sm" style="width: 28px; height: 28px; font-size: 0.85rem;" title="Leadership Board">
+                    <i class="ri-star-fill"></i>
+                  </span>
+                </div>
+                <h4 class="fw-bold text-white mb-1"><%= stmt.name %></h4>
+                <span class="badge bg-warning text-dark font-weight-bold px-3 py-1.5 rounded-pill mb-2 shadow-sm" style="font-size: 0.82rem;">
+                  <%= stmt.designation || stmt.role %>
+                </span>
+                <% if (stmt.qualification) { %>
+                  <div class="text-white-75 small font-weight-semibold"><%= stmt.qualification %></div>
+                <% } %>
+              </div>
+
+              <!-- RIGHT SIDE: SCROLLABLE LEADERSHIP MESSAGE CONTENT -->
+              <div class="col-md-8 col-lg-9 p-4 p-lg-4.5 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="pe-quote-mark text-primary opacity-25" style="font-size: 2.5rem; line-height: 1;">
+                      <i class="ri-double-quotes-l"></i>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-1 font-weight-semibold" style="font-size: 0.75rem;">
+                      <i class="ri-shield-check-line me-1"></i> Leadership Board
+                    </span>
+                  </div>
+
+                  <!-- SCROLLABLE STATEMENT MESSAGE CONTAINER -->
+                  <div class="pe-scrollable-quote text-dark font-weight-normal mb-3" style="max-height: 240px; overflow-y: auto; padding-right: 12px; font-style: italic; line-height: 1.75; font-size: 0.98rem;">
+                    “<%= stmt.statement || stmt.bio || 'PhysioEdvance aims to be a one-stop learning solution for physiotherapy students.' %>”
+                  </div>
+                </div>
+
+                <!-- Footer info -->
+                <div class="border-top pt-3 mt-2 d-flex align-items-center justify-content-between">
+                  <span class="text-muted small font-weight-semibold" style="font-size: 0.8rem;">
+                    <i class="ri-building-line text-primary me-1"></i> PhysioEdvance Leadership
+                  </span>
+                  <span class="text-primary font-weight-bold small" style="font-size: 0.8rem;">
+                    Official Statement
+                  </span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- Custom Scrollbar Styling for Scrollable Message -->
+<style>
+  .pe-scrollable-quote::-webkit-scrollbar { width: 6px; }
+  .pe-scrollable-quote::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+  .pe-scrollable-quote::-webkit-scrollbar-thumb { background: #0a5dc2; border-radius: 10px; }
+  .pe-scrollable-quote::-webkit-scrollbar-thumb:hover { background: #0284c7; }
+</style>
+<% } %>
+
+<!-- ============ 2. LOGIN STEPS & HOW TO GET STARTED ============ -->
+<section class="pe-section bg-white py-5">
+  <div class="container py-2">
+    <div class="text-center mb-5">
+      <span class="badge bg-warning-subtle text-warning font-weight-bold text-uppercase px-3 py-1.5 rounded-pill mb-2" style="font-size: 0.75rem;">
+        <i class="ri-login-circle-line me-1"></i> Simple Onboarding
+      </span>
+      <h2 class="pe-section-title font-weight-bold display-6 mb-2 text-dark">Easy 4-Step Student & Faculty Access</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px; font-size: 1.05rem;">
+        Follow these simple steps to log in, access 3D rotatable models, streaming videos, notes, and quizzes.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      
+      <!-- Step 1 -->
+      <div class="col-md-3 col-sm-6">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-light-subtle position-relative">
+          <div class="badge bg-primary text-white rounded-circle p-2 mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px; font-size: 1.25rem; font-weight: bold;">
+            1
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Click Login</h5>
+          <p class="text-secondary small mb-0">Click the <strong>Login</strong> button on the top navigation bar or go to <code class="text-primary">/auth/login</code>.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="col-md-3 col-sm-6">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-light-subtle position-relative">
+          <div class="badge bg-info text-white rounded-circle p-2 mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px; font-size: 1.25rem; font-weight: bold;">
+            2
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Enter Credentials</h5>
+          <p class="text-secondary small mb-0">Enter your registered Email & Password or use secure Face Recognition authentication.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="col-md-3 col-sm-6">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-light-subtle position-relative">
+          <div class="badge bg-warning text-dark rounded-circle p-2 mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px; font-size: 1.25rem; font-weight: bold;">
+            3
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Select BPT Subject</h5>
+          <p class="text-secondary small mb-0">Browse BPT Year 1 to 4 subjects (*Anatomy, Physiology, Neurology, Orthopedics, Electrotherapy*).</p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="col-md-3 col-sm-6">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-light-subtle position-relative">
+          <div class="badge bg-success text-white rounded-circle p-2 mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px; font-size: 1.25rem; font-weight: bold;">
+            4
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Start Learning</h5>
+          <p class="text-secondary small mb-0">Interact with 3D rotatable models, watch MP4 video streams, read study notes & solve quizzes!</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Direct Login Button CTA -->
+    <div class="text-center mt-4">
+      <a href="/auth/login" class="btn btn-primary btn-lg rounded-pill px-4.5 font-weight-bold shadow-sm" style="background: #0a5dc2;">
+        <i class="ri-login-box-line me-1"></i> Proceed to Login Page
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. WHAT PHYSIOEDVANCE OFFERS ============ -->
+<section class="pe-section bg-light py-5">
+  <div class="container py-2">
+    <div class="text-center mb-5">
+      <span class="badge bg-success-subtle text-success font-weight-bold text-uppercase px-3 py-1.5 rounded-pill mb-2" style="font-size: 0.75rem;">
+        <i class="ri-rocket-line me-1"></i> Core Features
+      </span>
+      <h2 class="pe-section-title font-weight-bold display-6 mb-2 text-dark">What PhysioEdvance Offers</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px; font-size: 1.05rem;">
+        Comprehensive academic support for BPT Year 1 to 4 and MPT students.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+          <div class="rounded-circle p-3 bg-primary-subtle text-primary mx-auto mb-3" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+            <i class="ri-book-2-line"></i>
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Structured Curriculum</h5>
+          <p class="text-secondary small mb-0">Year-wise structured subjects covering Anatomy, Physiology, Biomechanics, Electrotherapy, Orthopedics & Neurology.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+          <div class="rounded-circle p-3 bg-warning-subtle text-warning mx-auto mb-3" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+            <i class="ri-box-3-line"></i>
+          </div>
+          <h5 class="fw-bold text-dark mb-2">3D WebGL Models</h5>
+          <p class="text-secondary small mb-0">Rotatable 360° anatomical joint and muscle models for deep spatial understanding of human biomechanics.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+          <div class="rounded-circle p-3 bg-success-subtle text-success mx-auto mb-3" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+            <i class="ri-film-line"></i>
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Internal Video Learning</h5>
+          <p class="text-secondary small mb-0">Native MP4 streaming videos with watch progress, playback speed controls, and auto-resume features.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. VISION & MISSION CARDS (MOVED DOWN) ============ -->
+<section class="pe-section bg-white py-5">
+  <div class="container py-2">
+    <div class="text-center mb-5">
+      <span class="badge bg-primary-subtle text-primary font-weight-bold text-uppercase px-3 py-1.5 rounded-pill mb-2" style="font-size: 0.75rem;">
+        <i class="ri-compass-3-line me-1"></i> Core Purpose
+      </span>
+      <h2 class="pe-section-title font-weight-bold display-6 mb-2 text-dark">Our Vision & Mission</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px; font-size: 1.05rem;">
+        Building a world-class educational ecosystem for the physiotherapy community.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 p-lg-4.5 bg-light-subtle">
+          <div class="pe-category-icon mb-3" style="width: 52px; height: 52px; font-size: 1.5rem; background: rgba(10, 93, 194, 0.1); color: #0a5dc2; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+            <i class="ri-eye-line"></i>
+          </div>
+          <h4 class="fw-bold text-dark mb-3">Our Vision</h4>
+          <p class="text-secondary leading-relaxed mb-0" style="font-size: 1rem; line-height: 1.7;">
+            <%= (typeof visionMission !== 'undefined' && visionMission.vision) ? visionMission.vision : 'To build a strong learning ecosystem for physiotherapy students where education meets understanding, technology meets teaching, and knowledge meets clinical application.' %>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4 p-lg-4.5 bg-light-subtle">
+          <div class="pe-category-icon mb-3" style="width: 52px; height: 52px; font-size: 1.5rem; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+            <i class="ri-shield-star-line"></i>
+          </div>
+          <h4 class="fw-bold text-dark mb-3">Our Mission & Commitment</h4>
+          <p class="text-secondary leading-relaxed mb-0" style="font-size: 1rem; line-height: 1.7;">
+            <%= (typeof visionMission !== 'undefined' && visionMission.mission) ? visionMission.mission : '"Help students to help themselves." PhysioEdvance is not just about helping students pass examinations. It is about helping them become better learners, better clinicians, and better physiotherapists.' %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="pe-cta-section py-5 text-center" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%);">
+  <div class="container py-3">
+    <h2 class="pe-cta-title text-white font-weight-bold mb-2">Start Learning Today</h2>
+    <p class="pe-cta-sub text-white-75 mb-4">Access complete physiotherapy subjects, 3D rotatable models, and structured notes.</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="/subjects" class="btn btn-warning btn-lg rounded-pill px-4.5 py-2.5 font-weight-bold text-dark shadow-sm">
+        Explore All Subjects <i class="ri-arrow-right-line ms-1"></i>
+      </a>
+      <a href="/auth/register" class="btn btn-outline-light btn-lg rounded-pill px-4.5 py-2.5 font-weight-bold">
+        Create Free Account
+      </a>
+    </div>
+  </div>
+</section>

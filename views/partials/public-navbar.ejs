@@ -1,0 +1,349 @@
+<nav class="navbar navbar-expand-lg pe-navbar sticky-top">
+  <div class="container-fluid pe-nav-container">
+    <!-- Brand -->
+    <a class="navbar-brand pe-brand me-3 me-xl-4" href="/">
+      <img src="/images/logo-icon.png" alt="PhysioEdvance" class="pe-logo-img">
+      <span class="pe-brand-text">Physio<span class="text-primary-pe">Edvance</span></span>
+    </a>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="navbar-toggler pe-nav-toggler border-0 p-2 shadow-none rounded-circle" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="ri-menu-3-line fs-3 text-dark"></i>
+    </button>
+
+    <!-- Main Navigation Bar Collapse -->
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav mx-auto align-items-lg-center pe-nav-links">
+        <!-- 1. Home -->
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/' ? 'active' : '' %>" href="/">
+            <span>Home</span>
+          </a>
+        </li>
+
+        <!-- 2. Subjects Mega Menu -->
+        <li class="nav-item dropdown pe-subjects-dropdown">
+          <a class="nav-link dropdown-toggle <%= currentPath.startsWith('/subjects') || currentPath.startsWith('/courses') ? 'active' : '' %>"
+             href="/subjects" id="subjectsDropdown" role="button" aria-expanded="false" onclick="window.location.href='/subjects';">
+            <span>Subjects</span>
+            <i class="ri-arrow-down-s-line pe-nav-caret"></i>
+          </a>
+          <ul class="dropdown-menu pe-subjects-menu shadow-xl" aria-labelledby="subjectsDropdown">
+            <!-- Year 1 -->
+            <li class="dropdown-submenu">
+              <a class="dropdown-item pe-submenu-trigger" href="/subjects#year-1">
+                <span class="pe-year-dot" style="background:#0a5dc2;">1</span>
+                <span>Year 1 <small class="text-muted-pe">Foundation</small></span>
+                <i class="ri-arrow-right-s-line ms-auto"></i>
+              </a>
+              <ul class="dropdown-menu pe-submenu" style="max-height: 320px; overflow-y: auto;">
+                <li><a class="dropdown-item" href="/subjects/human-anatomy"><i class="ri-skull-2-line me-2 text-primary-pe"></i>Human Anatomy (HA)</a></li>
+                <li><a class="dropdown-item" href="/subjects/human-physiology"><i class="ri-pulse-line me-2 text-primary-pe"></i>Human Physiology (HP)</a></li>
+                <li><a class="dropdown-item" href="/subjects/biochemistry"><i class="ri-test-tube-line me-2 text-primary-pe"></i>Biochemistry (BC)</a></li>
+                <li><a class="dropdown-item" href="/subjects/fundamentals-of-exercise-modalities"><i class="ri-run-line me-2 text-primary-pe"></i>Fundamentals of Exercise Modalities (FoEM)</a></li>
+                <li><a class="dropdown-item" href="/subjects/fundamentals-of-electro-physical-agents"><i class="ri-flashlight-line me-2 text-primary-pe"></i>Fundamentals of Electro Physical Agents (FoEA)</a></li>
+                <li><a class="dropdown-item" href="/subjects/psychology-sociology"><i class="ri-brain-line me-2 text-primary-pe"></i>Psychology & Sociology (PS)</a></li>
+                <li><a class="dropdown-item" href="/subjects/fundamentals-of-healthcare-delivery-system-in-india"><i class="ri-hospital-line me-2 text-primary-pe"></i>Healthcare Delivery System (FoHS)</a></li>
+                <li><a class="dropdown-item" href="/subjects/english-nues"><i class="ri-book-open-line me-2 text-primary-pe"></i>English [NUES] (EG)</a></li>
+                <li><a class="dropdown-item" href="/subjects/information-technology-nues"><i class="ri-computer-line me-2 text-primary-pe"></i>Information Technology [NUES] (IT)</a></li>
+                <li><a class="dropdown-item" href="/subjects/clinic-orientation"><i class="ri-stethoscope-line me-2 text-primary-pe"></i>Clinic Orientation (COr)</a></li>
+              </ul>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <!-- Year 2 -->
+            <li class="dropdown-submenu">
+              <a class="dropdown-item pe-submenu-trigger" href="/subjects#year-2">
+                <span class="pe-year-dot" style="background:#2d9cdb;">2</span>
+                <span>Year 2 <small class="text-muted-pe">Core Clinical</small></span>
+                <i class="ri-arrow-right-s-line ms-auto"></i>
+              </a>
+              <ul class="dropdown-menu pe-submenu" style="max-height: 320px; overflow-y: auto;">
+                <li><a class="dropdown-item" href="/subjects/pathology-microbiology"><i class="ri-microscope-line me-2 text-primary-pe"></i>Pathology & Microbiology (PM)</a></li>
+                <li><a class="dropdown-item" href="/subjects/pharmacology"><i class="ri-capsule-line me-2 text-primary-pe"></i>Pharmacology (PC)</a></li>
+                <li><a class="dropdown-item" href="/subjects/public-health-health-promotion"><i class="ri-heart-pulse-line me-2 text-primary-pe"></i>Public Health & Health Promotion (PH)</a></li>
+                <li><a class="dropdown-item" href="/subjects/emergency-care-and-life-support-skills"><i class="ri-first-aid-kit-line me-2 text-primary-pe"></i>Emergency Care & Life Support (ECLS)</a></li>
+                <li><a class="dropdown-item" href="/subjects/exercise-therapy"><i class="ri-run-line me-2 text-primary-pe"></i>Exercise Therapy (ExT)</a></li>
+                <li><a class="dropdown-item" href="/subjects/electrotherapy"><i class="ri-flashlight-line me-2 text-primary-pe"></i>Electrotherapy (ET)</a></li>
+                <li><a class="dropdown-item" href="/subjects/biomechanics-kinesiology"><i class="ri-rotate-lock-line me-2 text-primary-pe"></i>Biomechanics & Kinesiology (BK)</a></li>
+                <li><a class="dropdown-item" href="/subjects/yoga-and-systems-of-medicine"><i class="ri-user-heart-line me-2 text-primary-pe"></i>Yoga & Systems of Medicine (YoG)</a></li>
+                <li><a class="dropdown-item" href="/subjects/clinical-observation"><i class="ri-eye-line me-2 text-primary-pe"></i>Clinical Observation (COb)</a></li>
+              </ul>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <!-- Year 3 -->
+            <li class="dropdown-submenu">
+              <a class="dropdown-item pe-submenu-trigger" href="/subjects#year-3">
+                <span class="pe-year-dot" style="background:#2FA75F;">3</span>
+                <span>Year 3 <small class="text-muted-pe">Advanced Clinical</small></span>
+                <i class="ri-arrow-right-s-line ms-auto"></i>
+              </a>
+              <ul class="dropdown-menu pe-submenu" style="max-height: 320px; overflow-y: auto;">
+                <li><a class="dropdown-item" href="/subjects/general-medicine-and-pediatrics"><i class="ri-hospital-line me-2 text-primary-pe"></i>General Medicine & Pediatrics (GMP)</a></li>
+                <li><a class="dropdown-item" href="/subjects/general-surgery"><i class="ri-scissors-cut-line me-2 text-primary-pe"></i>General Surgery (GS)</a></li>
+                <li><a class="dropdown-item" href="/subjects/orthopedics"><i class="ri-bone-line me-2 text-primary-pe"></i>Orthopedics (OR)</a></li>
+                <li><a class="dropdown-item" href="/subjects/physiotherapy-in-adult-and-pediatric-medical-and-surgical-conditions"><i class="ri-heart-line me-2 text-primary-pe"></i>PT in Med & Surgical Conditions (PTMS)</a></li>
+                <li><a class="dropdown-item" href="/subjects/physiotherapy-in-adult-and-pediatric-orthopedics-conditions"><i class="ri-bone-line me-2 text-primary-pe"></i>PT in Orthopedics Conditions (PTO)</a></li>
+                <li><a class="dropdown-item" href="/subjects/physical-functional-diagnosis-and-prescription"><i class="ri-stethoscope-line me-2 text-primary-pe"></i>Physical & Functional Diagnosis (PFDP)</a></li>
+                <li><a class="dropdown-item" href="/subjects/research-methodology-biostatistics-and-evidence-based-practice"><i class="ri-line-chart-line me-2 text-primary-pe"></i>Research Methodology & EBP (RMB)</a></li>
+                <li><a class="dropdown-item" href="/subjects/clinical-education"><i class="ri-award-line me-2 text-primary-pe"></i>Clinical Education (CEd)</a></li>
+              </ul>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <!-- Year 4 -->
+            <li class="dropdown-submenu">
+              <a class="dropdown-item pe-submenu-trigger" href="/subjects#year-4">
+                <span class="pe-year-dot" style="background:#F05D5D;">4</span>
+                <span>Year 4 <small class="text-muted-pe">Specialisation</small></span>
+                <i class="ri-arrow-right-s-line ms-auto"></i>
+              </a>
+              <ul class="dropdown-menu pe-submenu" style="max-height: 320px; overflow-y: auto;">
+                <li><a class="dropdown-item" href="/subjects/neurology-psychiatry-and-neurosurgery"><i class="ri-mental-health-line me-2 text-primary-pe"></i>Neurology, Psychiatry & Neurosurgery (NPNS)</a></li>
+                <li><a class="dropdown-item" href="/subjects/physiotherapy-in-adult-and-pediatric-neurological-and-neurosurgical-conditions"><i class="ri-brain-line me-2 text-primary-pe"></i>PT in Neurological Conditions (PTN)</a></li>
+                <li><a class="dropdown-item" href="/subjects/cardiothoracic-diseases-and-surgeries"><i class="ri-heart-pulse-line me-2 text-primary-pe"></i>Cardiothoracic Diseases & Surgeries (CTD)</a></li>
+                <li><a class="dropdown-item" href="/subjects/physiotherapy-in-adult-and-pediatric-cardiothoracic-conditions-and-surgical-conditions"><i class="ri-heart-2-line me-2 text-primary-pe"></i>PT in Cardiothoracic Conditions (PTCT)</a></li>
+                <li><a class="dropdown-item" href="/subjects/sports-physiotherapy-exercise-prescription"><i class="ri-trophy-line me-2 text-primary-pe"></i>Sports Physio & Exercise Prescription (PTS)</a></li>
+                <li><a class="dropdown-item" href="/subjects/pt-ethics-medico-legal-aspects-management-administration"><i class="ri-scales-3-line me-2 text-primary-pe"></i>PT Ethics & Administration (PTLM)</a></li>
+                <li><a class="dropdown-item" href="/subjects/community-physiotherapy-rehabilitation"><i class="ri-community-line me-2 text-primary-pe"></i>Community Physio & Rehab (CPTR)</a></li>
+                <li><a class="dropdown-item" href="/subjects/project-work-orientation-nues"><i class="ri-file-code-line me-2 text-primary-pe"></i>Project Work Orientation [NUES] (PW)</a></li>
+                <li><a class="dropdown-item" href="/subjects/clinical-rotation"><i class="ri-walk-line me-2 text-primary-pe"></i>Clinical Rotation (CR)</a></li>
+              </ul>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <!-- Other -->
+            <li class="dropdown-submenu">
+              <a class="dropdown-item pe-submenu-trigger" href="/subjects#other">
+                <span class="pe-year-dot" style="background:#6A7283;">+</span>
+                <span>Other Subjects <small class="text-muted-pe">Electives</small></span>
+                <i class="ri-arrow-right-s-line ms-auto"></i>
+              </a>
+              <ul class="dropdown-menu pe-submenu">
+                <li><a class="dropdown-item" href="/subjects/manual-therapy"><i class="ri-hand-heart-line me-2 text-primary-pe"></i>Manual Therapy</a></li>
+                <li><a class="dropdown-item" href="/subjects/dry-needling"><i class="ri-first-aid-kit-line me-2 text-primary-pe"></i>Dry Needling</a></li>
+                <li><a class="dropdown-item" href="/subjects/yoga-in-diseased-conditions"><i class="ri-mental-health-line me-2 text-primary-pe"></i>Yoga</a></li>
+                <li><a class="dropdown-item" href="/subjects/nutrition"><i class="ri-leaf-line me-2 text-primary-pe"></i>Nutrition</a></li>
+                <li><a class="dropdown-item" href="/subjects/evidence-based-practice"><i class="ri-file-search-line me-2 text-primary-pe"></i>Evidence Based Practice</a></li>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li><a class="dropdown-item fw-600 text-primary-pe" href="/subjects"><i class="ri-grid-line me-2"></i>View All Subjects →</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <!-- 3. Learning Module Dropdown -->
+        <li class="nav-item dropdown pe-learning-dropdown">
+          <a class="nav-link dropdown-toggle <%= currentPath.startsWith('/learning-modules') ? 'active' : '' %>"
+             href="/learning-modules" id="learningDropdown" role="button" aria-expanded="false" onclick="window.location.href='/learning-modules';">
+            <span>Learning Module</span>
+            <i class="ri-arrow-down-s-line pe-nav-caret"></i>
+          </a>
+          <ul class="dropdown-menu pe-subjects-menu shadow-xl border-0 rounded-4 p-2.5" aria-labelledby="learningDropdown" style="min-width: 300px;">
+            <li>
+              <div class="px-3 py-1.5 mb-1">
+                <span class="text-uppercase fw-bold text-muted" style="letter-spacing: 0.06em; font-size: 0.7rem;">Question Bank & Study Modes</span>
+              </div>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center fw-medium text-dark" href="/learning-modules?type=mcq">
+                <div class="pe-dropdown-icon-pill bg-primary-subtle text-primary me-2.5">
+                  <i class="ri-checkbox-circle-fill"></i>
+                </div>
+                <div>
+                  <div class="fw-bold text-dark" style="font-size: 0.88rem;">Multiple Choice Questions</div>
+                  <div class="small text-muted" style="font-size: 0.75rem;">Interactive MCQs with instant answers</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center fw-medium text-dark mt-1" href="/learning-modules?type=large-qa">
+                <div class="pe-dropdown-icon-pill bg-info-subtle text-info me-2.5">
+                  <i class="ri-file-list-3-fill"></i>
+                </div>
+                <div>
+                  <div class="fw-bold text-dark" style="font-size: 0.88rem;">Large Questions & Answers</div>
+                  <div class="small text-muted" style="font-size: 0.75rem;">10-15 Mark university exam questions</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center fw-medium text-dark mt-1" href="/learning-modules?type=small-qa">
+                <div class="pe-dropdown-icon-pill bg-warning-subtle text-warning me-2.5">
+                  <i class="ri-question-answer-fill"></i>
+                </div>
+                <div>
+                  <div class="fw-bold text-dark" style="font-size: 0.88rem;">Small Questions & Answers</div>
+                  <div class="small text-muted" style="font-size: 0.75rem;">2-5 Mark short answer definitions</div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- 4. Case Discussion -->
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath.startsWith('/live-discussion') ? 'active' : '' %>" href="/live-discussion">
+            <span>Case Discussion</span>
+          </a>
+        </li>
+
+        <!-- 5. Live Classes -->
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath.startsWith('/live-sessions') ? 'active' : '' %>" href="/live-sessions">
+            <span>Live Classes</span>
+            <span class="pe-live-pulse-badge">LIVE</span>
+          </a>
+        </li>
+
+        <!-- 6. Teams Dropdown -->
+        <li class="nav-item dropdown pe-team-dropdown">
+          <a class="nav-link dropdown-toggle <%= currentPath.startsWith('/the-team') ? 'active' : '' %>"
+             href="/the-team" id="teamDropdown" role="button" aria-expanded="false" onclick="window.location.href='/the-team';">
+            <span>Teams</span>
+            <i class="ri-arrow-down-s-line pe-nav-caret"></i>
+          </a>
+          <ul class="dropdown-menu pe-subjects-menu shadow-xl border-0 rounded-4 p-2" aria-labelledby="teamDropdown" style="min-width: 260px;">
+            <% if (typeof teamNavGroups === 'undefined' || teamNavGroups.teaching_staff) { %>
+              <li>
+                <a class="dropdown-item py-2.5 px-3 rounded-3 fw-medium text-dark d-flex align-items-center justify-content-between" href="/the-team#teaching-staff">
+                  <span>Teaching Staff</span>
+                  <i class="ri-arrow-right-s-line text-muted"></i>
+                </a>
+              </li>
+            <% } %>
+            <% if (typeof teamNavGroups === 'undefined' || teamNavGroups.non_teaching_staff) { %>
+              <li>
+                <a class="dropdown-item py-2.5 px-3 rounded-3 fw-medium text-dark d-flex align-items-center justify-content-between" href="/the-team#non-teaching-staff">
+                  <span>Non-Teaching Staff</span>
+                  <i class="ri-arrow-right-s-line text-muted"></i>
+                </a>
+              </li>
+            <% } %>
+            <% if (typeof teamNavGroups === 'undefined' || teamNavGroups.subject_experts) { %>
+              <li>
+                <a class="dropdown-item py-2.5 px-3 rounded-3 fw-medium text-dark d-flex align-items-center justify-content-between" href="/the-team#subject-experts">
+                  <span>Experts for all Subjects</span>
+                  <i class="ri-arrow-right-s-line text-muted"></i>
+                </a>
+              </li>
+            <% } %>
+            <% if (typeof teamNavGroups === 'undefined' || teamNavGroups.technical_assistance) { %>
+              <li>
+                <a class="dropdown-item py-2.5 px-3 rounded-3 fw-medium text-dark d-flex align-items-center justify-content-between" href="/the-team#technical-assistance">
+                  <span>Technical Assistance</span>
+                  <i class="ri-arrow-right-s-line text-muted"></i>
+                </a>
+              </li>
+            <% } %>
+            <% if (typeof teamNavGroups === 'undefined' || teamNavGroups.other_staff) { %>
+              <li>
+                <a class="dropdown-item py-2.5 px-3 rounded-3 fw-medium text-dark d-flex align-items-center justify-content-between" href="/the-team#other-staff">
+                  <span>Other Staff</span>
+                  <i class="ri-arrow-right-s-line text-muted"></i>
+                </a>
+              </li>
+            <% } %>
+          </ul>
+        </li>
+
+        <!-- 7. Blog -->
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath.startsWith('/blog') ? 'active' : '' %>" href="/blog">
+            <span>Blog</span>
+          </a>
+        </li>
+
+        <!-- 8. About -->
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath.startsWith('/about') ? 'active' : '' %>" href="/about">
+            <span>About</span>
+          </a>
+        </li>
+
+        <!-- 9. Contact -->
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath.startsWith('/contact') ? 'active' : '' %>" href="/contact">
+            <span>Contact</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Auth & User Actions -->
+      <div class="pe-nav-auth mt-3 mt-lg-0">
+        <% if (currentUser) { %>
+          <a href="<%= (currentUser.role === 'admin' || currentUser.role === 'superadmin') ? '/admin/dashboard' : currentUser.role === 'instructor' ? '/instructor/dashboard' : '/dashboard' %>" class="pe-nav-dash-btn">
+            <i class="ri-dashboard-3-line"></i>
+            <span>My Dashboard</span>
+          </a>
+          <div class="dropdown">
+            <a class="pe-user-pill dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="pe-user-avatar-wrap">
+                <img src="<%= currentUser.avatar || '' %>" class="pe-user-avatar-img" alt="<%= currentUser.name %>"
+                  onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(currentUser.name) %>&background=0a5dc2&color=fff&bold=true'">
+                <span class="pe-user-status-dot"></span>
+              </div>
+              <div class="pe-user-meta d-none d-xl-flex">
+                <span class="pe-user-name"><%= currentUser.name.split(' ')[0] %></span>
+                <span class="pe-user-role-badge"><%= currentUser.role === 'admin' || currentUser.role === 'superadmin' ? 'Admin' : currentUser.role === 'instructor' ? 'Faculty' : 'Student' %></span>
+              </div>
+              <i class="ri-arrow-down-s-line pe-user-caret"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-xl border-0 rounded-4 p-2 mt-2 pe-user-dropdown-menu">
+              <li class="px-3 py-2 border-bottom mb-1 d-xl-none">
+                <div class="fw-bold text-dark"><%= currentUser.name %></div>
+                <div class="small text-muted"><%= currentUser.email %></div>
+              </li>
+              <li><a class="dropdown-item py-2 px-3 rounded-3" href="/profile"><i class="ri-user-line me-2 text-primary"></i>My Profile</a></li>
+              <li><a class="dropdown-item py-2 px-3 rounded-3" href="/my-courses"><i class="ri-book-2-line me-2 text-primary"></i>My Courses</a></li>
+              <% if (currentUser.role === 'admin' || currentUser.role === 'superadmin') { %><li><a class="dropdown-item py-2 px-3 rounded-3" href="/admin/dashboard"><i class="ri-shield-line me-2 text-primary"></i>Admin Panel</a></li><% } %>
+              <% if (currentUser.role === 'instructor') { %><li><a class="dropdown-item py-2 px-3 rounded-3" href="/instructor/dashboard"><i class="ri-award-line me-2 text-primary"></i>Instructor Portal</a></li><% } %>
+              <li><hr class="dropdown-divider my-1.5"></li>
+              <li><a class="dropdown-item py-2 px-3 rounded-3 text-danger fw-semibold" href="/auth/logout"><i class="ri-logout-box-line me-2"></i>Sign Out</a></li>
+            </ul>
+          </div>
+        <% } else { %>
+          <a href="/auth/login" class="pe-nav-login-btn">
+            <i class="ri-login-box-line"></i>
+            <span>Log In</span>
+          </a>
+          <a href="/auth/register" class="pe-nav-signup-btn">
+            <span>Sign Up Free</span>
+            <i class="ri-arrow-right-line"></i>
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ ROTATABLE TRUST & VALUE HIGHLIGHTS BAR (HOMEPAGE ONLY) ============ -->
+<% 
+  const isHomePage = (typeof currentPath !== 'undefined' && (currentPath === '/' || currentPath === '')) || 
+                     (typeof bodyClass !== 'undefined' && bodyClass === 'landing-page');
+%>
+<% if (isHomePage && (typeof trustBarSettings === 'undefined' || trustBarSettings.enabled !== false)) { 
+     const activeTrustItems = (typeof trustBarSettings !== 'undefined' && Array.isArray(trustBarSettings.items) && trustBarSettings.items.length > 0)
+       ? trustBarSettings.items
+       : [
+           { icon: 'ri-megaphone-line', text: 'Quick Revision' },
+           { icon: 'ri-book-open-line', text: 'Examination Preparation' },
+           { icon: 'ri-stack-line', text: 'Subject-wise Learning' },
+           { icon: 'ri-settings-4-line', text: 'Clinical Application' },
+           { icon: 'ri-file-text-line', text: 'Evidence-Informed Answers' },
+           { icon: 'ri-focus-3-line', text: 'Aligned with Indian Physiotherapy Curriculum' }
+         ];
+     // Duplicate for infinite seamless marquee loop
+     const marqueeTrustItems = activeTrustItems.concat(activeTrustItems).concat(activeTrustItems);
+%>
+<div class="pe-subnav-trust-bar">
+  <div class="pe-trust-slider">
+    <div class="pe-trust-track" style="animation-duration: <%= (typeof trustBarSettings !== 'undefined' && trustBarSettings.speed) ? trustBarSettings.speed : ((typeof heroSettings !== 'undefined' && heroSettings.trustBarSpeed) ? heroSettings.trustBarSpeed : 55) %>s;">
+      <% marqueeTrustItems.forEach(item => { %>
+        <div class="pe-trust-item">
+          <i class="<%= item.icon || 'ri-check-line' %>"></i>
+          <span><%= item.text %></span>
+        </div>
+        <div class="pe-trust-divider"></div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+<% } %>

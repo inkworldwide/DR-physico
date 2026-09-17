@@ -1,0 +1,431 @@
+<%
+  const totalActive = (orders || []).length;
+  const trashCount = (deletedOrders || []).length;
+  const totalRevenue = (orders || []).filter(o => o.status === 'success').reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
+  const paidCount = (orders || []).filter(o => Number(o.amount) > 0).length;
+  const freeCount = (orders || []).filter(o => Number(o.amount) === 0).length;
+%>
+
+<style>
+  .pe-order-kpi-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    transition: all 0.25s ease;
+  }
+  .pe-order-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    border-color: #cbd5e1;
+  }
+  .pe-order-kpi-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+  .pe-order-tabs {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 4px;
+    border-radius: 14px;
+  }
+  .order-filter-btn {
+    border-radius: 10px !important;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+    padding: 6px 14px !important;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .order-filter-btn:hover {
+    color: #0a5dc2;
+    background: rgba(10, 93, 194, 0.06);
+  }
+  .order-filter-btn.active {
+    background: #0a5dc2 !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 10px rgba(10, 93, 194, 0.25);
+  }
+  .order-filter-btn.active .badge {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+  }
+  .pe-order-table tbody tr {
+    transition: background-color 0.18s ease;
+  }
+  .pe-order-table tbody tr:hover {
+    background-color: #f8fafc;
+  }
+  .order-avatar-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+  }
+  .action-btn-circle {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+  }
+  .action-btn-circle:hover {
+    transform: scale(1.08);
+  }
+  .tx-id-badge {
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.76rem;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+</style>
+
+<!-- ============ PAGE HEADER & KPI STATS ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-weight-bold px-2.5 py-1 rounded-pill" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+        <i class="ri-money-dollar-circle-line me-1"></i> TRANSACTIONS & BILLING
+      </span>
+      <span class="badge bg-light text-muted border px-2 py-0.5 rounded-pill small">Financial Audit Log</span>
+    </div>
+    <h3 class="fw-black text-dark mb-1" style="letter-spacing: -0.5px;">Orders & Payments</h3>
+    <p class="text-muted small mb-0">View subscription purchases, free enrollments, and manage the orders recycle bin.</p>
+  </div>
+</div>
+
+<!-- ============ KPI METRIC CARDS ============ -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="pe-order-kpi-card shadow-xs">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Total Orders</div>
+          <div class="fs-4 fw-black text-dark mt-0.5"><%= totalActive %></div>
+        </div>
+        <div class="pe-order-kpi-icon bg-primary-subtle text-primary">
+          <i class="ri-file-list-3-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-3">
+    <div class="pe-order-kpi-card shadow-xs">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Total Revenue</div>
+          <div class="fs-4 fw-black text-success mt-0.5">₹<%= totalRevenue.toLocaleString() %></div>
+        </div>
+        <div class="pe-order-kpi-icon bg-success-subtle text-success">
+          <i class="ri-money-rupee-circle-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="pe-order-kpi-card shadow-xs">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Paid Orders</div>
+          <div class="fs-4 fw-black text-indigo mt-0.5"><%= paidCount %></div>
+        </div>
+        <div class="pe-order-kpi-icon bg-indigo-subtle text-indigo">
+          <i class="ri-bank-card-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="pe-order-kpi-card shadow-xs">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Free Grants</div>
+          <div class="fs-4 fw-black text-info mt-0.5"><%= freeCount %></div>
+        </div>
+        <div class="pe-order-kpi-icon bg-info-subtle text-info">
+          <i class="ri-gift-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-3">
+    <div class="pe-order-kpi-card shadow-xs">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Recycle Bin</div>
+          <div class="fs-4 fw-black text-danger mt-0.5"><%= trashCount %></div>
+        </div>
+        <div class="pe-order-kpi-icon bg-danger-subtle text-danger">
+          <i class="ri-delete-bin-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FILTERS & LIVE SEARCH ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div class="pe-order-tabs d-inline-flex flex-wrap gap-1">
+    <button type="button" class="order-filter-btn active" onclick="filterByFilterType('all', this)">
+      <i class="ri-apps-2-line"></i> All Orders <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= totalActive %></span>
+    </button>
+    <button type="button" class="order-filter-btn" onclick="filterByFilterType('paid', this)">
+      <i class="ri-bank-card-line"></i> Paid Orders <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= paidCount %></span>
+    </button>
+    <button type="button" class="order-filter-btn" onclick="filterByFilterType('free', this)">
+      <i class="ri-gift-line"></i> Free Grants <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= freeCount %></span>
+    </button>
+  </div>
+
+  <div class="d-flex align-items-center gap-2">
+    <div class="input-group input-group-sm" style="width: 280px;">
+      <span class="input-group-text bg-white border-end-0 text-muted"><i class="ri-search-line"></i></span>
+      <input type="text" id="orderLiveSearch" class="form-control bg-white border-start-0 ps-0" placeholder="Search order ID, student, course..." onkeyup="filterOrderTable()">
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTIVE ORDERS TABLE ============ -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="table-responsive">
+    <table class="table pe-order-table align-middle mb-0" id="activeOrdersTable">
+      <thead class="bg-light text-muted small text-uppercase" style="letter-spacing: 0.5px;">
+        <tr>
+          <th class="ps-4 py-3">Transaction ID</th>
+          <th class="py-3">Student</th>
+          <th class="py-3">Course / Subject</th>
+          <th class="py-3">Amount</th>
+          <th class="py-3">Method</th>
+          <th class="py-3 text-center">Status</th>
+          <th class="py-3">Date</th>
+          <th class="pe-4 py-3 text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!orders || orders.length === 0) { %>
+          <tr>
+            <td colspan="8" class="text-center py-5 text-muted">
+              <i class="ri-file-list-3-line display-4 opacity-40 mb-2 d-block text-muted"></i>
+              <h6 class="fw-bold text-dark">No orders or transactions recorded yet</h6>
+              <p class="small text-muted mb-0">When students enroll or purchase courses, transactions will appear here.</p>
+            </td>
+          </tr>
+        <% } else { %>
+          <% orders.forEach(o => { 
+               const isFree = Number(o.amount) === 0;
+          %>
+            <tr class="order-row" data-type="<%= isFree ? 'free' : 'paid' %>" data-search="<%= (o.transaction_id + ' ' + (o.student_name || '') + ' ' + (o.student_email || '') + ' ' + (o.course_title || '') + ' ' + (o.payment_method || '') + ' ' + (o.status || '')).toLowerCase() %>">
+              <td class="ps-4 py-3">
+                <div class="tx-id-badge" title="Transaction ID">
+                  <i class="ri-hashtag text-muted"></i>
+                  <span><%= o.transaction_id || ('ORD-' + o.id) %></span>
+                </div>
+              </td>
+
+              <td class="py-3">
+                <div class="d-flex align-items-center gap-2">
+                  <img src="<%= o.student_avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(o.student_name || 'Student') + '&background=0a5dc2&color=fff' %>" 
+                       class="order-avatar-box shadow-2xs" 
+                       onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(o.student_name || 'Student') %>&background=0a5dc2&color=fff'">
+                  <div>
+                    <div class="fw-bold text-dark" style="font-size: 0.88rem;"><%= o.student_name || 'User #' + o.user_id %></div>
+                    <div class="text-muted small" style="font-size: 0.73rem;"><%= o.student_email || '' %></div>
+                  </div>
+                </div>
+              </td>
+
+              <td class="py-3">
+                <div class="fw-bold text-dark" style="font-size: 0.88rem;"><%= o.course_title || 'Course #' + o.course_id %></div>
+                <% if (o.category_name) { %>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill font-weight-bold" style="font-size: 0.68rem;">
+                    <%= o.category_name %>
+                  </span>
+                <% } %>
+              </td>
+
+              <td class="py-3">
+                <% if (isFree) { %>
+                  <span class="badge bg-light text-secondary border px-2.5 py-1 rounded-pill fw-bold">₹0 (Free)</span>
+                <% } else { %>
+                  <span class="fw-black text-success" style="font-size: 0.95rem;">₹<%= Number(o.amount).toLocaleString() %></span>
+                <% } %>
+              </td>
+
+              <td class="py-3">
+                <span class="badge bg-light text-muted border text-capitalize px-2 py-0.5 rounded-pill" style="font-size: 0.72rem;">
+                  <i class="ri-<%= isFree ? 'gift-line' : 'bank-card-line' %> me-1"></i>
+                  <%= (o.payment_method || 'Free').replace('_', ' ') %>
+                </span>
+              </td>
+
+              <td class="py-3 text-center">
+                <% if (o.status === 'success') { %>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill font-weight-bold" style="font-size: 0.72rem;">
+                    <i class="ri-checkbox-circle-line me-1"></i> Success
+                  </span>
+                <% } else if (o.status === 'pending') { %>
+                  <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1 rounded-pill font-weight-bold" style="font-size: 0.72rem;">
+                    <i class="ri-time-line me-1"></i> Pending
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill font-weight-bold text-capitalize" style="font-size: 0.72rem;">
+                    <i class="ri-close-circle-line me-1"></i> <%= o.status || 'Failed' %>
+                  </span>
+                <% } %>
+              </td>
+
+              <td class="py-3 text-muted small">
+                <i class="ri-calendar-line me-1 text-muted"></i><%= new Date(o.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %>
+              </td>
+
+              <td class="pe-4 py-3 text-end">
+                <form action="/admin/orders/<%= o.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Move Order #<%= o.transaction_id || o.id %> to Deleted Orders (Recycle Bin)?')">
+                  <button type="submit" class="action-btn-circle btn btn-sm btn-outline-danger" title="Move to Recycle Bin">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ DELETED ORDERS (RECYCLE BIN) SECTION ============ -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header bg-danger-subtle border-0 py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <div class="pe-order-kpi-icon bg-danger text-white shadow-2xs" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 8px;">
+        <i class="ri-delete-bin-line"></i>
+      </div>
+      <div>
+        <h6 class="fw-bold text-danger mb-0">Deleted Orders (Recycle Bin)</h6>
+        <span class="text-danger small opacity-75">Restore mistakenly deleted transactions or delete permanently</span>
+      </div>
+    </div>
+    <span class="badge bg-danger text-white rounded-pill px-3 py-1 font-weight-bold">
+      <%= trashCount %> in Recycle Bin
+    </span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table pe-order-table align-middle mb-0">
+      <thead class="bg-light text-muted small text-uppercase" style="letter-spacing: 0.5px;">
+        <tr>
+          <th class="ps-4 py-3">Transaction ID</th>
+          <th class="py-3">Student</th>
+          <th class="py-3">Course</th>
+          <th class="py-3">Amount</th>
+          <th class="py-3">Status</th>
+          <th class="py-3">Date</th>
+          <th class="pe-4 py-3 text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!deletedOrders || deletedOrders.length === 0) { %>
+          <tr>
+            <td colspan="7" class="text-center py-4 text-muted small">
+              <i class="ri-checkbox-circle-line text-success me-1"></i> Recycle Bin is empty. No deleted orders.
+            </td>
+          </tr>
+        <% } else { %>
+          <% deletedOrders.forEach(o => { %>
+            <tr class="bg-light-subtle">
+              <td class="ps-4 py-3">
+                <span class="tx-id-badge text-decoration-line-through text-muted"><%= o.transaction_id || ('ORD-' + o.id) %></span>
+                <span class="badge bg-danger text-white ms-1" style="font-size: 0.65rem;">Deleted</span>
+              </td>
+              <td class="py-3">
+                <div class="fw-bold text-dark"><%= o.student_name || 'User #' + o.user_id %></div>
+                <div class="text-muted small" style="font-size: 0.72rem;"><%= o.student_email || '' %></div>
+              </td>
+              <td class="py-3 text-secondary small"><%= o.course_title %></td>
+              <td class="py-3 fw-bold text-dark">₹<%= Number(o.amount || 0).toLocaleString() %></td>
+              <td class="py-3">
+                <span class="badge bg-light text-muted border text-capitalize"><%= o.status %></span>
+              </td>
+              <td class="py-3 text-muted small"><%= new Date(o.created_at).toLocaleDateString() %></td>
+              <td class="pe-4 py-3 text-end">
+                <div class="d-inline-flex align-items-center gap-2">
+                  <!-- Restore Form -->
+                  <form action="/admin/orders/<%= o.id %>/restore" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1 font-weight-bold d-inline-flex align-items-center gap-1 shadow-xs" title="Restore Order">
+                      <i class="ri-restart-line"></i> Restore
+                    </button>
+                  </form>
+
+                  <!-- Permanent Delete Form -->
+                  <form action="/admin/orders/<%= o.id %>/permanent-delete" method="POST" class="d-inline" onsubmit="return confirm('WARNING: Are you sure you want to PERMANENTLY delete Order #<%= o.transaction_id || o.id %>? This transaction record CANNOT be recovered!')">
+                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 font-weight-bold d-inline-flex align-items-center gap-1" title="Delete Permanently">
+                      <i class="ri-delete-bin-2-line"></i> Delete Permanently
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  let currentFilterType = 'all';
+
+  function filterByFilterType(type, btn) {
+    currentFilterType = type;
+    document.querySelectorAll('.order-filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    applyCombinedFilters();
+  }
+
+  function filterOrderTable() {
+    applyCombinedFilters();
+  }
+
+  function applyCombinedFilters() {
+    const query = (document.getElementById('orderLiveSearch').value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('#activeOrdersTable tbody tr.order-row');
+    rows.forEach(row => {
+      const rowType = row.getAttribute('data-type') || '';
+      const searchData = row.getAttribute('data-search') || '';
+
+      const matchesType = (currentFilterType === 'all') || (rowType === currentFilterType);
+      const matchesSearch = !query || searchData.includes(query);
+
+      if (matchesType && matchesSearch) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+</script>
+

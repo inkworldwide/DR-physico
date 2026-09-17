@@ -1,0 +1,109 @@
+<section class="pe-section-sm bg-white border-bottom">
+  <div class="container">
+    <h1 class="pe-section-title mb-1">Welcome back, <%= currentUser.name.split(' ')[0] %> 👋</h1>
+    <p class="text-muted-pe mb-0">Here's where you left off.</p>
+  </div>
+</section>
+
+<section class="pe-section">
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-6">
+        <div class="pe-kpi-card">
+          <div class="pe-kpi-icon badge-soft-primary mb-2"><i class="ri-book-open-line"></i></div>
+          <div class="pe-kpi-value"><%= stats.enrolled %></div>
+          <div class="pe-kpi-label">Enrolled Courses</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="pe-kpi-card">
+          <div class="pe-kpi-icon badge-soft-success mb-2"><i class="ri-checkbox-circle-line"></i></div>
+          <div class="pe-kpi-value"><%= stats.completed %></div>
+          <div class="pe-kpi-label">Completed</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="pe-kpi-card">
+          <div class="pe-kpi-icon badge-soft-warning mb-2"><i class="ri-medal-line"></i></div>
+          <div class="pe-kpi-value"><%= stats.certificates %></div>
+          <div class="pe-kpi-label">Certificates</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="pe-kpi-card">
+          <div class="pe-kpi-icon badge-soft-info mb-2"><i class="ri-line-chart-line"></i></div>
+          <div class="pe-kpi-value"><%= stats.avgProgress %>%</div>
+          <div class="pe-kpi-label">Avg. Progress</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- My Courses -->
+      <div class="col-lg-8">
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Continue Learning</h5>
+            <a href="/my-courses" class="small">View All</a>
+          </div>
+          <% if (myCourses.length === 0) { %>
+            <div class="text-center py-4">
+              <i class="ri-book-open-line" style="font-size:2.5rem;color:var(--pe-text-muted);"></i>
+              <p class="text-muted-pe mt-2 mb-3">You haven't enrolled in any courses yet.</p>
+              <a href="/courses" class="btn btn-primary btn-sm">Browse Courses</a>
+            </div>
+          <% } %>
+          <% myCourses.slice(0,5).forEach(c => { %>
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+              <div class="pe-category-icon flex-shrink-0"><i class="ri-pulse-line"></i></div>
+              <div class="flex-grow-1">
+                <a href="/courses/<%= c.slug %>/learn" class="text-dark fw-semibold small text-decoration-none"><%= c.title %></a>
+                <div class="text-muted-pe small mb-1">by <%= c.instructor_name %></div>
+                <div class="progress" style="height:6px;"><div class="progress-bar" style="width:<%= c.progress_percent %>%"></div></div>
+              </div>
+              <div class="text-end flex-shrink-0">
+                <div class="small fw-bold"><%= Math.round(c.progress_percent) %>%</div>
+                <a href="/courses/<%= c.slug %>/learn" class="btn btn-sm btn-soft-primary mt-1">Resume</a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Quiz history + certificates -->
+      <div class="col-lg-4">
+        <div class="card p-4 mb-4">
+          <h6 class="mb-3">Recent Quiz Attempts</h6>
+          <% if (recentAttempts.length === 0) { %>
+            <p class="small text-muted-pe">No quiz attempts yet.</p>
+          <% } %>
+          <% recentAttempts.forEach(a => { %>
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+              <div>
+                <div class="small fw-semibold"><%= a.quiz_title %></div>
+                <div class="text-muted-pe" style="font-size:0.75rem;"><%= a.course_title %></div>
+              </div>
+              <span class="badge <%= a.passed ? 'badge-soft-success' : 'badge-soft-danger' %>"><%= a.score %>%</span>
+            </div>
+          <% }) %>
+          <a href="/my-quiz-attempts" class="small mt-2 d-inline-block">View all attempts</a>
+        </div>
+
+        <div class="card p-4">
+          <h6 class="mb-3">My Certificates</h6>
+          <% if (certificates.length === 0) { %>
+            <p class="small text-muted-pe">Complete a course to earn your first certificate.</p>
+          <% } %>
+          <% certificates.forEach(c => { %>
+            <a href="/certificate/<%= c.certificate_code %>" class="d-flex align-items-center gap-2 mb-2 text-decoration-none">
+              <i class="ri-medal-line text-warning"></i>
+              <span class="small text-dark"><%= c.course_title %></span>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

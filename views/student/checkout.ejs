@@ -1,0 +1,123 @@
+<section class="pe-section">
+  <div class="container">
+    <div class="row justify-content-center g-4">
+      <div class="col-lg-7">
+        <div class="card p-4">
+          <h4 class="mb-4">Checkout</h4>
+
+          <% if (!paymentConfigured) { %>
+            <div class="alert alert-warning d-flex align-items-start gap-2">
+              <i class="ri-error-warning-line mt-1"></i>
+              <div class="small">
+                <strong>Payments aren't set up yet.</strong> The site owner needs to add real Razorpay API keys
+                (<code>RAZORPAY_KEY_ID</code> / <code>RAZORPAY_KEY_SECRET</code>) to the <code>.env</code> file
+                before this course can be purchased. Get free test keys at
+                <a href="https://dashboard.razorpay.com/app/keys" target="_blank" rel="noopener">dashboard.razorpay.com</a>.
+              </div>
+            </div>
+            <a href="/courses/<%= course.slug %>" class="btn btn-outline-primary">Back to Course</a>
+
+          <% } else if (!razorpayOrder) { %>
+            <!-- Free course, no payment needed -->
+            <div class="alert alert-success d-flex align-items-start gap-2">
+              <i class="ri-checkbox-circle-line mt-1"></i>
+              <div class="small">This course is free — no payment required.</div>
+            </div>
+            <form action="/enroll/<%= course.id %>/free" method="POST">
+              <button type="submit" class="btn btn-primary w-100 btn-lg">Enroll Free</button>
+            </form>
+
+          <% } else { %>
+            <!-- Real Razorpay checkout -->
+            <p class="text-muted-pe small mb-4">
+              Pay securely via UPI, card, netbanking, or wallet. Powered by Razorpay — India's RBI-licensed payment gateway.
+            </p>
+            <button id="rzpPayBtn" class="btn btn-primary w-100 btn-lg">
+              <i class="ri-secure-payment-line me-1"></i> Pay ₹<%= (course.discount_price || course.price).toLocaleString() %> via Razorpay
+            </button>
+            <p class="text-center small text-muted-pe mt-3 mb-0">
+              <i class="ri-shield-check-line"></i> Your payment details are handled entirely by Razorpay. This site never sees your card or UPI details.
+            </p>
+
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+            <script>
+              document.getElementById('rzpPayBtn').addEventListener('click', function () {
+                const options = {
+                  key: "<%= razorpayKeyId %>",
+                  amount: <%= razorpayOrder.amount %>,
+                  currency: "INR",
+                  name: "PhysioEdvance",
+                  description: <%- JSON.stringify(course.title) %>,
+                  order_id: "<%= razorpayOrder.id %>",
+                  prefill: {
+                    name: <%- JSON.stringify(currentUser.name) %>,
+                    email: <%- JSON.stringify(currentUser.email) %>
+                  },
+                  theme: { color: "#0a5dc2" },
+                  handler: async function (response) {
+                    const btn = document.getElementById('rzpPayBtn');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="ri-loader-4-line"></i> Verifying payment...';
+                    try {
+                      const res = await fetch('/checkout/<%= course.id %>/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          razorpay_order_id: response.razorpay_order_id,
+                          razorpay_payment_id: response.razorpay_payment_id,
+                          razorpay_signature: response.razorpay_signature,
+                          courseId: "<%= course.id %>"
+                        })
+                      });
+                      const data = await res.json();
+                      if (data.success) {
+                        window.location.href = data.redirect;
+                      } else {
+                        alert('Payment verification failed: ' + data.message);
+                        btn.disabled = false;
+                        btn.innerHTML = 'Try Again';
+                      }
+                    } catch (e) {
+                      alert('Something went wrong verifying your payment. If money was deducted, contact support with your payment ID.');
+                      btn.disabled = false;
+                    }
+                  },
+                  modal: {
+                    ondismiss: function () {
+                      // user closed the widget without paying — no charge, nothing to do
+                    }
+                  }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+              });
+            </script>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card p-4">
+          <h6 class="mb-3">Order Summary</h6>
+          <div class="d-flex gap-3 mb-3">
+            <div class="pe-category-icon flex-shrink-0"><i class="ri-pulse-line"></i></div>
+            <div>
+              <div class="small fw-semibold"><%= course.title %></div>
+              <div class="text-muted-pe small">by <%= course.instructor_name %></div>
+            </div>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between small mb-2">
+            <span>Course Price</span>
+            <span class="text-success fw-semibold">Free</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between fw-bold">
+            <span>Total</span>
+            <span class="text-success">Free</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

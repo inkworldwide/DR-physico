@@ -1,0 +1,1096 @@
+<%
+  const activeEnrollments = (enrollments || []).filter(e => !e.is_expired);
+  const expiringSoonCount = (enrollments || []).filter(e => e.is_expiring_soon).length;
+  const avgProgress = enrollments && enrollments.length > 0 
+    ? Math.round(enrollments.reduce((sum, e) => sum + (Number(e.progress_percent) || 0), 0) / enrollments.length) 
+    : 0;
+  const courseList = allCourses || [];
+
+  function getRoleInfo(role) {
+    const r = (role || 'student').toLowerCase().trim();
+    if (r === 'admin') {
+      return { cls: 'pe-role-admin', icon: 'ri-shield-star-line', label: 'Admin' };
+    } else if (r === 'instructor') {
+      return { cls: 'pe-role-instructor', icon: 'ri-presentation-line', label: 'Instructor' };
+    } else if (r === 'intern') {
+      return { cls: 'pe-role-intern', icon: 'ri-stethoscope-line', label: 'Intern' };
+    } else if (r === 'clinician') {
+      return { cls: 'pe-role-clinician', icon: 'ri-hospital-line', label: 'Clinician' };
+    } else if (r === 'educator' || r === 'academic_educator' || r === 'academic_mission') {
+      return { cls: 'pe-role-educator', icon: 'ri-book-read-line', label: 'Educator' };
+    } else if (r === 'researcher') {
+      return { cls: 'pe-role-researcher', icon: 'ri-microscope-line', label: 'Researcher' };
+    } else {
+      return { cls: 'pe-role-student', icon: 'ri-graduation-cap-line', label: 'Student' };
+    }
+  }
+%>
+
+<style>
+  .pe-detail-hero {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 16px;
+    padding: 1.15rem 1.5rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .pe-profile-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    border-radius: 18px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  }
+  .pe-avatar-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e0f2fe;
+    background: #f8fafc;
+  }
+  .pe-kpi-micro-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    border-radius: 14px;
+    padding: 0.9rem 1.1rem;
+    transition: all 0.2s ease;
+  }
+  .pe-kpi-micro-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    border-color: #cbd5e1;
+  }
+  .pe-kpi-micro-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .pe-sub-item-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.15rem 1.25rem;
+    transition: all 0.2s ease;
+  }
+  .pe-sub-item-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  }
+  .pe-sub-item-card.is-expiring {
+    border-color: #fca5a5 !important;
+    background: #fffafa !important;
+  }
+  .pe-course-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    background: rgba(10, 93, 194, 0.08);
+    color: #0a5dc2;
+    flex-shrink: 0;
+  }
+  .pe-user-id-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #1e293b;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 3px 10px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    white-space: nowrap;
+  }
+  /* Enterprise Role Badges */
+  .pe-role-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 4px 11px !important;
+    border-radius: 9999px !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+  }
+  .pe-role-admin {
+    background-color: #f3e8ff !important;
+    color: #7e22ce !important;
+    border-color: #d8b4fe !important;
+  }
+  .pe-role-instructor {
+    background-color: #e0e7ff !important;
+    color: #4338ca !important;
+    border-color: #c7d2fe !important;
+  }
+  .pe-role-intern {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fde68a !important;
+  }
+  .pe-role-clinician {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #bbf7d0 !important;
+  }
+  .pe-role-educator {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    border-color: #bae6fd !important;
+  }
+  .pe-role-researcher {
+    background-color: #ccfbf1 !important;
+    color: #0f766e !important;
+    border-color: #99f6e4 !important;
+  }
+  .pe-role-student {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe !important;
+  }
+  .bg-purple-subtle { background-color: #f3e8ff !important; }
+  .text-purple { color: #7e22ce !important; }
+  .border-purple-subtle { border-color: #d8b4fe !important; }
+  .bg-indigo-subtle { background-color: #e0e7ff !important; }
+  .text-indigo { color: #4338ca !important; }
+  .border-indigo-subtle { border-color: #c7d2fe !important; }
+  .bg-teal-subtle { background-color: #ccfbf1 !important; }
+  .text-teal { color: #0f766e !important; }
+  .border-teal-subtle { border-color: #99f6e4 !important; }
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(10, 93, 194, 0.15) !important;
+  }
+</style>
+
+<!-- ============ PAGE HEADER & TOP NAVIGATION ============ -->
+<div class="pe-detail-hero mb-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <!-- Breadcrumb -->
+    <nav class="d-flex align-items-center gap-2 small">
+      <a href="/admin/users" class="text-decoration-none text-muted fw-semibold d-inline-flex align-items-center gap-1 hover-primary">
+        <i class="ri-arrow-left-line"></i> Manage Users
+      </a>
+      <span class="text-muted opacity-50">/</span>
+      <% const headerRInfo = getRoleInfo(profileUser.role); %>
+      <span class="pe-role-badge <%= headerRInfo.cls %>">
+        <i class="<%= headerRInfo.icon %>"></i> <%= headerRInfo.label %>
+      </span>
+      <span class="text-muted opacity-50">/</span>
+      <span class="fw-bold text-dark"><%= profileUser.name %></span>
+    </nav>
+
+    <!-- Top Action Buttons -->
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <a href="/admin/users" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1 shadow-2xs">
+        <i class="ri-arrow-left-line"></i> Back to Directory
+      </a>
+      <button type="button" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-2xs" onclick="openEditUserModal(<%= JSON.stringify(profileUser) %>)">
+        <i class="ri-edit-line text-warning-emphasis"></i> Edit User
+      </button>
+      <% if (profileUser.role !== 'admin' && profileUser.role !== 'instructor') { %>
+        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-2xs" data-bs-toggle="modal" data-bs-target="#enrollStudentModal">
+          <i class="ri-add-circle-line"></i> Enroll in Course
+        </button>
+        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3.5 py-1.5 fw-bold shadow-sm d-inline-flex align-items-center gap-1.5 hover-lift" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%); border: none;" onclick="openSmsModal('', '', '', '', '')">
+          <i class="ri-message-3-line"></i> Send Direct SMS
+        </button>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- ============ LEFT COLUMN: EXECUTIVE PROFILE CARD ============ -->
+  <div class="col-lg-4">
+    <div class="pe-profile-card p-4 mb-4">
+      <div class="text-center mb-3">
+        <div class="position-relative d-inline-block mx-auto mb-2">
+          <img src="<%= profileUser.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(profileUser.name) + '&background=0a5dc2&color=fff&size=256' %>" 
+               class="pe-avatar-circle shadow-xs" 
+               onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(profileUser.name) %>&background=0a5dc2&color=fff&size=256'">
+          <span class="position-absolute bottom-0 end-0 badge <%= profileUser.is_active ? 'bg-success' : 'bg-danger' %> rounded-circle p-1.5 border border-white" style="width: 16px; height: 16px;" title="<%= profileUser.is_active ? 'Active Account' : 'Inactive Account' %>"></span>
+        </div>
+
+        <h4 class="fw-black text-dark mb-0" style="letter-spacing: -0.3px;"><%= profileUser.name %></h4>
+        <p class="text-muted small mb-2"><%= profileUser.email %></p>
+        
+        <div class="mb-2">
+          <span class="pe-user-id-pill">
+            <i class="ri-fingerprint-line text-primary"></i> <%= profileUser.user_code || ('PE-' + (profileUser.role ? profileUser.role.substring(0,3).toUpperCase() : 'USR') + '-' + String(profileUser.id).padStart(4, '0')) %>
+          </span>
+        </div>
+        
+        <div class="d-flex align-items-center justify-content-center gap-1.5 mb-2 flex-wrap">
+          <% const cardRInfo = getRoleInfo(profileUser.role); %>
+          <span class="pe-role-badge <%= cardRInfo.cls %>">
+            <i class="<%= cardRInfo.icon %>"></i> <%= cardRInfo.label %>
+          </span>
+          <span class="badge <%= profileUser.is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle' %> px-2.5 py-1 rounded-pill font-weight-bold">
+            <i class="ri-<%= profileUser.is_active ? 'checkbox-circle-line' : 'close-circle-line' %> me-1"></i> <%= profileUser.is_active ? 'Active' : 'Inactive' %>
+          </span>
+        </div>
+      </div>
+
+      <!-- Attributes List -->
+      <div class="bg-light-subtle rounded-3 p-3 text-start small border mb-3">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+          <span class="text-muted fw-medium"><i class="ri-lock-password-line me-1"></i> Password</span>
+          <div class="d-inline-flex align-items-center gap-1 bg-white px-2 py-0.5 rounded border shadow-2xs">
+            <span id="detailUserPwVal" class="font-monospace fw-bold text-dark" style="font-size: 0.8rem;" data-hidden="true" data-plain="<%= profileUser.plain_password || (profileUser.role === 'admin' ? 'Admin@123' : (profileUser.role === 'instructor' ? 'Instructor@123' : 'Student@123')) %>">••••••••</span>
+            <button type="button" class="btn btn-sm btn-light border p-0 rounded d-inline-flex align-items-center justify-content-center" style="width:20px;height:20px;" onclick="toggleDetailPw()" title="Show/Hide Password">
+              <i class="ri-eye-line" id="detailPwEye" style="font-size: 0.75rem;"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-light border p-0 rounded d-inline-flex align-items-center justify-content-center" style="width:20px;height:20px;" id="detailCopyBtn" onclick="copyDetailPw()" title="Copy Password">
+              <i class="ri-file-copy-line" style="font-size: 0.75rem;"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+          <span class="text-muted fw-medium"><i class="ri-phone-line me-1"></i> Mobile / SMS</span>
+          <span class="fw-bold text-dark"><%= profileUser.phone || '+91 9111111101' %></span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+          <span class="text-muted fw-medium"><i class="ri-calendar-line me-1"></i> Joined Date</span>
+          <span class="text-secondary"><%= new Date(profileUser.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
+        </div>
+
+        <div>
+          <span class="text-muted fw-medium d-block mb-1"><i class="ri-profile-line me-1"></i> Bio & Qualification</span>
+          <div class="p-2 bg-white rounded border text-secondary" style="font-size: 0.78rem;">
+            <%= profileUser.bio || profileUser.qualification || 'BPT Undergraduate Student registered on PhysioEdvance.' %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Actions -->
+      <div class="d-flex flex-column gap-2">
+        <form action="/admin/users/<%= profileUser.id %>/reset-password" method="POST" onsubmit="return confirm('Generate a new random temporary password for <%= profileUser.name %>?')">
+          <button type="submit" class="btn btn-outline-primary btn-sm w-100 rounded-pill font-weight-bold py-1.5 shadow-2xs">
+            <i class="ri-key-2-line me-1"></i> Reset & Generate Password
+          </button>
+        </form>
+        <form action="/admin/users/<%= profileUser.id %>/toggle-active" method="POST">
+          <button type="submit" class="btn btn-outline-secondary btn-sm w-100 rounded-pill py-1.5 font-weight-medium">
+            <i class="ri-switch-line me-1"></i> <%= profileUser.is_active ? 'Deactivate Account' : 'Activate Account' %>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT COLUMN: CURRICULUM SUBSCRIPTIONS ============ -->
+  <div class="col-lg-8">
+    <% if (profileUser.role !== 'admin' && profileUser.role !== 'instructor') { %>
+      <!-- TOP KPI METRICS FOR STUDENT / MEMBER -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="pe-kpi-micro-card shadow-xs d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Enrolled</div>
+              <div class="fs-4 fw-black text-dark mt-0.5"><%= (enrollments || []).length %></div>
+            </div>
+            <div class="pe-kpi-micro-icon bg-primary-subtle text-primary">
+              <i class="ri-book-open-line"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="pe-kpi-micro-card shadow-xs d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Active Subscriptions</div>
+              <div class="fs-4 fw-black text-success mt-0.5"><%= activeEnrollments.length %></div>
+            </div>
+            <div class="pe-kpi-micro-icon bg-success-subtle text-success">
+              <i class="ri-checkbox-circle-line"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="pe-kpi-micro-card shadow-xs d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Expiring Soon</div>
+              <div class="fs-4 fw-black <%= expiringSoonCount > 0 ? 'text-danger' : 'text-muted' %> mt-0.5"><%= expiringSoonCount %></div>
+            </div>
+            <div class="pe-kpi-micro-icon <%= expiringSoonCount > 0 ? 'bg-danger-subtle text-danger' : 'bg-light text-muted' %>">
+              <i class="ri-alarm-warning-line"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <div class="pe-kpi-micro-card shadow-xs d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Avg Progress</div>
+              <div class="fs-4 fw-black text-info mt-0.5"><%= avgProgress %>%</div>
+            </div>
+            <div class="pe-kpi-micro-icon bg-info-subtle text-info">
+              <i class="ri-pie-chart-line"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN SUBSCRIPTIONS SECTION -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+          <div>
+            <h5 class="fw-black text-dark mb-0 d-flex align-items-center gap-2">
+              <i class="ri-graduation-cap-line text-primary"></i> Curriculum Subjects & Subscriptions
+            </h5>
+            <p class="text-muted small mb-0">Track course access, validity duration, and trigger SMS reminders.</p>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 py-1.5 fw-bold shadow-2xs d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#enrollStudentModal">
+            <i class="ri-add-line"></i> Add Course
+          </button>
+        </div>
+
+        <!-- Expiring Soon Highlight Alert Banner (≤ 3 Days) -->
+        <% const expiringItems = (enrollments || []).filter(e => e.is_expiring_soon); %>
+        <% if (expiringItems.length > 0) { %>
+          <div class="alert alert-danger border-danger-subtle bg-danger-subtle rounded-4 p-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2 shadow-2xs">
+            <div class="d-flex align-items-center gap-2.5">
+              <i class="ri-alarm-warning-fill text-danger fs-3"></i>
+              <div>
+                <strong class="text-danger">Action Recommended: Course Expiring in ≤ 3 Days</strong>
+                <div class="small text-danger opacity-90 mt-0.5">
+                  <%= expiringItems.map(e => `"${e.title}" (Expires in ${e.days_left} day${e.days_left !== 1 ? 's' : ''})`).join(', ') %>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger rounded-pill px-3.5 py-1.5 fw-bold shadow-sm d-inline-flex align-items-center gap-1.5" onclick="openSmsModal('<%= expiringItems[0].course_id %>', '<%= expiringItems[0].title.replace(/'/g, '\\\'') %>', '<%= expiringItems[0].category_name || 'Subject' %>', '<%= expiringItems[0].valid_until ? new Date(expiringItems[0].valid_until).toLocaleDateString() : '' %>', '<%= expiringItems[0].days_left %>')">
+              <i class="ri-message-3-line"></i> Send Expiry SMS Alert
+            </button>
+          </div>
+        <% } %>
+
+        <!-- EMPTY STATE (if 0 enrollments) -->
+        <% if (!enrollments || enrollments.length === 0) { %>
+          <div class="text-center py-5 px-3 border rounded-4 my-2" style="background: #f8fafc; border: 1.5px dashed #cbd5e1 !important;">
+            <div class="pe-kpi-micro-icon bg-primary-subtle text-primary mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.7rem; border-radius: 14px;">
+              <i class="ri-book-open-line"></i>
+            </div>
+            <h5 class="fw-black text-dark mb-1">No Curriculum Courses Enrolled Yet</h5>
+            <p class="text-muted small mb-3 mx-auto" style="max-width: 420px;">
+              This student is not enrolled in any subjects. You can enroll them directly to grant access to syllabus modules, video lectures, and study notes.
+            </p>
+            <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2 hover-lift" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%); border: none;" data-bs-toggle="modal" data-bs-target="#enrollStudentModal">
+              <i class="ri-add-circle-fill fs-5"></i> Enroll Student in a Subject Course
+            </button>
+          </div>
+        <% } else { %>
+          <!-- MODERN CARD-BASED SUBSCRIPTION ITEMS (NO HORIZONTAL SCROLL) -->
+          <div class="d-flex flex-column gap-3">
+            <% enrollments.forEach(e => { 
+                 const fromDateStr = e.valid_from ? new Date(e.valid_from).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+                 const untilDateStr = e.valid_until ? new Date(e.valid_until).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+            %>
+              <div class="pe-sub-item-card <%= e.is_expiring_soon ? 'is-expiring' : '' %>">
+                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                  
+                  <!-- Left: Course Icon & Title & Subject Pill -->
+                  <div class="d-flex align-items-center gap-3" style="min-width: 200px;">
+                    <div class="pe-course-icon-badge <%= e.is_expiring_soon ? 'bg-danger-subtle text-danger' : '' %>">
+                      <i class="ri-book-open-line"></i>
+                    </div>
+                    <div>
+                      <h6 class="fw-bold text-dark mb-1" style="font-size: 0.95rem;"><%= e.title %></h6>
+                      <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill font-weight-bold" style="font-size: 0.7rem;">
+                          <i class="ri-stack-line me-1"></i><%= e.category_name || 'Subject' %> <% if (e.category_year) { %>(Year <%= e.category_year %>)<% } %>
+                        </span>
+                        <span class="badge bg-light text-muted border rounded-pill" style="font-size: 0.68rem;">
+                          <i class="ri-user-2-line me-1"></i><%= e.instructor_name || 'Instructor' %>
+                        </span>
+                        <span class="badge bg-light text-muted border rounded-pill" style="font-size: 0.68rem;">
+                          <%= e.course_type === 'pdf_document' ? 'PDF Notes' : 'Video & Hybrid' %>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Middle: Validity Period & Expiry Status -->
+                  <div class="d-flex flex-column" style="min-width: 170px;">
+                    <div class="small fw-semibold text-dark">
+                      <i class="ri-calendar-check-line text-primary me-1"></i>
+                      <span><%= fromDateStr %></span>
+                      <span class="text-muted mx-1">➔</span>
+                      <span class="<%= e.is_expiring_soon ? 'text-danger fw-black' : '' %>"><%= untilDateStr %></span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1.5 mt-1">
+                      <% if (e.is_expiring_soon) { %>
+                        <span class="badge bg-danger text-white border border-danger-subtle px-2 py-0.5 rounded-pill font-weight-bold shadow-2xs" style="font-size: 0.7rem;">
+                          <i class="ri-alarm-warning-fill me-1"></i> Expiring in <%= e.days_left %> day<%= e.days_left !== 1 ? 's' : '' %>
+                        </span>
+                      <% } else if (e.is_expired) { %>
+                        <span class="badge bg-secondary text-white px-2 py-0.5 rounded-pill font-weight-bold" style="font-size: 0.7rem;">
+                          <i class="ri-time-line me-1"></i> Expired (<%= Math.abs(e.days_left) %>d ago)
+                        </span>
+                      <% } else { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5 rounded-pill font-weight-bold" style="font-size: 0.7rem;">
+                          <i class="ri-checkbox-circle-line me-1"></i> <%= e.days_left !== null ? e.days_left + ' days left' : 'Active' %>
+                        </span>
+                      <% } %>
+                      <span class="text-muted" style="font-size: 0.68rem;">(<%= e.plan_type || 'Subscription' %>)</span>
+                    </div>
+                  </div>
+
+                  <!-- Right: Progress & Actions -->
+                  <div class="d-flex align-items-center gap-2.5 ms-auto flex-wrap">
+                    <!-- Progress Bar -->
+                    <div style="width: 80px;">
+                      <div class="progress" style="height: 5px; border-radius: 6px;">
+                        <div class="progress-bar <%= e.progress_percent >= 100 ? 'bg-success' : 'bg-primary' %>" style="width: <%= e.progress_percent %>%"></div>
+                      </div>
+                      <div class="text-muted text-center fw-bold mt-1" style="font-size: 0.68rem;"><%= e.progress_percent %>%</div>
+                    </div>
+
+                    <!-- SMS Reminder Button -->
+                    <button type="button" 
+                            class="btn btn-sm <%= e.is_expiring_soon ? 'btn-danger' : 'btn-outline-danger' %> rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-2xs" 
+                            style="font-size: 0.75rem;"
+                            onclick="openSmsModal('<%= e.course_id %>', '<%= e.title.replace(/'/g, '\\\'') %>', '<%= e.category_name || 'Subject' %>', '<%= untilDateStr %>', '<%= e.days_left %>')" 
+                            title="Send SMS Reminder">
+                      <i class="ri-message-3-line"></i> SMS Reminder
+                    </button>
+
+                    <!-- Extend Access Dropdown -->
+                    <div class="dropdown d-inline">
+                      <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 font-weight-bold dropdown-toggle shadow-2xs" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.75rem;">
+                        Extend
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                        <li><h6 class="dropdown-header small text-uppercase">Extend Validity</h6></li>
+                        <li>
+                          <form action="/admin/users/<%= profileUser.id %>/extend-enrollment" method="POST">
+                            <input type="hidden" name="course_id" value="<%= e.course_id %>">
+                            <input type="hidden" name="days" value="30">
+                            <button type="submit" class="dropdown-item small py-1.5"><i class="ri-add-line text-success me-1"></i> +30 Days (1 Month)</button>
+                          </form>
+                        </li>
+                        <li>
+                          <form action="/admin/users/<%= profileUser.id %>/extend-enrollment" method="POST">
+                            <input type="hidden" name="course_id" value="<%= e.course_id %>">
+                            <input type="hidden" name="days" value="90">
+                            <button type="submit" class="dropdown-item small py-1.5"><i class="ri-add-line text-primary me-1"></i> +90 Days (1 Semester)</button>
+                          </form>
+                        </li>
+                        <li>
+                          <form action="/admin/users/<%= profileUser.id %>/extend-enrollment" method="POST">
+                            <input type="hidden" name="course_id" value="<%= e.course_id %>">
+                            <input type="hidden" name="days" value="365">
+                            <button type="submit" class="dropdown-item small py-1.5"><i class="ri-add-line text-info me-1"></i> +365 Days (1 Year)</button>
+                          </form>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    <% } else if (profileUser.role === 'instructor') { %>
+      <!-- Instructor Courses View -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              <i class="ri-presentation-line text-info"></i> Courses Instructed by <%= profileUser.name %>
+            </h5>
+            <p class="text-muted small mb-0"><%= courses.length %> published course<%= courses.length !== 1 ? 's' : '' %> total</p>
+          </div>
+        </div>
+
+        <% if (courses.length === 0) { %>
+          <div class="text-center py-5 text-muted">
+            <i class="ri-folder-2-line display-4 text-muted opacity-40 mb-2 d-block"></i>
+            <h6 class="fw-bold text-dark">This instructor hasn't created any courses yet.</h6>
+          </div>
+        <% } %>
+
+        <div class="accordion" id="instructorCourses">
+          <% courses.forEach((c, ci) => { %>
+            <div class="card border rounded-3 mb-2 overflow-hidden">
+              <div class="card-header bg-light-subtle d-flex align-items-center justify-content-between p-3">
+                <div>
+                  <div class="fw-bold text-dark"><%= c.title %> <span class="badge bg-info-subtle text-info text-capitalize ms-1"><%= c.status %></span></div>
+                  <div class="text-muted small" style="font-size:.78rem;">
+                    <%= c.category_name || 'General Subject' %> · <%= c.modules.length %> modules · <%= c.lessonCount %> lessons · <%= c.students_count %> students
+                  </div>
+                </div>
+                <a href="/subjects/<%= c.slug || '' %>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                  View Course <i class="ri-external-link-line"></i>
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h6 class="mb-2"><i class="ri-shield-star-line me-2 text-primary"></i>Administrator Account</h6>
+        <p class="text-muted small mb-0">Admins manage the platform curriculum, settings, and users.</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- ============ ENROLL STUDENT MODAL ============ -->
+<div class="modal fade" id="enrollStudentModal" tabindex="-1" aria-labelledby="enrollStudentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white p-3.5" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%);">
+        <div class="d-flex align-items-center gap-2">
+          <i class="ri-graduation-cap-fill fs-5"></i>
+          <h6 class="modal-title fw-bold mb-0" id="enrollStudentModalLabel">Enroll <%= profileUser.name %> into Course</h6>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <form action="/admin/users/<%= profileUser.id %>/enroll" method="POST">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary" style="letter-spacing: 0.5px;">Select Course / Subject Module</label>
+            <select name="course_id" class="form-select rounded-3 border py-2.5" required>
+              <option value="" disabled selected>-- Choose Course --</option>
+              <% courseList.forEach(c => { %>
+                <option value="<%= c.id %>"><%= c.title %> (<%= c.category_name || 'Subject' %>)</option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary" style="letter-spacing: 0.5px;">Subscription Validity Duration</label>
+            <select name="duration_months" class="form-select rounded-3 border py-2.5">
+              <option value="1">1 Month (30 Days)</option>
+              <option value="3">3 Months (Quarterly)</option>
+              <option value="6">6 Months (Semester Pass)</option>
+              <option value="12" selected>12 Months (1 Year Full Curriculum Access)</option>
+              <option value="24">24 Months (2 Years)</option>
+              <option value="48">48 Months (Full 4-Year BPT Degree Access)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary" style="letter-spacing: 0.5px;">Plan Label</label>
+            <input type="text" name="plan_type" class="form-control rounded-3 border" value="Annual Curriculum Subscription" placeholder="e.g. Annual Subscription / Semester Pass">
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 justify-content-between border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%); border: none;">
+            <i class="ri-check-line me-1"></i> Enroll & Grant Access
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SMS EXPIRY REMINDER MODAL ============ -->
+<div class="modal fade" id="smsReminderModal" tabindex="-1" aria-labelledby="smsReminderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white p-3.5" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
+        <div class="d-flex align-items-center gap-2">
+          <i class="ri-message-3-fill fs-5"></i>
+          <h6 class="modal-title fw-bold mb-0" id="smsReminderModalLabel">Send Student SMS Reminder</h6>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <form action="/admin/users/<%= profileUser.id %>/send-sms-reminder" method="POST" id="smsReminderForm">
+        <input type="hidden" name="course_id" id="smsCourseId" value="">
+        <div class="modal-body p-4">
+          <!-- Student & Phone Details -->
+          <div class="bg-light p-3 rounded-3 border mb-3">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <span class="text-muted small">Student Name:</span>
+              <span class="fw-bold text-dark"><%= profileUser.name %></span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="text-muted small">Recipient Mobile:</span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle font-weight-bold px-2.5 py-1 rounded-pill">
+                <i class="ri-phone-line me-1"></i> <%= profileUser.phone || '+91 9111111101' %>
+              </span>
+            </div>
+          </div>
+
+          <!-- Target Course Box -->
+          <div class="mb-3" id="modalCourseTargetWrap">
+            <label class="form-label small fw-bold text-uppercase text-secondary" style="letter-spacing: 0.5px;">Target Course & Expiry</label>
+            <div class="p-2.5 bg-light-subtle rounded-3 border">
+              <div class="fw-bold text-dark" id="modalCourseTitle">General Student Notification</div>
+              <div class="small text-danger mt-0.5" id="modalExpiryText">Subscription Expiry Alert</div>
+            </div>
+          </div>
+
+          <!-- SMS Message Text -->
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary" style="letter-spacing: 0.5px;">SMS Message Preview</label>
+            <textarea name="custom_message" id="smsMessageContent" class="form-control rounded-3 border font-monospace small" rows="4" style="line-height: 1.4;"></textarea>
+            <div class="d-flex justify-content-between text-muted small mt-1" style="font-size: 0.72rem;">
+              <span><i class="ri-information-line"></i> DLT-compliant SMS dispatched to registered mobile</span>
+              <span id="smsCharCount">142 chars</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 justify-content-between border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm d-inline-flex align-items-center gap-1.5" style="background: #dc2626; border: none;">
+            <i class="ri-send-plane-fill"></i> Send SMS Reminder Now
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleDetailPw() {
+    const el = document.getElementById('detailUserPwVal');
+    const eye = document.getElementById('detailPwEye');
+    if (!el || !eye) return;
+    const isHidden = el.getAttribute('data-hidden') === 'true';
+    const plain = el.getAttribute('data-plain') || '';
+    if (isHidden) {
+      el.innerText = plain;
+      el.setAttribute('data-hidden', 'false');
+      eye.className = 'ri-eye-off-line';
+    } else {
+      el.innerText = '••••••••';
+      el.setAttribute('data-hidden', 'true');
+      eye.className = 'ri-eye-line';
+    }
+  }
+
+  function copyDetailPw() {
+    const el = document.getElementById('detailUserPwVal');
+    const btn = document.getElementById('detailCopyBtn');
+    if (!el || !btn) return;
+    const plain = el.getAttribute('data-plain') || '';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(plain);
+    }
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="ri-check-line text-success"></i>';
+    setTimeout(() => { btn.innerHTML = orig; }, 1500);
+  }
+
+  function openSmsModal(courseId, courseTitle, subjectName, expiryDate, daysLeft) {
+    document.getElementById('smsCourseId').value = courseId || '';
+    
+    if (courseTitle) {
+      document.getElementById('modalCourseTitle').innerText = courseTitle + (subjectName ? ' (' + subjectName + ')' : '');
+      let expiryLabel = 'Expiring on ' + expiryDate;
+      if (daysLeft !== 'null' && daysLeft !== '') {
+        const dNum = Number(daysLeft);
+        if (dNum <= 0) {
+          expiryLabel += ' (Expired)';
+        } else {
+          expiryLabel += ' (in ' + dNum + ' day' + (dNum !== 1 ? 's' : '') + ')';
+        }
+      }
+      document.getElementById('modalExpiryText').innerText = expiryLabel;
+    } else {
+      document.getElementById('modalCourseTitle').innerText = 'PhysioEdvance Curriculum Notice';
+      document.getElementById('modalExpiryText').innerText = 'General Student Notification';
+    }
+
+    const studentName = '<%= profileUser.name %>';
+    let defaultMsg = '';
+    if (courseTitle) {
+      const daysMsg = (daysLeft && Number(daysLeft) > 0) ? `in ${daysLeft} days` : 'soon';
+      defaultMsg = `PhysioEdvance Reminder: Dear ${studentName}, your access for "${courseTitle}" (${subjectName}) is expiring on ${expiryDate} (${daysMsg}). Renew now at physioadvance.com to keep your video lectures and notes active.`;
+    } else {
+      defaultMsg = `PhysioEdvance: Dear ${studentName}, please check your registered courses and updates on physioadvance.com.`;
+    }
+    
+    const msgBox = document.getElementById('smsMessageContent');
+    msgBox.value = defaultMsg;
+    updateCharCount();
+
+    msgBox.oninput = updateCharCount;
+
+    const modalEl = document.getElementById('smsReminderModal');
+    if (window.bootstrap && bootstrap.Modal) {
+      bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    } else {
+      modalEl.classList.add('show');
+      modalEl.style.display = 'block';
+    }
+  }
+
+  function updateCharCount() {
+    const msgBox = document.getElementById('smsMessageContent');
+    const countEl = document.getElementById('smsCharCount');
+    if (msgBox && countEl) {
+      countEl.innerText = msgBox.value.length + ' chars';
+    }
+  }
+
+  function handleEditRoleChange(role) {
+    const qual = document.getElementById('editLblQualification');
+    const head = document.getElementById('editLblHeadline');
+    const qualInput = document.getElementById('editInputQualification');
+    const headInput = document.getElementById('editInputHeadline');
+
+    document.querySelectorAll('.pe-edit-role-card').forEach(card => card.classList.remove('active'));
+    const activeRadio = document.querySelector(`input[name="role"][value="${role}"]#editRole_${role}`);
+    if (activeRadio) {
+      activeRadio.checked = true;
+      const parentLabel = activeRadio.closest('.pe-edit-role-card');
+      if (parentLabel) parentLabel.classList.add('active');
+    }
+
+    if (role === 'student') {
+      if (qual) qual.innerText = 'Degree / Year (e.g. BPT 1st Year)';
+      if (head) head.innerText = 'College / Institution';
+      if (qualInput) qualInput.placeholder = 'e.g. BPT 1st Year, 2nd Year';
+      if (headInput) headInput.placeholder = 'e.g. Apex Institute of Physiotherapy';
+    } else if (role === 'intern') {
+      if (qual) qual.innerText = 'Internship Hospital / Center';
+      if (head) head.innerText = 'Clinical Rotation / Department';
+      if (qualInput) qualInput.placeholder = 'e.g. AIIMS Orthopedic & Neuro Department';
+      if (headInput) headInput.placeholder = 'e.g. 6-Month Compulsory Rotatory Intern';
+    } else if (role === 'clinician') {
+      if (qual) qual.innerText = 'Clinical Qualifications (e.g. BPT, MPT, MIAP)';
+      if (head) head.innerText = 'Clinic / Hospital Name & Specialty';
+      if (qualInput) qualInput.placeholder = 'e.g. MPT (Musculoskeletal), MIAP';
+      if (headInput) headInput.placeholder = 'e.g. Consultant PT at Care Hospital';
+    } else if (role === 'educator') {
+      if (qual) qual.innerText = 'Academic Credentials / Faculty Title';
+      if (head) head.innerText = 'University / Department';
+      if (qualInput) qualInput.placeholder = 'e.g. Associate Professor, MPT, PhD';
+      if (headInput) headInput.placeholder = 'e.g. Dept. of Physiotherapy, Metro University';
+    } else if (role === 'researcher') {
+      if (qual) qual.innerText = 'Research Focus / Fellowship';
+      if (head) head.innerText = 'Research Lab / Institution';
+      if (qualInput) qualInput.placeholder = 'e.g. Biomechanics & Gait Analysis Research';
+      if (headInput) headInput.placeholder = 'e.g. National Center for Health Research';
+    } else if (role === 'instructor') {
+      if (qual) qual.innerText = 'Teaching Credentials (e.g. MPT, PhD)';
+      if (head) head.innerText = 'Designation / Specialization';
+      if (qualInput) qualInput.placeholder = 'e.g. MPT (Neuro), Certified Master Trainer';
+      if (headInput) headInput.placeholder = 'e.g. Senior Lecturer & Course Author';
+    } else {
+      if (qual) qual.innerText = 'Department / Title';
+      if (head) head.innerText = 'Administrative Scope';
+      if (qualInput) qualInput.placeholder = 'e.g. Platform Operations Lead';
+      if (headInput) headInput.placeholder = 'e.g. Full Platform & System Superadmin';
+    }
+  }
+
+  function openEditUserModal(u) {
+    if (!u) return;
+    const form = document.getElementById('editUserForm');
+    if (form) {
+      form.action = '/admin/users/' + u.id + '/edit';
+    }
+    
+    document.getElementById('editUserId').value = u.id || '';
+    document.getElementById('editUserName').value = u.name || '';
+    document.getElementById('editUserEmail').value = u.email || '';
+    document.getElementById('editUserCode').value = u.user_code || '';
+    document.getElementById('editUserPhone').value = u.phone || '';
+    document.getElementById('editUserPassword').value = '';
+    document.getElementById('editInputQualification').value = u.qualification || '';
+    document.getElementById('editInputHeadline').value = u.headline || '';
+    document.getElementById('editUserBio').value = u.bio || '';
+    
+    const activeCheck = document.getElementById('editUserIsActive');
+    if (activeCheck) {
+      activeCheck.checked = (u.is_active === 1 || u.is_active === true || u.is_active === '1');
+    }
+
+    const currentRole = (u.role === 'academic_educator' || u.role === 'academic_mission') ? 'educator' : (u.role || 'student');
+    handleEditRoleChange(currentRole);
+
+    const modalEl = document.getElementById('editUserModal');
+    if (modalEl) {
+      if (modalEl.parentElement !== document.body) {
+        document.body.appendChild(modalEl);
+      }
+      if (window.bootstrap && bootstrap.Modal) {
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        bsModal.show();
+      } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+      }
+    }
+  }
+
+  function generateEditPassword() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$';
+    let pw = '';
+    pw += 'ABCDEFGHJKLMNPQRSTUVWXYZ'[(Math.random() * 24) | 0];
+    pw += 'abcdefghijkmnopqrstuvwxyz'[(Math.random() * 24) | 0];
+    pw += '23456789'[(Math.random() * 8) | 0];
+    pw += '@#$'[(Math.random() * 3) | 0];
+    for (let i = 0; i < 4; i++) {
+      pw += chars[(Math.random() * chars.length) | 0];
+    }
+    const input = document.getElementById('editUserPassword');
+    if (input) {
+      input.value = pw;
+      input.type = 'text';
+    }
+  }
+
+  function toggleEditModalPwVisibility() {
+    const input = document.getElementById('editUserPassword');
+    const eye = document.getElementById('editModalPwEye');
+    if (!input || !eye) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      eye.className = 'ri-eye-off-line';
+    } else {
+      input.type = 'password';
+      eye.className = 'ri-eye-line';
+    }
+  }
+</script>
+
+<!-- ============ EDIT USER MODAL ============ -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white p-3.5" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+        <div class="d-flex align-items-center gap-2.5">
+          <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center shadow-xs" style="width: 36px; height: 36px;">
+            <i class="ri-edit-line fs-5"></i>
+          </div>
+          <div>
+            <h6 class="modal-title fw-bold mb-0 text-white" id="editUserModalLabel">Edit User Account & Privileges</h6>
+            <span class="small text-white-50" style="font-size: 0.75rem;">Modify credentials, role classification, institutional ID, and profile details</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="" method="POST" id="editUserForm">
+        <input type="hidden" name="id" id="editUserId">
+
+        <div class="modal-body p-4">
+          <!-- Role Selection Cards -->
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">1. Change Account Role</label>
+            <div class="row g-2">
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('student')">
+                  <input type="radio" name="role" value="student" class="btn-check" id="editRole_student">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-primary bg-primary-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-graduation-cap-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Student</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Learner member</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('intern')">
+                  <input type="radio" name="role" value="intern" class="btn-check" id="editRole_intern">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-warning-emphasis bg-warning-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-stethoscope-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Intern</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Clinical resident</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('clinician')">
+                  <input type="radio" name="role" value="clinician" class="btn-check" id="editRole_clinician">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-success bg-success-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-hospital-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Clinician</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Practitioner</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('educator')">
+                  <input type="radio" name="role" value="educator" class="btn-check" id="editRole_educator">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-info bg-info-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-book-read-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Educator</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Academic faculty</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-4">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('researcher')">
+                  <input type="radio" name="role" value="researcher" class="btn-check" id="editRole_researcher">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-teal bg-teal-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-microscope-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Researcher</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Research scholar</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-4">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('instructor')">
+                  <input type="radio" name="role" value="instructor" class="btn-check" id="editRole_instructor">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-indigo bg-indigo-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-presentation-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Instructor</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Course author</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-12 col-md-4 col-xl-4">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('admin')">
+                  <input type="radio" name="role" value="admin" class="btn-check" id="editRole_admin">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-purple bg-purple-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-shield-star-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Administrator</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Super admin</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Basic Info -->
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">2. Account Credentials & Status</label>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Full Name <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-user-line"></i></span>
+                  <input type="text" name="name" id="editUserName" class="form-control border-start-0 ps-0" placeholder="e.g. Dr. Aryan Sharma" required>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Email Address <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-mail-line"></i></span>
+                  <input type="email" name="email" id="editUserEmail" class="form-control border-start-0 ps-0" placeholder="e.g. aryan@physioedvance.com" required>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Institutional / Custom User ID</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-fingerprint-line"></i></span>
+                  <input type="text" name="user_code" id="editUserCode" class="form-control border-start-0 ps-0 font-monospace" placeholder="e.g. PE-STU-0011">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Mobile / Phone (for SMS Reminders)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-phone-line"></i></span>
+                  <input type="tel" name="phone" id="editUserPhone" class="form-control border-start-0 ps-0" placeholder="+91 9876543210">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label small fw-semibold text-dark mb-0">Reset Password <span class="badge bg-light text-muted border font-monospace" style="font-size:0.68rem;">Leave blank to keep unchanged</span></label>
+                  <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none small text-primary fw-bold" onclick="generateEditPassword()" style="font-size: 0.75rem;">
+                    <i class="ri-magic-line"></i> Auto Generate
+                  </button>
+                </div>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-lock-2-line"></i></span>
+                  <input type="password" name="password" id="editUserPassword" class="form-control border-start-0 border-end-0 px-2 font-monospace" placeholder="Enter new password to change">
+                  <button type="button" class="btn btn-outline-secondary border-start-0" onclick="toggleEditModalPwVisibility()" title="Toggle visibility">
+                    <i class="ri-eye-line" id="editModalPwEye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-6 d-flex align-items-end">
+                <div class="p-2.5 bg-light rounded-3 border w-100 d-flex align-items-center justify-content-between">
+                  <div>
+                    <label class="form-check-label fw-bold text-dark small d-block" for="editUserIsActive">Account Active Status</label>
+                    <span class="text-muted" style="font-size:0.7rem;">Active accounts can log in to the portal</span>
+                  </div>
+                  <div class="form-check form-switch mb-0 fs-5">
+                    <input class="form-check-input" type="checkbox" role="switch" name="is_active" value="1" id="editUserIsActive" checked>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Role-specific Profile Fields -->
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">3. Profile & Academic Details</label>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" id="editLblQualification">Degree / Year</label>
+                <input type="text" name="qualification" id="editInputQualification" class="form-control" placeholder="e.g. BPT 1st Year, 2nd Year">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" id="editLblHeadline">College / Institution</label>
+                <input type="text" name="headline" id="editInputHeadline" class="form-control" placeholder="e.g. Apex Institute of Physiotherapy">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold text-dark">Bio / Staff Notes</label>
+                <textarea name="bio" id="editUserBio" class="form-control" rows="2" placeholder="Brief background or notes..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 justify-content-between border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-3.5" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2 hover-lift" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none;">
+            <i class="ri-save-line fs-5"></i> Save User Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

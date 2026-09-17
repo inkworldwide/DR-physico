@@ -1,0 +1,28 @@
+<div class="pe-topbar">
+  <button class="pe-sidebar-toggle" id="sidebarToggle"><i class="ri-menu-line"></i></button>
+
+  <h5 class="mb-0 pe-topbar-title"><%= typeof title !== 'undefined' ? title : '' %></h5>
+
+  <div class="d-flex align-items-center gap-3 ms-auto">
+    <a href="/" class="text-muted-pe d-none d-md-inline-flex align-items-center gap-1 small fw-semibold">
+      <i class="ri-external-link-line"></i> View Site
+    </a>
+    <div class="dropdown">
+      <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="dropdown">
+        <img src="<%= currentUser.avatar %>" class="rounded-circle avatar-xs" alt="<%= currentUser.name %>" onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(currentUser.name) %>&background=0a5dc2&color=fff'">
+        <span class="d-none d-md-inline fw-semibold small text-dark"><%= currentUser.name %></span>
+        <i class="ri-arrow-down-s-line text-muted-pe d-none d-md-inline"></i>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><span class="dropdown-item-text small text-muted-pe"><%= currentUser.email %></span></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="<%= currentUser.role === 'admin' ? '/admin/profile' : '/instructor/profile' %>"><i class="ri-user-line me-2"></i>Profile</a></li>
+        <li>
+          <form action="/auth/logout" method="POST" class="m-0">
+            <button type="submit" class="dropdown-item text-danger"><i class="ri-logout-box-line me-2"></i>Log Out</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,63 @@
+<!-- ============ UNIFIED ROYAL GRADIENT HERO BANNER ============ -->
+<section class="pe-hero-strip position-relative py-5 text-white overflow-hidden text-center" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+  <div class="container position-relative z-2 py-3">
+    <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3.5 py-2 rounded-pill mb-3 shadow-sm" style="font-size: 0.8rem; letter-spacing: 0.05em; background-color: #f59e0b !important;">
+      <i class="ri-live-line me-1"></i> Interactive Webinars & Workshops
+    </span>
+    <h1 class="display-4 font-weight-bold text-white mb-2" style="letter-spacing: -0.02em;">
+      Live Classes & Workshops
+    </h1>
+    <p class="text-white-75 lead mx-auto mb-0" style="font-size: 1.1rem; line-height: 1.6; max-width: 680px;">
+      Live discussions, clinical workshops, webinars, and panel discussions. Join links are shared prior to session time — see you live!
+    </p>
+  </div>
+</section>
+
+<section class="pe-section bg-light-subtle py-5">
+  <div class="container">
+    <% if (upcoming.length === 0) { %>
+      <div class="card border-0 shadow-sm rounded-4 text-center py-5 bg-white mx-auto" style="max-width: 600px;">
+        <div class="my-3 text-primary">
+          <i class="ri-calendar-event-line display-4"></i>
+        </div>
+        <h5 class="fw-bold text-dark mb-1">No Upcoming Live Sessions</h5>
+        <p class="text-muted small mb-0">No live sessions scheduled right now. Check back soon or request a workshop topic via Contact Us!</p>
+      </div>
+    <% } %>
+
+    <div class="row g-4 justify-content-center">
+      <% upcoming.forEach(s => { %>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white d-flex flex-column transition-all pe-blog-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <span class="badge bg-primary-subtle text-primary font-weight-bold px-3 py-1 rounded-pill text-capitalize" style="font-size: 0.8rem;">
+                <i class="ri-vidicon-line me-1"></i> <%= s.session_type.replace('_',' ') %>
+              </span>
+              <span class="badge bg-danger text-white rounded-pill px-2.5 py-1 font-weight-bold small">
+                <i class="ri-record-circle-line me-1"></i> Upcoming
+              </span>
+            </div>
+            <h5 class="fw-bold text-dark mb-2" style="line-height: 1.4;"><%= s.title %></h5>
+            <p class="text-secondary small mb-3 line-clamp-3" style="font-size: 0.88rem;"><%= s.description %></p>
+
+            <div class="bg-light rounded-3 p-3 mb-4">
+              <div class="small text-dark font-weight-semibold mb-1.5"><i class="ri-calendar-line me-1.5 text-primary"></i> <%= new Date(s.scheduled_at).toLocaleString() %></div>
+              <% if (s.host_name) { %><div class="small text-secondary mb-1.5"><i class="ri-user-3-line me-1.5 text-primary"></i> Host: <%= s.host_name %></div><% } %>
+              <div class="small text-secondary"><i class="ri-time-line me-1.5 text-primary"></i> Duration: <%= s.duration_minutes %> mins</div>
+            </div>
+
+            <% if (s.zoom_join_url) { %>
+              <a href="<%= s.zoom_join_url %>" target="_blank" rel="noopener" class="btn btn-primary w-100 rounded-pill font-weight-bold shadow-sm mt-auto" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%); border: none;">
+                <i class="ri-vidicon-line me-1"></i> Join Live Session
+              </a>
+            <% } else { %>
+              <button class="btn btn-outline-secondary w-100 rounded-pill font-weight-bold mt-auto" disabled>
+                <i class="ri-lock-line me-1"></i> Join Link Available Soon
+              </button>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>

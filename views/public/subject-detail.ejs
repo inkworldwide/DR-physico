@@ -1,0 +1,462 @@
+<!-- ============ UNIFIED ROYAL GRADIENT HERO BANNER ============ -->
+<section class="pe-subject-hero position-relative py-5 text-white overflow-hidden" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+  <div class="container position-relative z-2 py-3">
+    <nav class="pe-breadcrumb mb-3" style="font-size: 0.88rem; color: rgba(255,255,255,0.85);">
+      <a href="/subjects" class="text-white text-decoration-none"><i class="ri-home-3-line"></i> Subjects</a>
+      <i class="ri-arrow-right-s-line mx-1 text-white-50"></i>
+      <span class="text-warning font-weight-bold"><%= category.name %></span>
+    </nav>
+
+    <div class="d-flex align-items-center gap-4 flex-wrap">
+      <div class="pe-subject-hero-icon shadow-sm" style="width: 76px; height: 76px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.25); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.3rem; color: #ffffff;">
+        <i class="<%= category.icon || 'ri-book-open-line' %>"></i>
+      </div>
+      <div>
+        <% if (category.year) { %>
+          <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3 py-1.5 rounded-pill mb-2 shadow-sm" style="font-size: 0.78rem; background-color: #f59e0b !important;">
+            <i class="ri-book-open-line me-1"></i> Year <%= category.year %> Subject
+          </span>
+        <% } %>
+        <h1 class="text-white fw-bold display-5 mb-1"><%= category.name %> Interactive Portal</h1>
+        <p class="text-white-75 lead mb-0" style="font-size: 1.05rem; max-width: 720px;"><%= category.description || 'Complete BPT curriculum, 3D anatomical models, video prosections, cross-sections, clinical MRIs, and self-assessment quizzes.' %></p>
+      </div>
+    </div>
+
+    <!-- Quick Stats Pill Row & Course CTA -->
+    <div class="d-flex align-items-center justify-content-between gap-3 mt-4 flex-wrap">
+      <div class="d-flex align-items-center gap-2.5 flex-wrap">
+        <a href="/subjects/<%= category.slug %>/course" class="text-decoration-none">
+          <span class="badge bg-white-20 text-white px-3.5 py-2 rounded-pill font-weight-semibold shadow-sm pe-badge-btn" style="font-size: 0.85rem; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);">
+            <i class="ri-book-2-line me-1.5 text-warning"></i> <strong><%= courses.length %></strong> Course<%= courses.length !== 1 ? 's' : '' %>
+          </span>
+        </a>
+        <a href="#grid-dashboard" class="text-decoration-none">
+          <span class="badge bg-white-20 text-white px-3.5 py-2 rounded-pill font-weight-semibold shadow-sm pe-badge-btn" style="font-size: 0.85rem; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);">
+            <i class="ri-gift-line me-1.5 text-success"></i> <strong>100% Free Access</strong>
+          </span>
+        </a>
+        <a href="/subjects/<%= category.slug %>/module/hd-videos" class="text-decoration-none">
+          <span class="badge bg-white-20 text-white px-3.5 py-2 rounded-pill font-weight-semibold shadow-sm pe-badge-btn" style="font-size: 0.85rem; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);">
+            <i class="ri-film-line me-1.5 text-info"></i> <strong>Direct HTML5 3D Video</strong>
+          </span>
+        </a>
+        <a href="/subjects/<%= category.slug %>/module/syllabus" class="text-decoration-none">
+          <span class="badge bg-white-20 text-white px-3.5 py-2 rounded-pill font-weight-semibold shadow-sm pe-badge-btn" style="font-size: 0.85rem; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);">
+            <i class="ri-award-line me-1.5 text-warning"></i> <strong>Full BPT Syllabus</strong>
+          </span>
+        </a>
+        <a href="/subjects/<%= category.slug %>/module/notes" class="text-decoration-none">
+          <span class="badge bg-white-20 text-white px-3.5 py-2 rounded-pill font-weight-semibold shadow-sm pe-badge-btn" style="font-size: 0.85rem; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);">
+            <i class="ri-file-text-line me-1.5 text-info"></i> <strong>Curriculum Notes</strong>
+          </span>
+        </a>
+        <a href="/subjects/<%= category.slug %>/module/research" class="text-decoration-none">
+          <span class="badge bg-white-20 text-white px-3.5 py-2 rounded-pill font-weight-semibold shadow-sm pe-badge-btn" style="font-size: 0.85rem; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);">
+            <i class="ri-microscope-line me-1.5 text-warning"></i> <strong>Research Desk</strong>
+          </span>
+        </a>
+      </div>
+
+      <a href="/subjects/<%= category.slug %>/course" class="btn btn-warning btn-lg rounded-pill font-weight-bold px-4 py-2.5 shadow-lg text-dark d-flex align-items-center gap-2" style="background-color: #f59e0b !important; border: none;">
+        <i class="ri-play-circle-fill fs-4"></i> Enter Complete <%= category.name %> Course <i class="ri-arrow-right-line"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<%
+  const hasFeature = (fId) => (locals.activeFeatures && Array.isArray(activeFeatures)) ? activeFeatures.includes(String(fId)) : false;
+%>
+
+<!-- ============ SECTION 2: UBC NEUROANATOMY-STYLE INTERACTIVE GRID DASHBOARD ============ -->
+<section class="pe-section bg-light-subtle py-5 border-bottom" id="grid-dashboard">
+  <div class="container">
+    <!-- UBC NEUROANATOMY GRID DASHBOARD CONTAINER -->
+    <div class="pe-neuro-grid-wrapper p-4 rounded-4 shadow-lg bg-white border">
+      <div class="row g-3">
+
+        <!-- Top Header Card: Introduction -->
+        <div class="col-12">
+          <a href="/subjects/<%= category.slug %>/module/intro" class="text-decoration-none">
+            <div class="pe-neuro-card pe-neuro-banner-card text-white p-4 rounded-4 text-center cursor-pointer shadow-sm" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+              <h4 class="fw-bold text-white mb-1"><%= interactiveData.intro.title %> <i class="ri-arrow-right-up-line ms-1 fs-6"></i></h4>
+              <p class="text-white-75 mb-0 small mx-auto" style="max-width: 700px;"><%= interactiveData.intro.description %></p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Left Column: Regions, Cross-Sections, 3D -->
+        <div class="col-lg-3 d-flex flex-column gap-3">
+          <!-- 1. Regions (Feature 3) -->
+          <a href="/subjects/<%= category.slug %>/module/regions" class="text-decoration-none flex-fill d-flex">
+            <div class="pe-neuro-card p-4 rounded-4 text-white text-center cursor-pointer flex-fill d-flex flex-column align-items-center justify-content-center transition-all shadow-sm" style="background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);">
+              <i class="ri-brain-line display-5 mb-2 text-white"></i>
+              <h5 class="fw-bold text-white mb-0">Regions & Maps <i class="ri-arrow-right-up-line fs-6"></i></h5>
+            </div>
+          </a>
+
+          <!-- 2. Cross-Sections (Feature 4) -->
+          <a href="/subjects/<%= category.slug %>/module/cross-sections" class="text-decoration-none flex-fill d-flex">
+            <div class="pe-neuro-card p-4 rounded-4 text-white text-center cursor-pointer flex-fill d-flex flex-column align-items-center justify-content-center transition-all shadow-sm" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+              <i class="ri-layout-grid-line display-5 mb-2 text-white"></i>
+              <h5 class="fw-bold text-white mb-0">Cross-Sections <i class="ri-arrow-right-up-line fs-6"></i></h5>
+            </div>
+          </a>
+
+          <!-- 3. 3D Models / Interactive Modules (Feature 2) -->
+          <a href="/subjects/<%= category.slug %>/module/interactive-modules" class="text-decoration-none flex-fill d-flex">
+            <div class="pe-neuro-card p-4 rounded-4 text-white text-center cursor-pointer flex-fill d-flex flex-column align-items-center justify-content-center transition-all shadow-sm" style="background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);">
+              <i class="ri-box-3-line display-5 mb-2 text-white"></i>
+              <h5 class="fw-bold text-white mb-0">3D Rotatable <i class="ri-arrow-right-up-line fs-6"></i></h5>
+            </div>
+          </a>
+        </div>
+
+        <!-- Center Column: Direct Native HTML5 MP4 3D Video Player (NO YOUTUBE DEPENDENCY!) -->
+        <div class="col-lg-6">
+          <div class="card border-0 rounded-4 overflow-hidden shadow-lg h-100 bg-dark position-relative" style="min-height: 340px;">
+            
+            <!-- 1. Native HTML5 MP4 Video Player Layer (Active by Default) -->
+            <div id="demo3DVideoContainer" class="w-100 h-100 position-relative">
+              <video id="demoHTML5Video" autoplay loop muted playsinline controls class="w-100 h-100" style="object-fit: cover; min-height: 340px; background: #020617;">
+                <source src="/videos/stream/<%= category.slug %>-intro" type="video/mp4">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                Your browser does not support HTML5 video.
+              </video>
+            </div>
+
+            <!-- 2. Real 3D WebGL Canvas Layer (Toggleable) -->
+            <div id="demo3DCanvasContainer" class="w-100 h-100 position-absolute top-0 start-0 d-none">
+              <canvas id="demo3DCanvas" class="w-100 h-100" style="min-height: 340px; background: radial-gradient(circle, #0f172a 0%, #020617 100%); cursor: grab;"></canvas>
+              
+              <!-- Interactive Overlay Controls -->
+              <div class="position-absolute top-0 start-0 p-3 d-flex align-items-center gap-2 z-2">
+                <span class="badge bg-primary text-white font-weight-bold shadow-sm">
+                  <i class="ri-box-3-fill me-1"></i> Live 3D WebGL Mesh
+                </span>
+                <span class="badge bg-dark bg-opacity-75 text-white-75 border border-secondary small">
+                  <i class="ri-drag-move-fill me-1 text-warning"></i> Drag to Orbit 360°
+                </span>
+              </div>
+            </div>
+
+            <!-- Bottom Control Bar -->
+            <div class="position-absolute bottom-0 start-0 end-0 p-3 bg-dark bg-opacity-85 text-white d-flex align-items-center justify-content-between z-3 border-top border-secondary border-opacity-25">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-warning text-dark font-weight-bold shadow-sm">
+                  <i class="ri-play-circle-fill me-1"></i> <%= category.name %> 3D Prosection MP4 Video
+                </span>
+              </div>
+              
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-sm btn-primary font-weight-bold" id="btnShowVideo" onclick="switchMediaMode('video')">
+                  <i class="ri-film-line me-1"></i> 3D Video MP4
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light font-weight-bold" id="btnShow3D" onclick="switchMediaMode('3d')">
+                  <i class="ri-box-3-line me-1"></i> 3D WebGL
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right Column: 3 Boxes (HD Videos, Interactive Modules, MRIs & Radiology) -->
+        <div class="col-lg-3 d-flex flex-column gap-3">
+          <!-- 4. Videos (Feature 5) -->
+          <a href="/subjects/<%= category.slug %>/module/hd-videos" class="text-decoration-none flex-fill d-flex">
+            <div class="pe-neuro-card p-4 rounded-4 text-white text-center cursor-pointer flex-fill d-flex flex-column align-items-center justify-content-center transition-all shadow-sm" style="background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);">
+              <i class="ri-vidicon-line display-5 mb-2 text-white"></i>
+              <h5 class="fw-bold text-white mb-0">HD Videos <i class="ri-arrow-right-up-line fs-6"></i></h5>
+            </div>
+          </a>
+
+          <!-- 5. Notes and Interactive Modules (Feature 6) -->
+          <a href="/subjects/<%= category.slug %>/module/interactive-modules" class="text-decoration-none flex-fill d-flex">
+            <div class="pe-neuro-card p-4 rounded-4 text-white text-center cursor-pointer flex-fill d-flex flex-column align-items-center justify-content-center transition-all shadow-sm" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+              <i class="ri-file-text-line display-5 mb-2 text-white"></i>
+              <h5 class="fw-bold text-white mb-0">Notes & Modules <i class="ri-arrow-right-up-line fs-6"></i></h5>
+            </div>
+          </a>
+
+          <!-- 6. MRIs & Radiology (Feature 7) -->
+          <a href="/subjects/<%= category.slug %>/module/mri-scans" class="text-decoration-none flex-fill d-flex">
+            <div class="pe-neuro-card p-4 rounded-4 text-white text-center cursor-pointer flex-fill d-flex flex-column align-items-center justify-content-center transition-all shadow-sm" style="background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);">
+              <i class="ri-pulse-line display-5 mb-2 text-white"></i>
+              <h5 class="fw-bold text-white mb-0">MRIs & Radiology <i class="ri-arrow-right-up-line fs-6"></i></h5>
+            </div>
+          </a>
+        </div>
+
+        <!-- Bottom Row: 2 Equal Boxes (Syllabus, Stroke & Pathology) -->
+        <div class="col-md-6">
+          <a href="/subjects/<%= category.slug %>/module/syllabus" class="text-decoration-none">
+            <div class="pe-neuro-card p-4 rounded-4 text-white text-center cursor-pointer transition-all shadow-sm" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+              <i class="ri-quill-pen-line fs-2 mb-1 text-white"></i>
+              <h5 class="fw-bold text-white mb-0"><%= category.name %> Syllabus <i class="ri-arrow-right-up-line fs-6"></i></h5>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6">
+          <a href="/subjects/<%= category.slug %>/module/stroke-models" class="text-decoration-none">
+            <div class="pe-neuro-card p-4 rounded-4 text-white text-center cursor-pointer transition-all shadow-sm" style="background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);">
+              <i class="ri-heart-pulse-line fs-2 mb-1 text-white"></i>
+              <h5 class="fw-bold text-white mb-0">Stroke & Pathology <i class="ri-arrow-right-up-line fs-6"></i></h5>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THREE.JS & INTERACTIVE MEDIA ENGINE ============ -->
+
+<!-- ============ -->
+
+<!-- Dynamic Grid Card Styling & Interactive WebGL Script -->
+<style>
+  .pe-neuro-card {
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+  }
+  .pe-neuro-card:hover {
+    transform: translateY(-6px) scale(1.02) !important;
+    box-shadow: 0 12px 30px rgba(2, 132, 199, 0.3) !important;
+  }
+</style>
+
+<!-- Three.js Library for GPU-Accelerated 3D WebGL Organ Rendering -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+  const hotspotsData = <%- JSON.stringify(interactiveData.hotspots || []) %>;
+
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function showHotspotInfo(id) {
+    const hs = hotspotsData.find(item => item.id === id);
+    if (!hs) return;
+    document.getElementById('hsId').innerText = hs.id;
+    document.getElementById('hsTitle').innerText = hs.title;
+    document.getElementById('hsDesc').innerText = hs.description;
+    document.getElementById('hsNerve').innerText = hs.nerveSupply;
+    document.getElementById('hsAction').innerText = hs.action;
+  }
+
+  let labelsVisible = true;
+  function toggleAllLabels() {
+    labelsVisible = !labelsVisible;
+    document.querySelectorAll('.cs-labels-box').forEach(box => {
+      box.style.display = labelsVisible ? 'flex' : 'none';
+    });
+  }
+
+  // ===== THREE.JS 3D WEBGL MEDICAL ENGINE =====
+  function init3DMedicalEngine() {
+    const canvas = document.getElementById('demo3DCanvas');
+    if (!canvas || typeof THREE === 'undefined') return;
+
+    const container = canvas.parentElement;
+    const width = container.clientWidth || 400;
+    const height = container.clientHeight || 340;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(0, 0, 5);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0x0284c7, 1.5);
+    dirLight1.position.set(5, 5, 5);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0xf59e0b, 1.0);
+    dirLight2.position.set(-5, -5, -2);
+    scene.add(dirLight2);
+
+    // Create 3D Anatomical Organ / Brain Model Group
+    const group = new THREE.Group();
+
+    // Central Brain Lobe Mesh (Icosahedron + Smooth Wireframe)
+    const brainGeo = new THREE.IcosahedronGeometry(1.4, 3);
+    const brainMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      roughness: 0.3,
+      metalness: 0.2,
+      wireframe: false,
+      flatShading: true
+    });
+    const brainMesh = new THREE.Mesh(brainGeo, brainMat);
+    group.add(brainMesh);
+
+    // Glowing Wireframe Outer Layer
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.35
+    });
+    const wireMesh = new THREE.Mesh(brainGeo, wireMat);
+    wireMesh.scale.setScalar(1.04);
+    group.add(wireMesh);
+
+    // Surrounding Synaptic Particles
+    const particleGeo = new THREE.BufferGeometry();
+    const count = 120;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) {
+      positions[i] = (Math.random() - 0.5) * 4.5;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const particleMat = new THREE.PointsMaterial({ color: 0xf59e0b, size: 0.05, transparent: true, opacity: 0.8 });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    group.add(particles);
+
+    scene.add(group);
+
+    // Mouse Drag Controls
+    let isDragging = false;
+    let previousMousePosition = { x: 0, y: 0 };
+
+    canvas.addEventListener('mousedown', e => {
+      isDragging = true;
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener('mouseup', () => isDragging = false);
+
+    canvas.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - previousMousePosition.x;
+      const deltaY = e.clientY - previousMousePosition.y;
+
+      group.rotation.y += deltaX * 0.01;
+      group.rotation.x += deltaY * 0.01;
+
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    });
+
+    // Touch Controls
+    canvas.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    });
+    canvas.addEventListener('touchend', () => isDragging = false);
+    canvas.addEventListener('touchmove', e => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const deltaX = e.touches[0].clientX - previousMousePosition.x;
+      const deltaY = e.touches[0].clientY - previousMousePosition.y;
+
+      group.rotation.y += deltaX * 0.01;
+      group.rotation.x += deltaY * 0.01;
+
+      previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    });
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!isDragging) {
+        group.rotation.y += 0.006;
+        group.rotation.x += 0.002;
+      }
+      particles.rotation.y -= 0.003;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      const w = container.clientWidth || 400;
+      const h = container.clientHeight || 340;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+  }
+
+  function switchMediaMode(mode) {
+    const canvasCont = document.getElementById('demo3DCanvasContainer');
+    const videoCont = document.getElementById('demo3DVideoContainer');
+    const btn3D = document.getElementById('btnShow3D');
+    const btnVid = document.getElementById('btnShowVideo');
+
+    if (mode === 'video') {
+      videoCont.classList.remove('d-none');
+      canvasCont.classList.add('d-none');
+      btnVid.className = 'btn btn-sm btn-primary font-weight-bold';
+      btn3D.className = 'btn btn-sm btn-outline-light font-weight-bold';
+    } else {
+      canvasCont.classList.remove('d-none');
+      videoCont.classList.add('d-none');
+      btn3D.className = 'btn btn-sm btn-primary font-weight-bold';
+      btnVid.className = 'btn btn-sm btn-outline-light font-weight-bold';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', init3DMedicalEngine);
+</script>
+
+<!-- ============ INTERACTIVE COMING SOON MODAL ============ -->
+<div class="modal fade" id="comingSoonModal" tabindex="-1" aria-labelledby="comingSoonModalLabel" aria-hidden="true" style="z-index: 1070;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
+      <div class="modal-body p-3">
+        <div class="d-inline-flex p-3 rounded-circle bg-warning-subtle text-warning mb-3 shadow-xs" style="font-size: 2.3rem; width: 72px; height: 72px; align-items: center; justify-content: center;">
+          <i class="ri-time-line"></i>
+        </div>
+        <div class="mb-2">
+          <span class="badge bg-warning text-dark font-weight-bold px-3 py-1 rounded-pill">UNDER ACTIVE DEVELOPMENT</span>
+        </div>
+        <h4 class="fw-bold text-dark mb-2" id="csModalTitle">Module Coming Soon</h4>
+        <p class="text-muted mb-4 small" id="csModalDesc" style="font-size: 0.95rem; line-height: 1.5;">
+          Our academic medical faculty is actively developing this interactive feature for this subject. It will be released soon.
+        </p>
+        <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+          <button type="button" class="btn btn-secondary rounded-pill px-4 font-weight-bold" data-bs-dismiss="modal">
+            <i class="ri-close-line me-1"></i> Close
+          </button>
+          <a href="/subjects/<%= category.slug %>/course" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm" style="background: #0a5dc2; border: none;">
+            <i class="ri-play-circle-fill me-1"></i> Explore Active Courses
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openComingSoonModal(featureName, subjectName) {
+    const titleEl = document.getElementById('csModalTitle');
+    const descEl = document.getElementById('csModalDesc');
+    if (titleEl) titleEl.innerText = `${featureName} is Coming Soon`;
+    if (descEl) descEl.innerText = `The "${featureName}" interactive feature for ${subjectName} is currently being curated by our physiotherapy faculty. It will be unlocked in an upcoming release.`;
+
+    const modalEl = document.getElementById('comingSoonModal');
+    if (modalEl) {
+      if (window.bootstrap && bootstrap.Modal) {
+        try {
+          const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+          bsModal.show();
+          return;
+        } catch(e) {}
+      }
+      modalEl.classList.add('show');
+      modalEl.style.display = 'block';
+    }
+  }
+</script>

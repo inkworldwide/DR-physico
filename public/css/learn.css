@@ -1,0 +1,96 @@
+/* Physico Edvance — Lesson Player (standalone full-screen layout) */
+
+.pe-learn-body { background: var(--pe-body-bg); margin: 0; }
+
+.pe-learn-topbar {
+  background: #fff; border-bottom: 1px solid var(--pe-border);
+  padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1rem;
+  position: sticky; top: 0; z-index: 60;
+}
+.pe-learn-back { color: var(--pe-text); font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; gap: 0.4rem; text-decoration: none; }
+.pe-learn-title { font-weight: 700; font-size: 0.9rem; color: var(--pe-heading); border-left: 1px solid var(--pe-border); padding-left: 1rem; margin-left: 0.5rem; }
+.pe-learn-toggle-sidebar { display: none; background: none; border: none; font-size: 1.3rem; }
+
+.pe-learn-wrapper { display: flex; min-height: calc(100vh - 57px); }
+.pe-learn-main { flex: 1; padding: 2rem; min-width: 0; }
+.pe-learn-content { max-width: 900px; margin: 0 auto; width: 100%; }
+
+/* Embedded / external video (YouTube etc.) — 16:9 responsive box, no split-screen */
+.pe-video-wrapper { position: relative; width: 100%; padding-top: 56.25%; border-radius: var(--pe-radius-lg); overflow: hidden; background: #000; }
+.pe-video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+.pe-video-wrapper.d-flex { position: relative; }
+.pe-video-wrapper.d-flex > * { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; }
+
+/* Native <video> (uploaded file) — plays full width, keeps its own aspect ratio,
+   no absolute-positioning trick so audio/controls behave like a normal HTML5 player. */
+.pe-video-native {
+  width: 100%;
+  border-radius: var(--pe-radius-lg);
+  overflow: hidden;
+  background: #000;
+  box-shadow: var(--pe-shadow-md);
+  line-height: 0;
+}
+.pe-video-native-el {
+  display: block;
+  width: 100%;
+  max-height: 75vh;
+  background: #000;
+}
+
+/* Article reading layout — comfortable full-width reading experience */
+.pe-article-card {
+  background: var(--pe-card-bg);
+  border: 1px solid var(--pe-border);
+  border-radius: var(--pe-radius-lg);
+  box-shadow: var(--pe-shadow);
+  padding: 2.5rem clamp(1.25rem, 5vw, 3.5rem);
+}
+.pe-article-title { color: var(--pe-heading); }
+.pe-article-content {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: var(--pe-text);
+  max-width: 72ch;
+  margin: 0 auto;
+}
+.pe-article-content img { max-width: 100%; height: auto; border-radius: var(--pe-radius); margin: 1.25rem 0; box-shadow: var(--pe-shadow); }
+.pe-article-content h1,.pe-article-content h2,.pe-article-content h3 { margin-top: 1.75rem; margin-bottom: 0.75rem; }
+.pe-article-content p { margin-bottom: 1.1rem; }
+.pe-article-content pre, .pe-article-content code { background: var(--pe-primary-light); border-radius: var(--pe-radius); }
+
+@media (max-width: 575px) {
+  .pe-article-card { padding: 1.5rem 1.25rem; }
+}
+
+.pe-learn-sidebar {
+  width: 340px; flex-shrink: 0; background: #fff;
+  border-left: 1px solid var(--pe-border); overflow-y: auto;
+  max-height: calc(100vh - 57px);
+}
+.pe-learn-sidebar-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--pe-border); }
+.pe-learn-accordion .accordion-button { font-size: 0.85rem; padding: 0.75rem 1.25rem; }
+.pe-lesson-row.active { background: var(--pe-primary-light); }
+.pe-lesson-row.active span.text-dark { color: var(--pe-primary) !important; font-weight: 600; }
+
+/* Quiz options */
+.pe-quiz-option {
+  display: flex; align-items: center; gap: 0.75rem; width: 100%;
+  border: 1px solid var(--pe-border); border-radius: var(--pe-radius);
+  padding: 0.75rem 1rem; cursor: pointer; font-size: 0.9rem;
+  transition: all 0.15s ease;
+}
+.pe-quiz-option:hover { border-color: var(--pe-primary); background: var(--pe-primary-light); }
+.pe-quiz-option input { margin: 0; }
+
+@media (max-width: 991px) {
+  .pe-learn-wrapper { position: relative; }
+  .pe-learn-sidebar {
+    position: fixed; right: 0; top: 57px; bottom: 0;
+    transform: translateX(100%); transition: transform 0.2s ease; z-index: 55;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+  }
+  .pe-learn-sidebar.show { transform: translateX(0); }
+  .pe-learn-toggle-sidebar { display: inline-flex; }
+  .pe-learn-main { padding: 1.25rem; }
+}

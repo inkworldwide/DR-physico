@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | PhysioEdvance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="icon" href="/images/logo-icon.png">
+</head>
+<body class="pe-admin-body">
+
+  <div class="pe-admin-wrapper">
+    <%- include('../partials/admin-sidebar') %>
+
+    <div class="pe-admin-main">
+      <%- include('../partials/admin-topbar') %>
+
+      <div class="pe-admin-content">
+        <% if (typeof successMessages !== 'undefined' && successMessages.length) { %>
+          <% successMessages.forEach(msg => { %>
+            <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
+              <i class="ri-checkbox-circle-fill me-2"></i> <%= msg %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          <% }) %>
+        <% } %>
+        <% if (typeof errorMessages !== 'undefined' && errorMessages.length) { %>
+          <% errorMessages.forEach(msg => { %>
+            <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
+              <i class="ri-error-warning-fill me-2"></i> <%= msg %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          <% }) %>
+        <% } %>
+
+        <%- body %>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

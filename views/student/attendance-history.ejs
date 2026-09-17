@@ -1,0 +1,31 @@
+<section class="pe-section-sm bg-white border-bottom">
+  <div class="container">
+    <h1 class="pe-section-title mb-1">My Attendance</h1>
+    <p class="text-muted-pe mb-0">Your face-verified attendance records across all courses.</p>
+  </div>
+</section>
+
+<section class="pe-section">
+  <div class="container">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table pe-table mb-0">
+          <thead><tr><th>Course</th><th>Method</th><th>Match Confidence</th><th>Date & Time</th></tr></thead>
+          <tbody>
+            <% if (records.length === 0) { %>
+              <tr><td colspan="4" class="text-center text-muted-pe py-4">No attendance records yet.</td></tr>
+            <% } %>
+            <% records.forEach(r => { %>
+              <tr>
+                <td class="fw-semibold"><a href="/courses/<%= r.course_slug %>"><%= r.course_title %></a></td>
+                <td><span class="badge badge-soft-info text-capitalize"><%= r.method %></span></td>
+                <td><%= r.match_distance !== null ? (100 - r.match_distance * 100).toFixed(1) + '%' : '—' %></td>
+                <td class="text-muted-pe"><%= new Date(r.marked_at).toLocaleString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,55 @@
+<!-- ============ UNIFIED ROYAL GRADIENT HERO BANNER ============ -->
+<section class="pe-hero-strip position-relative py-5 text-white overflow-hidden text-center" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+  <div class="container position-relative z-2 py-3">
+    <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3.5 py-2 rounded-pill mb-3 shadow-sm" style="font-size: 0.8rem; letter-spacing: 0.05em; background-color: #f59e0b !important;">
+      <i class="ri-quill-pen-line me-1"></i> PhysioEdvance Articles & Insights
+    </span>
+    <h1 class="display-4 font-weight-bold text-white mb-2" style="letter-spacing: -0.02em;">
+      PhysioEdvance Blog
+    </h1>
+    <p class="text-white-75 lead mx-auto mb-0" style="font-size: 1.1rem; line-height: 1.6; max-width: 680px;">
+      Articles, academic insights, clinical pearls, poems, and experiences from the PhysioEdvance team.
+    </p>
+  </div>
+</section>
+
+<section class="pe-section bg-light-subtle py-5">
+  <div class="container">
+    <div class="d-flex gap-2 mb-4 flex-wrap justify-content-center">
+      <a href="/blog" class="btn btn-sm rounded-pill px-4 font-weight-bold <%= !filterType ? 'btn-primary shadow-sm' : 'btn-outline-primary' %>" style="<%= !filterType ? 'background: #0a5dc2; border-color: #0a5dc2;' : '' %>">All</a>
+      <a href="/blog?type=article" class="btn btn-sm rounded-pill px-4 font-weight-bold <%= filterType==='article' ? 'btn-primary shadow-sm' : 'btn-outline-primary' %>" style="<%= filterType==='article' ? 'background: #0a5dc2; border-color: #0a5dc2;' : '' %>">Articles</a>
+      <a href="/blog?type=poem" class="btn btn-sm rounded-pill px-4 font-weight-bold <%= filterType==='poem' ? 'btn-primary shadow-sm' : 'btn-outline-primary' %>" style="<%= filterType==='poem' ? 'background: #0a5dc2; border-color: #0a5dc2;' : '' %>">Poems</a>
+      <a href="/blog?type=quote" class="btn btn-sm rounded-pill px-4 font-weight-bold <%= filterType==='quote' ? 'btn-primary shadow-sm' : 'btn-outline-primary' %>" style="<%= filterType==='quote' ? 'background: #0a5dc2; border-color: #0a5dc2;' : '' %>">Quotes</a>
+      <a href="/blog?type=experience" class="btn btn-sm rounded-pill px-4 font-weight-bold <%= filterType==='experience' ? 'btn-primary shadow-sm' : 'btn-outline-primary' %>" style="<%= filterType==='experience' ? 'background: #0a5dc2; border-color: #0a5dc2;' : '' %>">Experiences</a>
+    </div>
+
+    <% if (posts.length === 0) { %>
+      <div class="card border-0 shadow-sm rounded-4 text-center py-5 bg-white">
+        <p class="text-muted text-center py-4 mb-0">No posts published under this category yet.</p>
+      </div>
+    <% } %>
+
+    <div class="row g-4">
+      <% posts.forEach(p => { %>
+        <div class="col-md-6 col-lg-4">
+          <a href="/blog/<%= p.slug %>" class="text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white transition-all pe-blog-card">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="badge bg-primary-subtle text-primary font-weight-bold px-3 py-1 rounded-pill text-capitalize" style="font-size: 0.8rem;">
+                  <i class="ri-price-tag-3-line me-1"></i> <%= p.post_type %>
+                </span>
+                <span class="text-muted small"><%= p.created_at ? new Date(p.created_at).toLocaleDateString() : '' %></span>
+              </div>
+              <h5 class="fw-bold text-dark mb-2" style="line-height: 1.4;"><%= p.title %></h5>
+              <p class="text-secondary small mb-4 line-clamp-3" style="font-size: 0.88rem; line-height: 1.6;"><%= p.excerpt %></p>
+              <div class="mt-auto pt-3 border-top d-flex align-items-center justify-content-between text-primary font-weight-bold small">
+                <span>Read Full Article</span>
+                <i class="ri-arrow-right-line"></i>
+              </div>
+            </div>
+          </a>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,432 @@
+<!-- ============ SUBJECT LEARNING MODULE HERO BANNER ============ -->
+<section class="pe-hero-strip position-relative py-5 text-white overflow-hidden" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+  <div class="position-absolute end-0 bottom-0 opacity-10 pe-none me-4 mb-2">
+    <i class="ri-book-open-line" style="font-size: 14rem; color: #ffffff;"></i>
+  </div>
+
+  <div class="container position-relative z-2 py-2">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+      <a href="/learning-modules" class="btn btn-sm btn-light rounded-pill px-3 fw-semibold text-primary">
+        <i class="ri-arrow-left-line me-1"></i> All Learning Modules
+      </a>
+      <span class="badge text-white px-3 py-1.5 rounded-pill fw-bold" style="background-color: <%= category.year === 1 ? '#0a5dc2' : category.year === 2 ? '#2d9cdb' : category.year === 3 ? '#2FA75F' : category.year === 4 ? '#F05D5D' : '#6A7283' %>;">
+        <%= category.year ? 'Year ' + category.year : 'Elective' %>
+      </span>
+      <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold">
+        <%= typeof SUBJECT_ABBREVIATIONS !== 'undefined' && SUBJECT_ABBREVIATIONS[category.name] ? SUBJECT_ABBREVIATIONS[category.name] : 'PT' %>
+      </span>
+    </div>
+
+    <h1 class="display-4 font-weight-bold text-white mb-2" style="letter-spacing: -0.02em;">
+      <%= category.name %>
+    </h1>
+    <p class="text-white-75 lead mb-0" style="font-size: 1.1rem; line-height: 1.6; max-width: 760px;">
+      <%= learningData.overview %>
+    </p>
+  </div>
+</section>
+
+<!-- ============ 3 TABS NAVIGATION: MCQ, LARGE Q&A, SMALL Q&A ============ -->
+<section class="bg-white border-bottom sticky-top shadow-sm" style="top: 70px; z-index: 1000;">
+  <div class="container">
+    <ul class="nav nav-pills justify-content-center py-2.5 gap-2" id="moduleNavTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link px-4 py-2.5 rounded-pill fw-bold <%= activeTab === 'mcq' ? 'active' : '' %>" id="mcq-tab" data-bs-toggle="pill" data-bs-target="#mcq-pane" type="button" role="tab">
+          <i class="ri-checkbox-circle-fill me-1.5 text-primary"></i> Multiple Choice Questions (MCQ)
+          <span class="badge bg-primary-subtle text-primary ms-1.5 rounded-pill"><%= learningData.mcqs.length %></span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link px-4 py-2.5 rounded-pill fw-bold <%= activeTab === 'large-qa' || activeTab === 'long-questions' ? 'active' : '' %>" id="large-qa-tab" data-bs-toggle="pill" data-bs-target="#large-qa-pane" type="button" role="tab">
+          <i class="ri-file-list-3-fill me-1.5 text-info"></i> Large Questions & Answers
+          <span class="badge bg-info-subtle text-info ms-1.5 rounded-pill"><%= learningData.largeQA.length %></span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link px-4 py-2.5 rounded-pill fw-bold <%= activeTab === 'small-qa' || activeTab === 'short-questions' ? 'active' : '' %>" id="small-qa-tab" data-bs-toggle="pill" data-bs-target="#small-qa-pane" type="button" role="tab">
+          <i class="ri-question-answer-fill me-1.5 text-warning"></i> Small Questions & Answers
+          <span class="badge bg-warning-subtle text-warning ms-1.5 rounded-pill"><%= learningData.smallQA.length %></span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link px-4 py-2.5 rounded-pill fw-bold <%= activeTab === 'documents' || activeTab === 'notes' ? 'active' : '' %>" id="docs-tab" data-bs-toggle="pill" data-bs-target="#docs-pane" type="button" role="tab">
+          <i class="ri-file-pdf-fill me-1.5 text-danger"></i> Study Documents & PDFs
+          <span class="badge bg-danger-subtle text-danger ms-1.5 rounded-pill"><%= (learningData.documents && learningData.documents.length) || 0 %></span>
+        </button>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ TAB PANES CONTENT ============ -->
+<section class="pe-section bg-light-subtle py-5">
+  <div class="container py-2">
+    <div class="tab-content" id="moduleTabContent">
+
+      <!-- ================= 1. MCQ PANE ================= -->
+      <div class="tab-pane fade <%= activeTab === 'mcq' ? 'show active' : '' %>" id="mcq-pane" role="tabpanel">
+        <div class="row g-4 justify-content-center">
+          <div class="col-lg-9">
+            
+            <!-- Quiz Header Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                  <h4 class="fw-bold text-dark mb-1">Interactive MCQ Practice</h4>
+                  <p class="text-muted small mb-0">Select an option to immediately test your understanding with comprehensive explanations.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="bg-light px-3 py-1.5 rounded-pill border fw-bold text-dark small" id="quizScoreTracker">
+                    Score: <span id="quizScoreVal" class="text-primary">0</span> / <%= learningData.mcqs.length %>
+                  </div>
+                  <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="resetMcqQuiz()">
+                    <i class="ri-restart-line me-1"></i> Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- MCQ Questions List -->
+            <% learningData.mcqs.forEach((mcq, idx) => { %>
+              <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 pe-mcq-card" id="mcq-card-<%= idx %>" data-correct="<%= mcq.correct %>">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill small">
+                    Question <%= idx + 1 %> of <%= learningData.mcqs.length %>
+                  </span>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-light text-muted border small"><%= mcq.topic %></span>
+                    <span class="badge <%= mcq.difficulty === 'Easy' ? 'bg-success-subtle text-success' : mcq.difficulty === 'Medium' ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger' %> px-2.5 py-1 rounded-pill small fw-bold">
+                      <%= mcq.difficulty %>
+                    </span>
+                  </div>
+                </div>
+
+                <h5 class="fw-bold text-dark mb-4" style="line-height: 1.5;"><%= mcq.question %></h5>
+
+                <!-- Options -->
+                <div class="d-flex flex-column gap-2.5 mb-3">
+                  <% mcq.options.forEach((opt, optIdx) => { %>
+                    <button type="button" class="btn text-start p-3 rounded-3 border d-flex align-items-center justify-content-between pe-mcq-opt" 
+                            onclick="checkMcqAnswer(<%= idx %>, <%= optIdx %>, <%= mcq.correct %>)" id="mcq-opt-<%= idx %>-<%= optIdx %>">
+                      <div class="d-flex align-items-center gap-2.5">
+                        <span class="badge bg-light text-dark border rounded-circle d-flex align-items-center justify-content-center pe-opt-badge" style="width: 28px; height: 28px;">
+                          <%= String.fromCharCode(65 + optIdx) %>
+                        </span>
+                        <span class="fw-medium text-dark opt-text"><%= opt %></span>
+                      </div>
+                      <i class="ri-checkbox-circle-line fs-5 pe-opt-icon d-none"></i>
+                    </button>
+                  <% }) %>
+                </div>
+
+                <!-- Explanation Box (revealed on selection) -->
+                <div class="alert alert-info border-0 rounded-3 p-3 mt-3 d-none pe-mcq-explanation" id="mcq-expl-<%= idx %>">
+                  <div class="d-flex align-items-center gap-2 fw-bold text-info mb-1">
+                    <i class="ri-lightbulb-line fs-5"></i> Rationale & Key Takeaway:
+                  </div>
+                  <p class="mb-0 text-dark small" style="line-height: 1.6;"><%= mcq.explanation %></p>
+                </div>
+              </div>
+            <% }) %>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 2. LARGE Q&A PANE ================= -->
+      <div class="tab-pane fade <%= activeTab === 'large-qa' || activeTab === 'long-questions' ? 'show active' : '' %>" id="large-qa-pane" role="tabpanel">
+        <div class="row g-4 justify-content-center">
+          <div class="col-lg-9">
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <h4 class="fw-bold text-dark mb-1">Large Question Answers (10 & 15 Markers)</h4>
+                  <p class="text-muted small mb-0">Standard university examination model answers, structured clinical case questions, and step-by-step management.</p>
+                </div>
+                <span class="badge bg-info text-white rounded-pill px-3 py-1.5 fw-bold">Long Essays</span>
+              </div>
+            </div>
+
+            <!-- Large QA List -->
+            <% learningData.largeQA.forEach((lq, lIdx) => { %>
+              <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+                  <span class="badge bg-info-subtle text-info fw-bold px-3 py-1.5 rounded-pill font-monospace">
+                    <%= lq.marks %> MARKS ESSAY
+                  </span>
+                  <span class="text-muted small fw-semibold"><i class="ri-file-text-line me-1"></i> Question <%= lIdx + 1 %></span>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-3" style="line-height: 1.4;"><%= lq.title %></h4>
+                
+                <div class="p-3 bg-light rounded-3 mb-4 border-start border-4 border-info">
+                  <strong class="text-dark d-block mb-1">Question Prompt:</strong>
+                  <p class="text-secondary mb-0" style="font-size: 0.95rem;"><%= lq.question %></p>
+                </div>
+
+                <!-- Model Answer -->
+                <div class="pe-model-answer">
+                  <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-success text-white px-2.5 py-1 rounded-pill small fw-bold">Model Answer</span>
+                    <span class="text-muted small">Structured Clinical Framework</span>
+                  </div>
+
+                  <p class="text-dark mb-4 lead" style="font-size: 1rem; line-height: 1.7;">
+                    <%= lq.modelAnswer.introduction %>
+                  </p>
+
+                  <div class="d-flex flex-column gap-3">
+                    <% lq.modelAnswer.sections.forEach(sec => { %>
+                      <div class="card border-0 bg-light-subtle rounded-3 p-3.5">
+                        <h6 class="fw-bold text-primary mb-2"><%= sec.heading %></h6>
+                        <div class="text-secondary small" style="line-height: 1.8; white-space: pre-line;"><%= sec.content %></div>
+                      </div>
+                    <% }) %>
+                  </div>
+
+                  <% if (lq.document_url) { %>
+                    <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                      <span class="small text-muted"><i class="ri-file-text-line me-1"></i> Supplementary Document / Notes attached:</span>
+                      <a href="<%= lq.document_url %>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
+                        <i class="ri-eye-line me-1"></i> View Attached Document
+                      </a>
+                    </div>
+                  <% } %>
+                </div>
+
+              </div>
+            <% }) %>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 3. SMALL Q&A PANE ================= -->
+      <div class="tab-pane fade <%= activeTab === 'small-qa' || activeTab === 'short-questions' ? 'show active' : '' %>" id="small-qa-pane" role="tabpanel">
+        <div class="row g-4 justify-content-center">
+          <div class="col-lg-9">
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                  <h4 class="fw-bold text-dark mb-1">Small Question Answers (2 & 5 Markers)</h4>
+                  <p class="text-muted small mb-0">High-yield short notes, clinical definitions, differential tables, and 2/3/5 mark answers for rapid recall.</p>
+                </div>
+                <div class="position-relative" style="min-width: 220px;">
+                  <i class="ri-search-line position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                  <input type="text" id="smallQaSearch" class="form-control form-control-sm bg-light border-0 ps-5 rounded-pill" placeholder="Filter questions..." onkeyup="filterSmallQa()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Small QA Cards -->
+            <div class="row g-3" id="smallQaContainer">
+              <% learningData.smallQA.forEach((sq, sIdx) => { %>
+                <div class="col-12 small-qa-item">
+                  <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <span class="badge bg-warning-subtle text-warning fw-bold px-3 py-1 rounded-pill small">
+                        <%= sq.marks %> Marks Short Note
+                      </span>
+                      <span class="text-muted small fw-semibold">SN #<%= sIdx + 1 %></span>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2" style="font-size: 1.1rem;"><%= sq.title %></h5>
+                    <p class="text-primary fw-semibold small mb-3">Q: <%= sq.question %></p>
+
+                    <div class="p-3 bg-light rounded-3 text-secondary small" style="line-height: 1.75; white-space: pre-line; border-left: 3px solid #f59e0b;">
+                      <%= sq.answer %>
+                    </div>
+
+                    <% if (sq.document_url) { %>
+                      <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <span class="small text-muted"><i class="ri-attachment-2 me-1"></i> Attached Resource:</span>
+                        <a href="<%= sq.document_url %>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 fw-semibold">
+                          <i class="ri-eye-line me-1"></i> View Document
+                        </a>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 4. STUDY DOCUMENTS & PDFS PANE ================= -->
+      <div class="tab-pane fade <%= activeTab === 'documents' || activeTab === 'notes' ? 'show active' : '' %>" id="docs-pane" role="tabpanel">
+        <div class="row g-4 justify-content-center">
+          <div class="col-lg-9">
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                  <h4 class="fw-bold text-dark mb-1">Study Documents, Question Banks & PDFs</h4>
+                  <p class="text-muted small mb-0">Read official curriculum notes, previous year question papers, summary sheets, and reference materials online.</p>
+                </div>
+                <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1.5 fw-bold">
+                  <%= (learningData.documents && learningData.documents.length) || 0 %> Document(s)
+                </span>
+              </div>
+            </div>
+
+            <% if (learningData.documents && learningData.documents.length > 0) { %>
+              <div class="row g-3">
+                <% learningData.documents.forEach(doc => { %>
+                  <div class="col-md-6 col-12">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column justify-content-between hover-shadow transition">
+                      <div>
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                          <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-3 d-flex align-items-center justify-content-center <%= (doc.file_type && doc.file_type.includes('pdf')) ? 'bg-danger-subtle text-danger' : 'bg-primary-subtle text-primary' %>" style="width: 48px; height: 48px;">
+                              <i class="<%= (doc.file_type && doc.file_type.includes('pdf')) ? 'ri-file-pdf-fill' : (doc.file_type && (doc.file_type.includes('word') || doc.file_type.includes('doc'))) ? 'ri-file-word-fill' : 'ri-file-text-fill' %> fs-3"></i>
+                            </div>
+                            <div>
+                              <span class="badge bg-light text-dark border small px-2 py-0.5 rounded-pill mb-1">
+                                <%= (doc.file_type && doc.file_type.toUpperCase()) || 'DOCUMENT' %>
+                              </span>
+                              <% if (doc.file_size) { %>
+                                <span class="text-muted small ms-1">(<%= (doc.file_size / 1024 / 1024).toFixed(2) %> MB)</span>
+                              <% } %>
+                            </div>
+                          </div>
+                        </div>
+
+                        <h5 class="fw-bold text-dark mb-2" style="font-size: 1.05rem; line-height: 1.4;"><%= doc.title %></h5>
+                        <% if (doc.description) { %>
+                          <p class="text-muted small mb-3" style="line-height: 1.6;"><%= doc.description %></p>
+                        <% } %>
+                        <% if (doc.course_title) { %>
+                          <div class="mb-3">
+                            <span class="badge bg-primary-subtle text-primary small"><i class="ri-book-read-line me-1"></i> Course: <%= doc.course_title %></span>
+                          </div>
+                        <% } %>
+                      </div>
+
+                      <div class="pt-3 border-top mt-2">
+                        <a href="<%= doc.file_url %>" target="_blank" class="btn btn-primary w-100 rounded-pill fw-semibold py-2">
+                          <i class="ri-eye-line me-1.5"></i> Read & View Document Online
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <div class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center">
+                <div class="mx-auto mb-3 rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 72px; height: 72px;">
+                  <i class="ri-folder-open-line fs-1 text-muted"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">No Extra Study Documents Uploaded Yet</h5>
+                <p class="text-muted small mx-auto mb-3" style="max-width: 460px;">You can access all interactive MCQs, large essay questions, and short notes directly in the tabs above. New PDF banks are uploaded regularly by instructors.</p>
+                <div class="d-flex justify-content-center gap-2">
+                  <a href="/learning-modules/<%= category.slug %>/mcq" class="btn btn-sm btn-outline-primary rounded-pill px-4">
+                    <i class="ri-checkbox-circle-line me-1"></i> Try MCQs
+                  </a>
+                  <a href="/learning-modules/<%= category.slug %>/large-qa" class="btn btn-sm btn-outline-info rounded-pill px-4">
+                    <i class="ri-file-list-3-line me-1"></i> Read Essays
+                  </a>
+                </div>
+              </div>
+            <% } %>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ INTERACTIVE QUIZ & SEARCH JS ============ -->
+<script>
+let answeredCount = 0;
+let correctCount = 0;
+
+function checkMcqAnswer(cardIdx, selectedOptIdx, correctOptIdx) {
+  const card = document.getElementById('mcq-card-' + cardIdx);
+  if (card.dataset.answered === 'true') return; // already answered
+  
+  card.dataset.answered = 'true';
+  answeredCount++;
+
+  const allBtns = card.querySelectorAll('.pe-mcq-opt');
+  allBtns.forEach(btn => btn.disabled = true);
+
+  const selectedBtn = document.getElementById('mcq-opt-' + cardIdx + '-' + selectedOptIdx);
+  const correctBtn = document.getElementById('mcq-opt-' + cardIdx + '-' + correctOptIdx);
+  const explBox = document.getElementById('mcq-expl-' + cardIdx);
+
+  if (selectedOptIdx === correctOptIdx) {
+    // Correct
+    selectedBtn.classList.remove('border');
+    selectedBtn.classList.add('bg-success', 'text-white', 'border-0');
+    selectedBtn.querySelector('.opt-text').classList.replace('text-dark', 'text-white');
+    selectedBtn.querySelector('.pe-opt-icon').classList.remove('d-none');
+    selectedBtn.querySelector('.pe-opt-badge').classList.add('bg-white', 'text-success');
+    correctCount++;
+  } else {
+    // Wrong
+    selectedBtn.classList.remove('border');
+    selectedBtn.classList.add('bg-danger', 'text-white', 'border-0');
+    selectedBtn.querySelector('.opt-text').classList.replace('text-dark', 'text-white');
+    selectedBtn.querySelector('.pe-opt-badge').classList.add('bg-white', 'text-danger');
+
+    // Highlight the correct answer in green
+    correctBtn.classList.remove('border');
+    correctBtn.classList.add('bg-success-subtle', 'border-success');
+    correctBtn.querySelector('.pe-opt-icon').classList.remove('d-none');
+  }
+
+  // Reveal explanation
+  explBox.classList.remove('d-none');
+
+  // Update Score Tracker
+  document.getElementById('quizScoreVal').innerText = correctCount;
+}
+
+function resetMcqQuiz() {
+  answeredCount = 0;
+  correctCount = 0;
+  document.getElementById('quizScoreVal').innerText = '0';
+
+  const cards = document.querySelectorAll('.pe-mcq-card');
+  cards.forEach((card, cIdx) => {
+    delete card.dataset.answered;
+    const btns = card.querySelectorAll('.pe-mcq-opt');
+    btns.forEach(btn => {
+      btn.disabled = false;
+      btn.className = 'btn text-start p-3 rounded-3 border d-flex align-items-center justify-content-between pe-mcq-opt';
+      const text = btn.querySelector('.opt-text');
+      if (text) {
+        text.className = 'fw-medium text-dark opt-text';
+      }
+      const badge = btn.querySelector('.pe-opt-badge');
+      if (badge) {
+        badge.className = 'badge bg-light text-dark border rounded-circle d-flex align-items-center justify-content-center pe-opt-badge';
+      }
+      const icon = btn.querySelector('.pe-opt-icon');
+      if (icon) {
+        icon.classList.add('d-none');
+      }
+    });
+
+    const expl = card.querySelector('.pe-mcq-explanation');
+    if (expl) {
+      expl.classList.add('d-none');
+    }
+  });
+}
+
+function filterSmallQa() {
+  const query = document.getElementById('smallQaSearch').value.toLowerCase();
+  const items = document.querySelectorAll('.small-qa-item');
+  items.forEach(item => {
+    const text = item.innerText.toLowerCase();
+    item.style.display = text.includes(query) ? 'block' : 'none';
+  });
+}
+</script>

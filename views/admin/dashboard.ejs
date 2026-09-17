@@ -1,0 +1,327 @@
+<!-- ============ EXECUTIVE HEADER BANNER ============ -->
+<div class="card border-0 rounded-4 shadow-sm text-white mb-4 overflow-hidden position-relative" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+  <div class="position-absolute end-0 bottom-0 opacity-10 pe-none me-4 mb-2">
+    <i class="ri-heart-pulse-fill" style="font-size: 11rem; color: #ffffff;"></i>
+  </div>
+  <div class="card-body p-4 p-lg-4.5 position-relative z-1">
+    <div class="row align-items-center g-3">
+      <div class="col-lg-8">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge bg-warning text-dark font-weight-bold px-3 py-1.5 rounded-pill shadow-sm" style="font-size:0.75rem;">
+            <i class="ri-shield-flash-fill me-1"></i> Executive Portal
+          </span>
+          <span class="badge bg-white-20 text-white px-3 py-1.5 rounded-pill" style="font-size:0.75rem;">
+            <i class="ri-checkbox-circle-fill text-success me-1"></i> System Online
+          </span>
+        </div>
+        <h3 class="fw-bold text-white mb-1 display-7">Welcome back, <%= currentUser.name.split(' ')[0] %> 👋</h3>
+        <p class="text-white-75 mb-0" style="max-width: 600px; font-size: 0.95rem;">
+          Here is your real-time academic overview, platform performance metrics, and quick control panel for PhysioEdvance.
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <div class="d-flex gap-2 justify-content-lg-end flex-wrap">
+          <a href="/admin/categories" class="btn btn-warning rounded-pill px-3.5 py-2 font-weight-bold text-dark shadow-sm">
+            <i class="ri-folder-2-line me-1"></i> Manage Subjects & Courses
+          </a>
+          <a href="/admin/live-sessions" class="btn btn-outline-light rounded-pill px-3.5 py-2 font-weight-bold">
+            <i class="ri-video-add-line me-1"></i> Schedule Class
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RESPONSIVE KPI STAT CARDS GRID ============ -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 g-3 g-xl-4 mb-4">
+  <!-- 1. Published Courses -->
+  <div class="col">
+    <div class="pe-kpi-card rounded-4 p-3.5 bg-white border border-light-subtle shadow-sm h-100 transition-all position-relative overflow-hidden" style="border-top: 4px solid #0a5dc2 !important;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="pe-kpi-icon pe-kpi-icon-blue m-0">
+          <i class="ri-book-2-line"></i>
+        </div>
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 small fw-bold">Published</span>
+      </div>
+      <div class="pe-kpi-value mb-1 text-dark"><%= stats.totalCourses %></div>
+      <div class="pe-kpi-label text-muted small fw-semibold">Active BPT Courses</div>
+    </div>
+  </div>
+
+  <!-- 2. Total Students -->
+  <div class="col">
+    <div class="pe-kpi-card rounded-4 p-3.5 bg-white border border-light-subtle shadow-sm h-100 transition-all position-relative overflow-hidden" style="border-top: 4px solid #10b981 !important;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="pe-kpi-icon pe-kpi-icon-green m-0">
+          <i class="ri-group-line"></i>
+        </div>
+        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 small fw-bold">Students</span>
+      </div>
+      <div class="pe-kpi-value mb-1 text-dark"><%= stats.totalStudents %></div>
+      <div class="pe-kpi-label text-muted small fw-semibold">Registered Learners</div>
+    </div>
+  </div>
+
+  <!-- 3. Total Instructors -->
+  <div class="col">
+    <div class="pe-kpi-card rounded-4 p-3.5 bg-white border border-light-subtle shadow-sm h-100 transition-all position-relative overflow-hidden" style="border-top: 4px solid #0ea5e9 !important;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="pe-kpi-icon pe-kpi-icon-info m-0">
+          <i class="ri-user-star-line"></i>
+        </div>
+        <span class="badge bg-info-subtle text-info rounded-pill px-3 py-1 small fw-bold">Faculty</span>
+      </div>
+      <div class="pe-kpi-value mb-1 text-dark"><%= stats.totalInstructors %></div>
+      <div class="pe-kpi-label text-muted small fw-semibold">Faculty Instructors</div>
+    </div>
+  </div>
+
+  <!-- 4. Total Revenue -->
+  <div class="col">
+    <div class="pe-kpi-card rounded-4 p-3.5 bg-white border border-light-subtle shadow-sm h-100 transition-all position-relative overflow-hidden" style="border-top: 4px solid #f59e0b !important;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="pe-kpi-icon pe-kpi-icon-amber m-0">
+          <i class="ri-money-rupee-circle-line"></i>
+        </div>
+        <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-1 small fw-bold">Revenue</span>
+      </div>
+      <div class="pe-kpi-value mb-1 text-dark">₹<%= totalRevenue.toLocaleString() %></div>
+      <div class="pe-kpi-label text-muted small fw-semibold">Total Revenue Generated</div>
+    </div>
+  </div>
+
+  <!-- 5. Total Subjects -->
+  <div class="col">
+    <div class="pe-kpi-card rounded-4 p-3.5 bg-white border border-light-subtle shadow-sm h-100 transition-all position-relative overflow-hidden" style="border-top: 4px solid #8b5cf6 !important;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="pe-kpi-icon pe-kpi-icon-blue m-0" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">
+          <i class="ri-folders-line"></i>
+        </div>
+        <span class="badge bg-purple-subtle text-purple rounded-pill px-3 py-1 small fw-bold" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">Subjects</span>
+      </div>
+      <div class="pe-kpi-value mb-1 text-dark"><%= totalSubjects %></div>
+      <div class="pe-kpi-label text-muted small fw-semibold">Curriculum Subjects</div>
+    </div>
+  </div>
+
+  <!-- 6. Live Classes -->
+  <div class="col">
+    <div class="pe-kpi-card rounded-4 p-3.5 bg-white border border-light-subtle shadow-sm h-100 transition-all position-relative overflow-hidden" style="border-top: 4px solid #ef4444 !important;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="pe-kpi-icon pe-kpi-icon-red m-0">
+          <i class="ri-live-line"></i>
+        </div>
+        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 small fw-bold">Live</span>
+      </div>
+      <div class="pe-kpi-value mb-1 text-dark"><%= totalLiveClasses %></div>
+      <div class="pe-kpi-label text-muted small fw-semibold">Live Sessions & Workshops</div>
+    </div>
+  </div>
+
+  <!-- 7. Total Enrollments -->
+  <div class="col">
+    <div class="pe-kpi-card rounded-4 p-3.5 bg-white border border-light-subtle shadow-sm h-100 transition-all position-relative overflow-hidden" style="border-top: 4px solid #10b981 !important;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="pe-kpi-icon pe-kpi-icon-green m-0">
+          <i class="ri-user-add-line"></i>
+        </div>
+        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 small fw-bold">Enrollments</span>
+      </div>
+      <div class="pe-kpi-value mb-1 text-dark"><%= stats.totalEnrollments %></div>
+      <div class="pe-kpi-label text-muted small fw-semibold">Course Enrollments</div>
+    </div>
+  </div>
+
+  <!-- 8. Responsive Quick Actions -->
+  <div class="col">
+    <div class="pe-kpi-card rounded-4 p-3.5 bg-white border border-light-subtle shadow-sm h-100 transition-all d-flex flex-column justify-content-between position-relative overflow-hidden" style="border-top: 4px solid #3b82f6 !important;">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="pe-kpi-icon pe-kpi-icon-info m-0" style="width:38px; height:38px; font-size:1.1rem;">
+          <i class="ri-flashlight-fill text-warning"></i>
+        </div>
+        <span class="badge bg-info-subtle text-info rounded-pill px-2.5 py-1 small fw-bold">Shortcuts</span>
+      </div>
+      <div class="fw-bold text-dark mb-2" style="font-size:0.9rem;">Quick Navigation</div>
+      <div class="d-flex flex-wrap gap-1.5 mt-auto">
+        <a href="/admin/courses" class="btn btn-xs btn-outline-primary rounded-pill px-2.5 py-1 fw-semibold text-nowrap" style="font-size:0.75rem;">
+          <i class="ri-book-open-line me-1"></i> Courses
+        </a>
+        <a href="/admin/users" class="btn btn-xs btn-outline-primary rounded-pill px-2.5 py-1 fw-semibold text-nowrap" style="font-size:0.75rem;">
+          <i class="ri-user-line me-1"></i> Users
+        </a>
+        <a href="/admin/live-sessions" class="btn btn-xs btn-outline-primary rounded-pill px-2.5 py-1 fw-semibold text-nowrap" style="font-size:0.75rem;">
+          <i class="ri-video-chat-line me-1"></i> Live Class
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ANALYTICS CHARTS ROW ============ -->
+<div class="row g-4 mb-4">
+  <div class="col-12 col-xl-7">
+    <div class="pe-admin-card p-4 rounded-4 shadow-sm border-0 bg-white">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="fw-bold text-dark mb-0"><i class="ri-line-chart-line me-2 text-primary"></i>Revenue Trend (Last 6 Months)</h6>
+        <span class="badge bg-light text-primary border rounded-pill px-3 py-1 font-weight-bold small">INR ₹</span>
+      </div>
+      <div class="chart-container" style="position: relative; height: 260px; width: 100%;">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-5">
+    <div class="pe-admin-card p-4 rounded-4 shadow-sm border-0 bg-white h-100">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="fw-bold text-dark mb-0"><i class="ri-pie-chart-line me-2 text-primary"></i>Enrollments by Category</h6>
+        <span class="badge bg-light text-secondary border rounded-pill px-3 py-1 font-weight-bold small">Categories</span>
+      </div>
+      <div class="chart-container" style="position: relative; height: 260px; width: 100%;">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RECENT ORDERS & ACTIVITY ROW ============ -->
+<div class="row g-4">
+  <div class="col-12 col-xl-7">
+    <div class="pe-admin-card rounded-4 shadow-sm border-0 bg-white overflow-hidden mb-4">
+      <div class="pe-admin-card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+        <h6 class="mb-0 fw-bold text-dark"><i class="ri-shopping-bag-3-line me-2 text-primary"></i>Recent Orders</h6>
+        <a href="/admin/orders" class="small text-primary text-decoration-none fw-bold">View All Orders <i class="ri-arrow-right-line"></i></a>
+      </div>
+      <div class="table-responsive">
+        <table class="table pe-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Course</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (recentOrders.length === 0) { %>
+              <tr><td colspan="4" class="text-center text-muted py-4">No recent orders recorded yet.</td></tr>
+            <% } %>
+            <% recentOrders.forEach(o => { %>
+              <tr>
+                <td class="fw-semibold text-dark"><%= o.student_name %></td>
+                <td><span class="text-muted small"><%= o.course_title %></span></td>
+                <td class="fw-bold text-dark">₹<%= o.amount.toLocaleString() %></td>
+                <td><span class="badge bg-success-subtle text-success font-weight-bold px-3 py-1 rounded-pill text-capitalize"><%= o.status %></span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pe-admin-card rounded-4 shadow-sm border-0 bg-white overflow-hidden">
+      <div class="pe-admin-card-header bg-white py-3 border-bottom">
+        <h6 class="mb-0 fw-bold text-dark"><i class="ri-pulse-line me-2 text-primary"></i>Recent Activity Stream</h6>
+      </div>
+      <div class="p-3.5">
+        <% if (recentActivity.length === 0) { %>
+          <p class="text-muted small mb-0">No recent activity recorded.</p>
+        <% } %>
+        <% recentActivity.forEach(a => { %>
+          <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+            <div class="pe-activity-dot shadow-sm" style="width:38px; height:38px; min-width:38px; border-radius:50%; background:rgba(10,93,194,0.1); color:#0a5dc2; display:flex; align-items:center; justify-content:center;">
+              <i class="ri-user-add-line"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="small fw-bold text-dark"><%= a.name %> <span class="text-muted font-weight-normal">joined as <%= a.role %></span></div>
+              <div class="text-muted small" style="font-size:0.75rem;"><%= new Date(a.created_at).toLocaleString() %></div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-5">
+    <div class="pe-admin-card rounded-4 shadow-sm border-0 bg-white overflow-hidden h-100">
+      <div class="pe-admin-card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+        <h6 class="mb-0 fw-bold text-dark"><i class="ri-trophy-line me-2 text-warning"></i>Top Performing Courses</h6>
+        <a href="/admin/courses" class="small text-primary text-decoration-none fw-bold">All Courses <i class="ri-arrow-right-line"></i></a>
+      </div>
+      <div class="p-3.5">
+        <% if (topCourses.length === 0) { %>
+          <p class="text-muted small mb-0">No course data recorded.</p>
+        <% } %>
+        <% topCourses.forEach(c => { %>
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+            <div>
+              <div class="small fw-bold text-dark mb-0.5"><%= c.title %></div>
+              <div class="text-muted small" style="font-size:0.78rem;">by <%= c.instructor_name %></div>
+            </div>
+            <span class="badge bg-primary text-white rounded-pill px-3 py-1 shadow-sm font-weight-bold" style="font-size:0.75rem;">
+              <%= c.students_count %> students
+            </span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const revenueData = <%- JSON.stringify(revenueByMonth) %>;
+    const revCanvas = document.getElementById('revenueChart');
+    if (revCanvas) {
+      new Chart(revCanvas, {
+        type: 'line',
+        data: {
+          labels: revenueData.map(r => r.month),
+          datasets: [{
+            label: 'Revenue (₹)',
+            data: revenueData.map(r => r.total),
+            borderColor: '#0a5dc2',
+            backgroundColor: 'rgba(10,93,194,0.08)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: '#0a5dc2'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    const categoryData = <%- JSON.stringify(enrollmentsByCategory) %>;
+    const catCanvas = document.getElementById('categoryChart');
+    if (catCanvas) {
+      new Chart(catCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: categoryData.map(c => c.name),
+          datasets: [{
+            data: categoryData.map(c => c.count),
+            backgroundColor: ['#0a5dc2','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#64748b']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+          }
+        }
+      });
+    }
+  });
+</script>

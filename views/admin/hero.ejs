@@ -1,0 +1,679 @@
+<!-- ============ ADMIN HERO MANAGEMENT HEADER ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <h3 class="fw-bold text-dark mb-1"><i class="ri-slideshow-line me-2 text-primary"></i>Hero Section & Content Manager</h3>
+    <p class="text-muted small mb-0">Switch between Hero Showcase Banner, Feature Pillar Cards, and Rotatable Tickers to edit specific components.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/" target="_blank" class="btn btn-outline-primary rounded-pill px-3.5 py-2 fw-bold">
+      <i class="ri-external-link-line me-1"></i> View Live Homepage
+    </a>
+  </div>
+</div>
+
+<!-- ============ SEGMENTED TAB NAVIGATION ============ -->
+<div class="pe-hero-nav-tabs-container mb-4">
+  <ul class="nav nav-pills pe-hero-segmented-tabs" id="heroManagerTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active d-flex align-items-center gap-2" id="tab-showcase-btn" data-bs-toggle="pill" data-bs-target="#tab-showcase" type="button" role="tab" onclick="setHeroTab('showcase')">
+        <i class="ri-image-2-line fs-5"></i>
+        <span>Hero Showcase & Headline</span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link d-flex align-items-center gap-2" id="tab-cards-btn" data-bs-toggle="pill" data-bs-target="#tab-cards" type="button" role="tab" onclick="setHeroTab('cards')">
+        <i class="ri-apps-2-line fs-5"></i>
+        <span>Hero Feature Cards</span>
+        <span class="badge bg-primary text-white rounded-pill px-2 py-0.5 small ms-1"><%= heroFeatures.length %></span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link d-flex align-items-center gap-2" id="tab-tickers-btn" data-bs-toggle="pill" data-bs-target="#tab-tickers" type="button" role="tab" onclick="setHeroTab('tickers')">
+        <i class="ri-repeat-line fs-5"></i>
+        <span>Subnav Trust Bar & Tickers</span>
+      </button>
+    </li>
+  </ul>
+</div>
+
+<!-- ======================================================== -->
+<!-- TAB CONTENT PANELS -->
+<!-- ======================================================== -->
+<div class="tab-content" id="heroManagerTabContent">
+
+  <!-- ======================================================== -->
+  <!-- TAB 1: HERO SHOWCASE & HEADLINE -->
+  <!-- ======================================================== -->
+  <div class="tab-pane fade show active" id="tab-showcase" role="tabpanel" aria-labelledby="tab-showcase-btn">
+    <form action="/admin/hero" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="active_tab" value="showcase">
+      <div class="row g-4 mb-4">
+
+        <!-- Left Column: Text & Content Settings -->
+        <div class="col-lg-7">
+          
+          <!-- BADGE & HEADLINE SETTINGS -->
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2">
+              <i class="ri-t-box-line text-primary fs-4"></i>
+              <h5 class="fw-bold text-dark mb-0">Hero Badge & Headline</h5>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-8">
+                <label class="form-label small fw-bold text-dark">Badge Text</label>
+                <input type="text" name="badge_text" id="inputBadgeText" class="form-control rounded-3" value="<%= heroSettings.badgeText %>" placeholder="e.g. #1 Platform for BPT Students & Physios" oninput="updateLivePreview()">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-dark">Badge Icon Class</label>
+                <input type="text" name="badge_icon" id="inputBadgeIcon" class="form-control rounded-3" value="<%= heroSettings.badgeIcon %>" placeholder="e.g. ri-heart-pulse-fill" oninput="updateLivePreview()">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-dark">Main Title (First Part) <span class="text-danger">*</span></label>
+              <input type="text" name="title_prefix" id="inputTitlePrefix" class="form-control rounded-3 font-weight-bold" value="<%= heroSettings.titlePrefix %>" required placeholder="e.g. Advanced Physiotherapy Education," oninput="updateLivePreview()">
+              <div class="form-text small text-muted">The primary headline text rendered in crisp white typography.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-dark">Highlighted Title (Gradient Part) <span class="text-danger">*</span></label>
+              <input type="text" name="title_highlight" id="inputTitleHighlight" class="form-control rounded-3 font-weight-bold text-primary" value="<%= heroSettings.titleHighlight %>" required placeholder="e.g. All in One Place." oninput="updateLivePreview()">
+              <div class="form-text small text-muted">Rendered in the royal cyan/blue glowing gradient style.</div>
+            </div>
+
+            <div class="mb-0">
+              <label class="form-label small fw-bold text-dark">Hero Subtext / Description <span class="text-danger">*</span></label>
+              <textarea name="subtext" id="inputSubtext" rows="4" class="form-control rounded-3" required placeholder="Enter description text..." oninput="updateLivePreview()"><%= heroSettings.subtext %></textarea>
+              <div class="form-text small text-muted">HTML tags like <code>&lt;strong&gt;Seminars&lt;/strong&gt;</code> are supported. Font size and line height remain locked automatically.</div>
+            </div>
+          </div>
+
+          <!-- PROTECTED CORE ELEMENTS NOTICE -->
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-light border">
+            <div class="d-flex align-items-start gap-3">
+              <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
+                <i class="ri-lock-2-line fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold text-dark mb-1">Protected Core Navigation Elements</h6>
+                <p class="text-muted small mb-0">
+                  The <strong>Course Search Bar</strong>, <strong>"Explore Subjects"</strong> button, and <strong>"Join Live Sessions"</strong> button are permanently locked to preserve core site functionality and consistent student routing.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Visual Image Showcase & Live Preview -->
+        <div class="col-lg-5">
+
+          <!-- HERO IMAGE UPLOAD -->
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2">
+              <i class="ri-image-line text-info fs-4"></i>
+              <h5 class="fw-bold text-dark mb-0">Hero Showcase Image</h5>
+            </div>
+
+            <div class="mb-3 text-center">
+              <div class="rounded-4 overflow-hidden shadow-sm border p-1 bg-light position-relative mb-3" style="max-height: 240px;">
+                <img src="<%= heroSettings.imageUrl %>" id="heroImagePreview" class="img-fluid rounded-3 w-100" style="max-height: 230px; object-fit: cover;" alt="Hero Preview">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-dark">Upload New Hero Image</label>
+              <input type="file" name="hero_image" class="form-control rounded-3" accept="image/*" onchange="previewSelectedImage(this)">
+              <div class="form-text small text-muted">Supports JPG, PNG, WEBP, GIF. Recommended dimension: 1200x800 px.</div>
+            </div>
+
+            <div class="mb-0">
+              <label class="form-label small fw-bold text-dark">Current Image Path / URL</label>
+              <input type="text" name="existing_image_url" id="inputImageUrl" class="form-control form-control-sm rounded-3 bg-light" value="<%= heroSettings.imageUrl %>" oninput="updateLivePreview()">
+            </div>
+          </div>
+
+          <!-- LIVE FRONTEND PREVIEW -->
+          <div class="card border-0 shadow-sm rounded-4 p-4 text-white position-relative overflow-hidden mb-4" style="background: linear-gradient(135deg, #072b61 0%, #0a5dc2 55%, #0284c7 100%);">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-white-50 pb-2">
+              <span class="badge bg-white text-primary fw-bold rounded-pill px-2.5 py-1 small"><i class="ri-eye-line me-1"></i> Live Layout Preview</span>
+              <span class="small text-white-50">Auto-scaling</span>
+            </div>
+
+            <!-- Preview Badge -->
+            <div class="mb-2">
+              <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-2.5 py-1 rounded-pill small d-inline-flex align-items-center" style="font-size: 0.7rem; background-color: #f59e0b !important;" id="previewBadge">
+                <i class="<%= heroSettings.badgeIcon %> me-1" id="previewBadgeIcon"></i> <span id="previewBadgeText"><%= heroSettings.badgeText %></span>
+              </span>
+            </div>
+
+            <!-- Preview Title -->
+            <h4 class="fw-bold mb-2 text-white" style="line-height: 1.3;" id="previewTitle">
+              <span id="previewTitlePrefix"><%= heroSettings.titlePrefix %></span>
+              <span class="pe-gradient-text" style="background: linear-gradient(90deg, #38bdf8, #a7f3d0); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="previewTitleHighlight"><%= heroSettings.titleHighlight %></span>
+            </h4>
+
+            <!-- Preview Subtext -->
+            <p class="text-white-75 small mb-3" style="line-height: 1.5; font-size: 0.8rem;" id="previewSubtext">
+              <%- heroSettings.subtext %>
+            </p>
+
+            <!-- Preview Fixed Buttons -->
+            <div class="d-flex gap-2">
+              <span class="btn btn-sm btn-primary rounded-pill px-3 py-1 pe-none" style="font-size: 0.75rem;">Explore Subjects</span>
+              <span class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 pe-none" style="font-size: 0.75rem;">Join Live Sessions</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom Floating / Sticky Save Bar for Hero Banner -->
+      <div class="card border-0 shadow-lg rounded-4 p-3 bg-white mb-4 sticky-bottom border" style="z-index: 100;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2 text-muted small">
+            <i class="ri-information-line text-primary fs-5"></i>
+            <span>Text size, colors, and layout typography are automatically preserved.</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="/" target="_blank" class="btn btn-light rounded-pill px-4">Cancel</a>
+            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" style="background: #0a5dc2; border: none;">
+              <i class="ri-save-3-line me-1.5"></i> Save & Publish Hero Showcase
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- TAB 2: HERO FEATURE CARDS ONLY -->
+  <!-- ======================================================== -->
+  <div class="tab-pane fade" id="tab-cards" role="tabpanel" aria-labelledby="tab-cards-btn">
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
+      <div class="card-header bg-white p-4 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <div class="p-2 bg-primary-subtle text-primary rounded-3 d-inline-flex">
+              <i class="ri-apps-2-fill fs-5"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-0">Homepage Hero Feature Cards</h4>
+            <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 ms-2"><%= heroFeatures.length %> Active Cards</span>
+          </div>
+          <p class="text-muted small mb-0">Pillar interactive feature cards displayed underneath the hero banner. Add, edit, or remove cards here.</p>
+        </div>
+
+        <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addHeroFeatureModal">
+          <i class="ri-add-circle-line me-1.5"></i> Add New Feature Card
+        </button>
+      </div>
+
+      <!-- Cards Table -->
+      <div class="table-responsive">
+        <table class="table pe-table align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="ps-4">Card Title & Subtitle</th>
+              <th class="text-center">Order Position</th>
+              <th>Theme Badge Color</th>
+              <th>Target URL Link</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!heroFeatures || heroFeatures.length === 0) { %>
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <i class="ri-inbox-line fs-1 text-muted d-block mb-2"></i>
+                  No hero feature cards added yet. Click <strong>"Add New Feature Card"</strong> above to create one.
+                </td>
+              </tr>
+            <% } %>
+            <% heroFeatures.forEach(f => { %>
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="pe-feature-icon bg-<%= f.badge_color || 'primary' %>-subtle text-<%= f.badge_color || 'primary' %> p-2 rounded-3 fs-4 d-flex align-items-center justify-content-center" style="width:46px;height:46px;flex-shrink:0;">
+                      <i class="<%= f.icon || 'ri-star-line' %>"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold text-dark fs-6"><%= f.title %></div>
+                      <div class="text-muted small"><%= f.subtitle %></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <span class="badge bg-light text-primary border px-3 py-1.5 font-weight-bold">
+                    #<%= f.display_order %>
+                  </span>
+                </td>
+                <td>
+                  <span class="badge bg-<%= f.badge_color || 'primary' %> text-capitalize px-3 py-1.5">
+                    <%= f.badge_color || 'primary' %>
+                  </span>
+                </td>
+                <td>
+                  <code class="small text-primary font-monospace bg-light px-2 py-1 rounded"><%= f.url %></code>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="d-flex align-items-center justify-content-end gap-2">
+                    <!-- Quick Edit Button (triggers modal) -->
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-semibold" data-bs-toggle="modal" data-bs-target="#editHeroFeatureModal_<%= f.id %>">
+                      <i class="ri-edit-line me-1"></i> Edit Card
+                    </button>
+
+                    <!-- Delete Form -->
+                    <form action="/admin/features/<%= f.id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to remove the card &quot;<%= f.title %>&quot;?')" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-2" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;" title="Delete Card">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- TAB 3: ROTATABLE TICKERS & TRUST BAR -->
+  <!-- ======================================================== -->
+  <div class="tab-pane fade" id="tab-tickers" role="tabpanel" aria-labelledby="tab-tickers-btn">
+    <form action="/admin/hero" method="POST">
+      <input type="hidden" name="active_tab" value="tickers">
+      <!-- Preserve Hero Banner data so nothing is cleared -->
+      <input type="hidden" name="badge_text" value="<%= heroSettings.badgeText %>">
+      <input type="hidden" name="badge_icon" value="<%= heroSettings.badgeIcon %>">
+      <input type="hidden" name="title_prefix" value="<%= heroSettings.titlePrefix %>">
+      <input type="hidden" name="title_highlight" value="<%= heroSettings.titleHighlight %>">
+      <input type="hidden" name="subtext" value="<%= heroSettings.subtext %>">
+      <input type="hidden" name="existing_image_url" value="<%= heroSettings.imageUrl %>">
+
+      <div class="row g-4 mb-4">
+        <!-- 1. ROTATABLE SUBNAV TRUST & HIGHLIGHTS BAR SETTINGS -->
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="ri-shield-check-line text-primary fs-4"></i>
+                <h5 class="fw-bold text-dark mb-0">Rotatable Subnav Trust Bar (Below Navbar)</h5>
+              </div>
+              <div class="form-check form-switch fs-5 mb-0">
+                <input class="form-check-input" type="checkbox" name="trust_bar_enabled" value="1" id="trustBarSwitch" <%= heroSettings.trustBarEnabled ? 'checked' : '' %>>
+              </div>
+            </div>
+
+            <p class="text-muted small mb-3">
+              The rotatable marquee bar displayed directly below the navigation bar across the site. Add, edit, or remove highlights below.
+            </p>
+
+            <!-- Items list -->
+            <div id="trustItemsContainer" class="d-flex flex-column gap-2 mb-3">
+              <% if (heroSettings.trustBarItems && heroSettings.trustBarItems.length > 0) { %>
+                <% heroSettings.trustBarItems.forEach((item, idx) => { %>
+                  <div class="d-flex align-items-center gap-2 trust-item-row p-2 bg-light rounded-3 border">
+                    <div class="input-group input-group-sm" style="max-width: 160px;">
+                      <span class="input-group-text bg-white"><i class="<%= item.icon || 'ri-check-line' %> text-primary" id="iconPreview_<%= idx %>"></i></span>
+                      <input type="text" name="trust_item_icon[]" class="form-control" value="<%= item.icon || 'ri-check-line' %>" placeholder="Icon class" oninput="updateTrustIconPreview(this, 'iconPreview_<%= idx %>')">
+                    </div>
+                    <input type="text" name="trust_item_text[]" class="form-control form-control-sm rounded-2 flex-grow-1 font-weight-semibold" value="<%= item.text %>" placeholder="Highlight text" required>
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;" onclick="removeTrustItem(this)" title="Remove item">
+                      <i class="ri-delete-bin-line"></i>
+                    </button>
+                  </div>
+                <% }) %>
+              <% } %>
+            </div>
+
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="addTrustItem()">
+              <i class="ri-add-line me-1"></i> Add Highlight Item
+            </button>
+
+            <!-- Subnav Speed Control Slider -->
+            <div class="mt-4 pt-3 border-top">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <label class="form-label fw-bold text-dark small mb-0">
+                  <i class="ri-speed-line text-primary me-1"></i> Scrolling Speed (Subnav Bar)
+                </label>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold font-monospace px-2.5 py-1" id="trustSpeedLabel">
+                  <%= heroSettings.trustBarSpeed || 55 %>s
+                </span>
+              </div>
+
+              <!-- Quick Presets -->
+              <div class="d-flex gap-1.5 mb-2">
+                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 0.72rem;" onclick="setSpeedPreset('trust', 30)">Fast (30s)</button>
+                <button type="button" class="btn btn-xs btn-outline-primary rounded-pill py-0.5 px-2.5" style="font-size: 0.72rem;" onclick="setSpeedPreset('trust', 55)">Default (55s)</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 0.72rem;" onclick="setSpeedPreset('trust', 90)">Slow (90s)</button>
+              </div>
+
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small" style="font-size: 0.72rem;">20s</span>
+                <input type="range" class="form-range flex-grow-1" name="trust_bar_speed" id="trustBarSpeedRange" min="20" max="150" step="5" value="<%= heroSettings.trustBarSpeed || 55 %>" oninput="document.getElementById('trustSpeedLabel').innerText = this.value + 's';">
+                <span class="text-muted small" style="font-size: 0.72rem;">150s</span>
+              </div>
+              <div class="text-muted" style="font-size: 0.72rem;">Lower duration = faster scroll, higher = slower smooth scroll.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. ROTATABLE SUBJECTS TICKER SETTINGS -->
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="ri-repeat-line text-warning fs-4"></i>
+                <h5 class="fw-bold text-dark mb-0">Rotatable Subjects Marquee</h5>
+              </div>
+              <div class="form-check form-switch fs-5 mb-0">
+                <input class="form-check-input" type="checkbox" name="ticker_enabled" value="1" id="tickerSwitch" <%= heroSettings.tickerEnabled ? 'checked' : '' %>>
+              </div>
+            </div>
+
+            <p class="text-muted small mb-3">
+              The scrolling marquee bar below the hero section displays all registered subjects dynamically with their academic year badges.
+            </p>
+
+            <div class="alert alert-light border rounded-3 p-3 mb-3 d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <i class="ri-folder-2-line text-primary fs-5"></i>
+                <span class="small fw-semibold text-dark">Active Rotating Subjects: <strong><%= allCategories.length %> Subjects</strong></span>
+              </div>
+              <a href="/admin/categories" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                <i class="ri-settings-4-line me-1"></i> Manage
+              </a>
+            </div>
+
+            <!-- Subjects Marquee Speed Control Slider -->
+            <div class="pt-3 border-top">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <label class="form-label fw-bold text-dark small mb-0">
+                  <i class="ri-speed-line text-warning me-1"></i> Scrolling Speed (Subjects Bar)
+                </label>
+                <span class="badge bg-warning-subtle text-dark border border-warning-subtle fw-bold font-monospace px-2.5 py-1" id="tickerSpeedLabel">
+                  <%= heroSettings.tickerSpeed || 110 %>s
+                </span>
+              </div>
+
+              <!-- Quick Presets -->
+              <div class="d-flex gap-1.5 mb-2">
+                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 0.72rem;" onclick="setSpeedPreset('ticker', 60)">Fast (60s)</button>
+                <button type="button" class="btn btn-xs btn-outline-primary rounded-pill py-0.5 px-2.5" style="font-size: 0.72rem;" onclick="setSpeedPreset('ticker', 110)">Smooth (110s)</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 0.72rem;" onclick="setSpeedPreset('ticker', 175)">Slow (175s)</button>
+              </div>
+
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small" style="font-size: 0.72rem;">40s</span>
+                <input type="range" class="form-range flex-grow-1" name="ticker_speed" id="tickerSpeedRange" min="40" max="240" step="5" value="<%= heroSettings.tickerSpeed || 110 %>" oninput="document.getElementById('tickerSpeedLabel').innerText = this.value + 's';">
+                <span class="text-muted small" style="font-size: 0.72rem;">240s</span>
+              </div>
+              <div class="text-muted" style="font-size: 0.72rem;">Recommended: <strong>100s - 130s</strong> for comfortable and smooth reading.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Bar for Tickers -->
+      <div class="card border-0 shadow-lg rounded-4 p-3 bg-white mb-4 sticky-bottom border" style="z-index: 100;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2 text-muted small">
+            <i class="ri-information-line text-primary fs-5"></i>
+            <span>Animated ticker bars auto-refresh with smooth infinite loops.</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="/" target="_blank" class="btn btn-light rounded-pill px-4">Cancel</a>
+            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" style="background: #0a5dc2; border: none;">
+              <i class="ri-save-3-line me-1.5"></i> Save & Publish Tickers
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<!-- ========================================== -->
+<!-- ADD HERO FEATURE CARD MODAL -->
+<!-- ========================================== -->
+<div class="modal fade" id="addHeroFeatureModal" tabindex="-1" aria-labelledby="addHeroFeatureModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title font-weight-bold text-white d-flex align-items-center gap-2" id="addHeroFeatureModalLabel">
+          <i class="ri-add-circle-fill text-warning fs-4"></i> Add Hero Feature Card
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/features" method="POST" class="d-flex flex-column">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Card Title <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control form-control-lg rounded-3" placeholder="e.g. Masterclasses, Live Q&A, Free Notes" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Subtitle / Counter <span class="text-danger">*</span></label>
+            <input type="text" name="subtitle" class="form-control rounded-3" placeholder="e.g. 40+ Interactive Sessions" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Remix Icon Class</label>
+            <input type="text" name="icon" class="form-control rounded-3" value="ri-slideshow-3-line" placeholder="e.g. ri-slideshow-3-line, ri-book-read-line, ri-microscope-line">
+            <span class="text-muted small">Supports any Remix Icon (e.g. <code>ri-live-line</code>, <code>ri-gift-line</code>, <code>ri-award-line</code>)</span>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Target URL Link</label>
+            <input type="text" name="url" class="form-control rounded-3" value="/live-sessions" placeholder="e.g. /subjects, /live-sessions, /learning-modules">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Theme Badge Color</label>
+            <select name="badge_color" class="form-select rounded-3">
+              <option value="warning" selected>Warning (Amber Gold)</option>
+              <option value="info">Info (Sky Blue)</option>
+              <option value="success">Success (Emerald Green)</option>
+              <option value="danger">Danger (Rose Red)</option>
+              <option value="primary">Primary (Royal Blue)</option>
+            </select>
+          </div>
+
+          <div class="mb-0">
+            <label class="form-label small fw-bold text-primary">
+              <i class="ri-sort-asc me-1"></i> Position / Display Order
+            </label>
+            <input type="number" name="display_order" class="form-control rounded-3 fw-bold text-primary" value="<%= heroFeatures.length + 1 %>" min="1" required>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm py-2">
+            <i class="ri-check-line me-1"></i> Add Feature Card
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- EDIT HERO FEATURE CARD MODALS -->
+<!-- ========================================== -->
+<% heroFeatures.forEach(f => { %>
+<div class="modal fade" id="editHeroFeatureModal_<%= f.id %>" tabindex="-1" aria-labelledby="editHeroFeatureModalLabel_<%= f.id %>" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title font-weight-bold text-white d-flex align-items-center gap-2" id="editHeroFeatureModalLabel_<%= f.id %>">
+          <i class="ri-edit-circle-fill text-warning fs-4"></i> Edit Feature Card: <%= f.title %>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/features/<%= f.id %>/update" method="POST" class="d-flex flex-column">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Card Title <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control form-control-lg rounded-3" value="<%= f.title %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Subtitle / Counter <span class="text-danger">*</span></label>
+            <input type="text" name="subtitle" class="form-control rounded-3" value="<%= f.subtitle %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Remix Icon Class</label>
+            <input type="text" name="icon" class="form-control rounded-3" value="<%= f.icon %>">
+            <span class="text-muted small">Supports any Remix Icon (e.g. <code>ri-slideshow-3-line</code>, <code>ri-book-line</code>)</span>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Target URL Link</label>
+            <input type="text" name="url" class="form-control rounded-3" value="<%= f.url %>">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Theme Badge Color</label>
+            <select name="badge_color" class="form-select rounded-3">
+              <option value="warning" <%= f.badge_color === 'warning' ? 'selected' : '' %>>Warning (Amber Gold)</option>
+              <option value="info" <%= f.badge_color === 'info' ? 'selected' : '' %>>Info (Sky Blue)</option>
+              <option value="success" <%= f.badge_color === 'success' ? 'selected' : '' %>>Success (Emerald Green)</option>
+              <option value="danger" <%= f.badge_color === 'danger' ? 'selected' : '' %>>Danger (Rose Red)</option>
+              <option value="primary" <%= f.badge_color === 'primary' ? 'selected' : '' %>>Primary (Royal Blue)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-primary">
+              <i class="ri-sort-asc me-1"></i> Position / Display Order
+            </label>
+            <input type="number" name="display_order" class="form-control rounded-3 fw-bold text-primary" value="<%= f.display_order || 1 %>" min="1" required>
+          </div>
+
+          <!-- Mini Live Preview Box -->
+          <div class="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+              <div class="pe-feature-icon bg-<%= f.badge_color || 'primary' %>-subtle text-<%= f.badge_color || 'primary' %> p-2 rounded-3 fs-3 d-flex align-items-center justify-content-center" style="width:44px;height:44px;">
+                <i class="<%= f.icon %>"></i>
+              </div>
+              <div>
+                <span class="fw-bold d-block text-dark"><%= f.title %></span>
+                <span class="text-muted small"><%= f.subtitle %></span>
+              </div>
+            </div>
+            <span class="badge bg-success rounded-pill px-2.5 py-1 small">Live Card</span>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm py-2">
+            <i class="ri-save-line me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% }) %>
+
+<script>
+function setHeroTab(tabName) {
+  window.location.hash = tabName;
+}
+
+// Auto-switch tab on page load based on URL hash
+document.addEventListener('DOMContentLoaded', function() {
+  const hash = (window.location.hash || '').replace('#', '');
+  if (hash === 'cards' || hash === 'hero-features-section' || hash === 'hero-cards') {
+    const btn = document.getElementById('tab-cards-btn');
+    if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+  } else if (hash === 'tickers' || hash === 'trust-bar') {
+    const btn = document.getElementById('tab-tickers-btn');
+    if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+  } else {
+    const btn = document.getElementById('tab-showcase-btn');
+    if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+  }
+});
+
+function updateLivePreview() {
+  const badgeText = document.getElementById('inputBadgeText').value;
+  const badgeIcon = document.getElementById('inputBadgeIcon').value;
+  const titlePrefix = document.getElementById('inputTitlePrefix').value;
+  const titleHighlight = document.getElementById('inputTitleHighlight').value;
+  const subtext = document.getElementById('inputSubtext').value;
+
+  document.getElementById('previewBadgeText').innerText = badgeText;
+  document.getElementById('previewBadgeIcon').className = badgeIcon + ' me-1';
+  document.getElementById('previewTitlePrefix').innerText = titlePrefix + ' ';
+  document.getElementById('previewTitleHighlight').innerText = titleHighlight;
+  document.getElementById('previewSubtext').innerHTML = subtext;
+}
+
+function previewSelectedImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('heroImagePreview').src = e.target.result;
+    }
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function updateTrustIconPreview(input, previewId) {
+  const preview = document.getElementById(previewId);
+  if (preview) {
+    preview.className = (input.value || 'ri-check-line') + ' text-primary';
+  }
+}
+
+let trustItemCounter = <%= (heroSettings.trustBarItems ? heroSettings.trustBarItems.length : 6) + 20 %>;
+function addTrustItem() {
+  trustItemCounter++;
+  const container = document.getElementById('trustItemsContainer');
+  const div = document.createElement('div');
+  div.className = 'd-flex align-items-center gap-2 trust-item-row p-2 bg-light rounded-3 border';
+  div.innerHTML = `
+    <div class="input-group input-group-sm" style="max-width: 160px;">
+      <span class="input-group-text bg-white"><i class="ri-check-line text-primary" id="iconPreview_${trustItemCounter}"></i></span>
+      <input type="text" name="trust_item_icon[]" class="form-control" value="ri-check-line" placeholder="Icon class" oninput="updateTrustIconPreview(this, 'iconPreview_${trustItemCounter}')">
+    </div>
+    <input type="text" name="trust_item_text[]" class="form-control form-control-sm rounded-2 flex-grow-1 font-weight-semibold" placeholder="e.g. 100% Free Video Modules" required>
+    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;" onclick="removeTrustItem(this)" title="Remove item">
+      <i class="ri-delete-bin-line"></i>
+    </button>
+  `;
+  container.appendChild(div);
+}
+
+function removeTrustItem(btn) {
+  const row = btn.closest('.trust-item-row');
+  if (row) {
+    row.remove();
+  }
+}
+
+function setSpeedPreset(type, value) {
+  if (type === 'trust') {
+    const range = document.getElementById('trustBarSpeedRange');
+    const label = document.getElementById('trustSpeedLabel');
+    if (range) range.value = value;
+    if (label) label.innerText = value + 's';
+  } else if (type === 'ticker') {
+    const range = document.getElementById('tickerSpeedRange');
+    const label = document.getElementById('tickerSpeedLabel');
+    if (range) range.value = value;
+    if (label) label.innerText = value + 's';
+  }
+}
+</script>

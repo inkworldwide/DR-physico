@@ -1,0 +1,31 @@
+<div class="card">
+  <div class="card-header">Appointment & Call Back Requests</div>
+  <div class="table-responsive">
+    <table class="table pe-table mb-0">
+      <thead><tr><th>Name</th><th>Phone</th><th>Type</th><th>Message</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        <% if (requests.length === 0) { %>
+          <tr><td colspan="6" class="text-center text-muted-pe py-4">No requests yet.</td></tr>
+        <% } %>
+        <% requests.forEach(r => { %>
+          <tr>
+            <td class="fw-semibold"><%= r.name %></td>
+            <td><a href="tel:<%= r.phone %>"><%= r.phone %></a></td>
+            <td><span class="badge badge-soft-info text-capitalize"><%= r.request_type %></span></td>
+            <td class="small text-muted-pe"><%= r.message || '—' %></td>
+            <td>
+              <form action="/admin/appointments/<%= r.id %>/status" method="POST" class="d-inline">
+                <select name="status" class="form-select form-select-sm d-inline" style="width:auto;" onchange="this.form.submit()">
+                  <option value="pending" <%= r.status==='pending'?'selected':'' %>>Pending</option>
+                  <option value="contacted" <%= r.status==='contacted'?'selected':'' %>>Contacted</option>
+                  <option value="closed" <%= r.status==='closed'?'selected':'' %>>Closed</option>
+                </select>
+              </form>
+            </td>
+            <td class="text-muted-pe"><%= new Date(r.created_at).toLocaleDateString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,135 @@
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <h3 class="fw-bold text-dark mb-1"><i class="ri-book-2-line text-primary me-2"></i>All Uploaded Courses</h3>
+    <p class="text-muted small mb-0">Manage published courses, review curriculum modules, and filter by subject.</p>
+  </div>
+
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <form method="GET" action="/admin/courses" class="d-flex align-items-center gap-2">
+      <div class="input-group input-group-sm">
+        <label class="input-group-text bg-white fw-bold text-muted small" for="adminCategoryFilter">
+          <i class="ri-filter-3-line text-primary me-1"></i> Subject:
+        </label>
+        <select name="category_id" id="adminCategoryFilter" class="form-select form-select-sm rounded-end fw-bold" style="min-width: 220px;" onchange="this.form.submit()">
+          <option value="">All Subjects (<%= courses.length %> total)</option>
+          <% if (typeof categories !== 'undefined') { %>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.id %>" <%= (typeof selectedCategoryId !== 'undefined' && selectedCategoryId === cat.id) ? 'selected' : '' %>>
+                <%= cat.name %> (<%= cat.course_count || 0 %>)
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+      <% if (typeof selectedCategoryId !== 'undefined' && selectedCategoryId) { %>
+        <a href="/admin/courses" class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap">
+          <i class="ri-close-circle-line me-1"></i> Reset
+        </a>
+      <% } %>
+    </form>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="table-responsive">
+    <table class="table pe-table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Course Title</th>
+          <th>Subject / Category</th>
+          <th>Instructor</th>
+          <th>Status</th>
+          <th>Featured</th>
+          <th>Students</th>
+          <th>Rating</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (courses.length === 0) { %>
+          <tr>
+            <td colspan="8" class="text-center text-muted py-5">
+              <i class="ri-book-open-line display-4 text-muted d-block mb-2"></i>
+              No courses found <%= (typeof selectedCategoryId !== 'undefined' && selectedCategoryId) ? 'in this subject' : '' %>.
+            </td>
+          </tr>
+        <% } %>
+        <% courses.forEach(c => { %>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-3">
+                <img src="<%= c.thumbnail || '/images/courses/default-course.jpg' %>" alt="<%= c.title %>" class="rounded-3 shadow-xs" style="width: 46px; height: 46px; object-fit: cover;" onerror="this.src='/images/courses/default-course.jpg'">
+                <div>
+                  <div class="fw-bold text-dark fs-6" style="line-height: 1.3;"><%= c.title %></div>
+                  <div class="d-flex align-items-center gap-1.5 mt-1">
+                    <% if (c.course_type === 'pdf_document') { %>
+                      <span class="badge bg-danger-subtle text-danger font-weight-bold px-2 py-0.5 rounded-pill" style="font-size: 0.72rem;">
+                        <i class="ri-file-pdf-2-fill me-1"></i> PDF Notes
+                      </span>
+                    <% } else { %>
+                      <span class="badge bg-info-subtle text-info font-weight-bold px-2 py-0.5 rounded-pill" style="font-size: 0.72rem;">
+                        <i class="ri-video-fill me-1"></i> Video Hybrid
+                      </span>
+                    <% } %>
+                    <% if (c.level) { %>
+                      <span class="badge bg-light text-muted border px-2 py-0.5 rounded-pill" style="font-size: 0.72rem;">
+                        <%= c.level %>
+                      </span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <% if (c.category_name) { %>
+                <a href="/admin/courses?category_id=<%= c.category_id %>" class="badge bg-primary-subtle text-primary font-weight-bold px-3 py-1.5 rounded-pill text-decoration-none">
+                  <i class="ri-book-open-line me-1"></i> <%= c.category_name %>
+                </a>
+              <% } else { %>
+                <span class="badge bg-light text-muted px-2.5 py-1 rounded-pill">General</span>
+              <% } %>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <img src="<%= c.instructor_avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(c.instructor_name || 'Instructor') + '&background=0a5dc2&color=fff&size=128') %>" alt="<%= c.instructor_name %>" class="rounded-circle border" style="width: 26px; height: 26px; object-fit: cover;" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(c.instructor_name || 'Instructor') %>&background=0a5dc2&color=fff&size=128'">
+                <span class="small fw-semibold text-dark"><%= c.instructor_name %></span>
+              </div>
+            </td>
+            <td>
+              <form action="/admin/courses/<%= c.id %>/toggle-status" method="POST" class="d-inline">
+                <button type="submit" class="badge <%= c.status === 'published' ? 'bg-success text-white' : 'bg-warning text-dark' %> text-capitalize border-0 px-3 py-1.5 rounded-pill font-weight-bold shadow-xs" style="cursor:pointer;" title="Click to toggle status">
+                  <%= c.status %>
+                </button>
+              </form>
+            </td>
+            <td>
+              <form action="/admin/courses/<%= c.id %>/toggle-featured" method="POST" class="d-inline">
+                <button type="submit" class="badge <%= c.is_featured ? 'bg-primary text-white' : 'bg-light text-muted' %> border px-3 py-1.5 rounded-pill font-weight-bold shadow-xs" style="cursor:pointer;" title="Click to toggle featured">
+                  <%= c.is_featured ? '★ Featured' : 'Not Featured' %>
+                </button>
+              </form>
+            </td>
+            <td class="fw-semibold text-dark"><%= c.students_count %></td>
+            <td><i class="ri-star-fill text-warning"></i> <%= Number(c.rating_avg || 0).toFixed(1) %></td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-1.5">
+                <a href="/subjects/<%= c.category_slug || 'anatomy' %>/course?courseId=<%= c.id %>" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle p-2" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;" title="Open Course Player">
+                  <i class="ri-play-circle-line"></i>
+                </a>
+                <a href="/subjects/<%= c.category_slug || 'anatomy' %>" target="_blank" class="btn btn-sm btn-outline-info rounded-circle p-2" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;" title="View Subject Hub">
+                  <i class="ri-external-link-line"></i>
+                </a>
+                <form action="/admin/courses/<%= c.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this course permanently?')">
+                  <button class="btn btn-sm btn-outline-danger rounded-circle p-2" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;" title="Delete Course">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+

@@ -1,0 +1,51 @@
+<section class="pe-section-sm bg-white border-bottom">
+  <div class="container">
+    <h1 class="pe-section-title mb-1">My Courses</h1>
+    <p class="text-muted-pe mb-0">All courses you're enrolled in.</p>
+  </div>
+</section>
+
+<section class="pe-section">
+  <div class="container">
+    <% if (myCourses.length === 0) { %>
+      <div class="text-center py-5">
+        <i class="ri-book-open-line" style="font-size:3rem;color:var(--pe-text-muted);"></i>
+        <h5 class="mt-3">No courses yet</h5>
+        <p class="text-muted-pe mb-3">Browse our catalog and start learning today.</p>
+        <a href="/courses" class="btn btn-primary">Browse Courses</a>
+      </div>
+    <% } %>
+    <div class="row g-4">
+      <% myCourses.forEach(c => { %>
+        <div class="col-md-6 col-lg-4">
+          <div class="pe-fc-card">
+            <div class="pe-fc-thumb">
+              <div class="pe-fc-thumb-bg"></div>
+              <span class="pe-fc-level"><%= c.level %></span>
+              <div class="pe-fc-play-icon"><i class="ri-play-circle-fill"></i></div>
+            </div>
+            <div class="pe-fc-body">
+              <h5 class="pe-fc-title"><%= c.title %></h5>
+              <div class="pe-fc-instructor"><i class="ri-user-3-line"></i> <%= c.instructor_name %></div>
+              <div class="progress mb-2"><div class="progress-bar" style="width:<%= c.progress_percent %>%"></div></div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="badge <%= c.status === 'completed' ? 'badge-soft-success' : 'badge-soft-primary' %>">
+                  <%= c.status === 'completed' ? 'Completed' : Math.round(c.progress_percent) + '% complete' %>
+                </span>
+                <a href="/courses/<%= c.slug %>/learn" class="btn btn-sm btn-soft-primary">
+                  <%= c.status === 'completed' ? 'Review' : 'Continue' %>
+                </a>
+              </div>
+              <a href="/attendance/<%= c.course_id %>" class="btn btn-sm btn-outline-primary w-100 mt-2"><i class="ri-fingerprint-line me-1"></i> Mark Attendance</a>
+              <% if (c.status === 'completed') { %>
+                <form action="/certificate/generate/<%= c.course_id %>" method="POST" class="mt-2">
+                  <button class="btn btn-sm btn-outline-primary w-100"><i class="ri-medal-line me-1"></i> Get Certificate</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>

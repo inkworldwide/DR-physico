@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment variables — never commit real secrets/credentials
+.env
+
+# Database data
+/data/
+
+# Runtime logs
+src/logs/*.log
+*.log
+
+# User-uploaded content
+public/uploads/*
+!public/uploads/.gitkeep
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+test_pglite.js
+scratch/

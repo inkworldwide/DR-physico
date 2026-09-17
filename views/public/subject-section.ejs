@@ -1,0 +1,1388 @@
+<!-- ============ UNIFIED ROYAL GRADIENT HERO BANNER ============ -->
+<section class="pe-subject-hero position-relative py-5 text-white overflow-hidden" style="background: linear-gradient(135deg, #0b192c 0%, #1e3e62 55%, #000000 100%); border-bottom: 1px solid rgba(255,255,255,0.1);">
+  <!-- Ambient background glow effect -->
+  <div class="position-absolute top-0 end-0 rounded-circle opacity-20 pointer-events-none" style="width: 400px; height: 400px; background: radial-gradient(circle, #38bdf8 0%, transparent 70%); transform: translate(30%, -30%);"></div>
+
+  <div class="container position-relative z-2 py-3">
+    <nav class="pe-breadcrumb mb-3" style="font-size: 0.88rem;">
+      <a href="/subjects" class="text-white-50 text-decoration-none hover-white"><i class="ri-home-3-line me-1"></i> Subjects</a>
+      <i class="ri-arrow-right-s-line mx-1.5 text-white-50"></i>
+      <a href="/subjects/<%= category.slug %>" class="text-white-50 text-decoration-none hover-white"><%= category.name %></a>
+      <i class="ri-arrow-right-s-line mx-1.5 text-white-50"></i>
+      <span class="badge bg-warning-subtle text-warning font-weight-bold text-uppercase px-2.5 py-1 rounded-pill" style="font-size: 0.75rem;"><%= activeSection.replace('-', ' ') %></span>
+    </nav>
+
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-4">
+      <div class="d-flex align-items-center gap-3.5">
+        <div class="pe-subject-hero-icon shadow-lg" style="width: 72px; height: 72px; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%); border: 1.5 solid rgba(255,255,255,0.3); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; color: #ffffff; backdrop-filter: blur(12px);">
+          <i class="<%= category.icon || 'ri-book-open-line' %>"></i>
+        </div>
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1.5 flex-wrap">
+            <span class="badge bg-primary-subtle text-light border border-primary-subtle font-weight-bold text-uppercase px-3 py-1 rounded-pill" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+              <i class="ri-sparkles-fill text-warning me-1"></i> DEDICATED DIGITAL MODULE
+            </span>
+            <span class="badge bg-white bg-opacity-10 text-white font-weight-medium px-2.5 py-1 rounded-pill small">
+              <i class="ri-award-line me-1 text-warning"></i> BPT & MPT Academic Library
+            </span>
+          </div>
+          <h1 class="text-white fw-bold display-6 mb-0 text-capitalize tracking-tight"><%= category.name %>: <%= activeSection.replace('-', ' ') %></h1>
+        </div>
+      </div>
+
+      <a href="/subjects/<%= category.slug %>" class="btn btn-outline-light rounded-pill px-4 py-2 font-weight-bold shadow-sm d-inline-flex align-items-center gap-2 transition-all hover-lift" style="border-width: 1.5px; backdrop-filter: blur(8px);">
+        <i class="ri-arrow-left-line fs-5"></i> Back to <%= category.name %> Hub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NAVIGATION SWITCHER TABS ============ -->
+<section class="border-bottom sticky-top shadow-sm z-3" style="top:64px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+  <div class="container overflow-auto py-2.5 no-scrollbar">
+    <div class="d-flex gap-2 flex-nowrap align-items-center">
+      <a href="/subjects/<%= category.slug %>/module/syllabus" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='syllabus' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-quill-pen-line me-1.5"></i> Syllabus
+      </a>
+      <a href="/subjects/<%= category.slug %>/module/regions" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='regions' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-brain-line me-1.5"></i> Regions & Maps
+      </a>
+      <a href="/subjects/<%= category.slug %>/module/hd-videos" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='hd-videos' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-vidicon-line me-1.5"></i> HD Videos
+      </a>
+      <a href="/subjects/<%= category.slug %>/module/interactive-modules" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='interactive-modules' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-focus-3-line me-1.5"></i> Interactive Hotspots
+      </a>
+
+      <a href="/subjects/<%= category.slug %>/module/cross-sections" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='cross-sections' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-layout-grid-line me-1.5"></i> Cross-Sections
+      </a>
+      <a href="/subjects/<%= category.slug %>/module/mri-scans" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='mri-scans' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-pulse-line me-1.5"></i> MRIs & Radiology
+      </a>
+      <a href="/subjects/<%= category.slug %>/module/stroke-models" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='stroke-models' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-heart-pulse-line me-1.5"></i> Pathology Models
+      </a>
+      <a href="/subjects/<%= category.slug %>/module/notes" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='notes' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-file-text-line me-1.5"></i> Curriculum Notes
+      </a>
+      <a href="/subjects/<%= category.slug %>/module/research" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 transition-all <%= activeSection==='research' ? 'btn-primary shadow-sm active-tab-glow' : 'btn-light border text-secondary hover-primary' %>">
+        <i class="ri-microscope-line me-1.5"></i> Research Desk
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEDICATED MODULE CONTENT DISPLAY ============ -->
+<%
+  const sectionFeatureMap = {
+    'syllabus': '8',
+    'regions': '3',
+    'hd-videos': '5',
+    'interactive-modules': '6',
+    'cross-sections': '4',
+    'mri-scans': '7',
+    'stroke-models': '9',
+    'notes': '8',
+    'research': '8',
+    'intro': '1'
+  };
+  const currentFeatureId = sectionFeatureMap[activeSection] || '1';
+  const isSectionActive = (locals.activeFeatures && Array.isArray(activeFeatures)) ? activeFeatures.includes(String(currentFeatureId)) : true;
+%>
+<div class="pe-section bg-light-subtle py-5">
+  <div class="container">
+
+    <% if (!isSectionActive) { %>
+      <!-- ============ COMING SOON DISPLAY FOR INACTIVE SECTIONS ============ -->
+      <div class="card border-0 shadow-lg rounded-4 p-5 text-center bg-white my-4 mx-auto" style="max-width: 680px;">
+        <div class="mb-3">
+          <div class="d-inline-flex p-3 rounded-circle bg-warning-subtle text-warning mb-2 shadow-xs" style="font-size: 2.5rem; width: 76px; height: 76px; align-items: center; justify-content: center;">
+            <i class="ri-time-line"></i>
+          </div>
+        </div>
+        <div class="mb-2">
+          <span class="badge bg-warning text-dark font-weight-bold px-3 py-1 rounded-pill">UNDER ACTIVE DEVELOPMENT</span>
+        </div>
+        <h3 class="fw-bold text-dark mb-2 text-capitalize"><%= activeSection.replace('-', ' ') %> for <%= category.name %> is Coming Soon</h3>
+        <p class="text-muted mb-4 lead" style="font-size: 1.05rem; line-height: 1.6;">
+          This interactive clinical module is currently under active development for <strong><%= category.name %></strong> by our medical faculty. It will be released in an upcoming update.
+        </p>
+        <div class="d-flex align-items-center justify-content-center gap-2.5 flex-wrap">
+          <a href="/subjects/<%= category.slug %>" class="btn btn-primary rounded-pill px-4 py-2.5 font-weight-bold shadow-sm" style="background: #0a5dc2; border: none;">
+            <i class="ri-arrow-left-line me-1"></i> Back to <%= category.name %> Hub
+          </a>
+          <a href="/subjects/<%= category.slug %>/course" class="btn btn-outline-secondary rounded-pill px-4 py-2.5 font-weight-bold">
+            <i class="ri-play-circle-line me-1"></i> Browse Active Courses
+          </a>
+        </div>
+      </div>
+    <% } else { %>
+
+    <!-- 1. SYLLABUS & TOPICS -->
+    <% if (activeSection === 'syllabus') { %>
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+          <h3 class="fw-bold text-dark mb-1"><i class="ri-book-open-line text-primary me-2"></i>Complete <%= category.name %> Syllabus & Topics</h3>
+          <p class="text-muted small mb-0">Full curriculum units, lecture objectives, and high-yield examination topics for BPT & MPT students.</p>
+        </div>
+        <span class="badge bg-primary text-white rounded-pill px-3.5 py-2 font-weight-bold">
+          <%= (interactiveData.syllabusUnits || []).length %> Academic Units
+        </span>
+      </div>
+
+      <div class="row g-4">
+        <% (interactiveData.syllabusUnits || []).forEach((u, uIdx) => { %>
+          <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="badge bg-primary text-white font-weight-bold px-3 py-1 rounded-pill small"><%= u.unit %></span>
+                <span class="badge bg-success-subtle text-success font-weight-bold px-2.5 py-1 rounded-pill small"><i class="ri-checkbox-circle-fill me-1"></i> Core Module</span>
+              </div>
+              <h4 class="fw-bold text-dark mb-2"><%= u.title %></h4>
+              <p class="text-secondary small mb-3 leading-relaxed" style="font-size: 0.92rem; line-height: 1.6;"><%= u.description %></p>
+              
+              <div class="fw-bold small text-dark mb-2"><i class="ri-key-line text-warning me-1"></i> Key Learning Objectives:</div>
+              <ul class="list-unstyled mb-3">
+                <% u.objectives.forEach(obj => { %>
+                  <li class="small text-secondary mb-2 d-flex align-items-start"><i class="ri-arrow-right-circle-fill text-primary me-2 mt-0.5"></i> <%= obj %></li>
+                <% }) %>
+              </ul>
+
+              <div class="border-top pt-3 mt-auto">
+                <div class="fw-bold small text-dark mb-2">High-Yield Exam Topics:</div>
+                <div class="d-flex flex-wrap gap-1.5">
+                  <% u.topics.forEach(tp => { %>
+                    <span class="badge bg-light text-dark border rounded-pill px-3 py-1.5 small fw-semibold"><%= tp %></span>
+                  <% }) %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <!-- 4. STUDY NOTES & FULL PAGE DOCUMENT READER -->
+    <% if (activeSection === 'interactive-modules' || activeSection === 'notes') { %>
+      <style>
+        .note-card-fullscreen {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          z-index: 999999 !important;
+          border-radius: 0 !important;
+          margin: 0 !important;
+          background: #0f172a !important;
+          overflow-y: auto !important;
+        }
+        .note-card-fullscreen iframe {
+          height: calc(100vh - 65px) !important;
+          min-height: calc(100vh - 65px) !important;
+        }
+        .active-tab-glow {
+          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+          border: none !important;
+          box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4) !important;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hover-lift {
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hover-lift:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+        }
+        .hotspot-pin-btn {
+          cursor: pointer;
+          font-family: system-ui, -apple-system, sans-serif;
+          transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hotspot-pin-btn:hover {
+          transform: translate(-50%, -50%) scale(1.18) !important;
+          box-shadow: 0 0 0 6px rgba(2, 132, 199, 0.3) !important;
+        }
+        .active-pin {
+          animation: pinPulseGlow 2s infinite ease-in-out;
+        }
+        @keyframes pinPulseGlow {
+          0%, 100% {
+            box-shadow: 0 0 0 5px rgba(10, 93, 194, 0.45), 0 8px 18px rgba(10, 93, 194, 0.35);
+          }
+          50% {
+            box-shadow: 0 0 0 9px rgba(10, 93, 194, 0.2), 0 10px 22px rgba(10, 93, 194, 0.45);
+          }
+        }
+        .med-section-card {
+          border-radius: 12px;
+          transition: all 0.22s ease-in-out;
+          border: 1px solid rgba(226, 232, 240, 0.85);
+          background: #ffffff;
+        }
+        .med-section-card:hover {
+          border-color: #cbd5e1;
+          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+          transform: translateY(-1px);
+        }
+        .pin-selector-tab {
+          transition: all 0.2s ease;
+        }
+        .pin-selector-tab:hover {
+          transform: translateY(-1px);
+        }
+      </style>
+
+      <!-- SECTION HEADER BANNER -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="badge rounded-pill font-weight-bold px-3 py-1.5 shadow-sm text-white" style="background: linear-gradient(135deg, #0284c7 0%, #0a5dc2 100%); font-size: 0.78rem; letter-spacing: 0.5px;">
+                <i class="ri-sparkles-line me-1.5"></i> NOTES & INTERACTIVE MODULES STUDIO
+              </span>
+              <span class="badge bg-success-subtle text-success font-weight-bold px-2.5 py-1 rounded-pill small">
+                <i class="ri-shield-check-line me-1"></i> Verified Subject Library
+              </span>
+            </div>
+            <h3 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+              <i class="ri-file-text-fill text-primary"></i> <%= category.name %> Notes & Interactive Modules Studio
+            </h3>
+            <p class="text-secondary small mb-0 leading-relaxed" style="font-size: 0.94rem;">
+              Inspect interactive 3D rotatable WebGL models, high-resolution text images & diagrams, PDF reading notes, and video prosections directly inside the studio.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <% if (notes && notes.length > 0) { %>
+        <%
+          function getNoteItemType(item) {
+            const ext = ((item.file_url || '').split('?')[0].split('.').pop() || '').toLowerCase();
+            const isImgFile = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif', 'dicom'].includes(ext);
+            const isPdfFile = ext === 'pdf';
+            const is3dFile = ['glb', 'gltf', 'zip', 'html', 'htm'].includes(ext);
+
+            if (isImgFile || (item.content || '').includes('[INTERACTIVE_MODULE:TEXT_IMAGE]')) {
+              return 'text_image';
+            }
+            if (is3dFile || (item.content || '').includes('[INTERACTIVE_MODULE:3D]')) {
+              return '3d_model';
+            }
+            if (isPdfFile) {
+              return 'pdf';
+            }
+            if ((item.title || '').toLowerCase().includes('image') || (item.title || '').toLowerCase().includes('diagram')) {
+              return 'text_image';
+            }
+            return 'pdf';
+          }
+
+          let pdfCount = 0;
+          let textImageCount = 0;
+          notes.forEach(n => {
+            const t = getNoteItemType(n);
+            if (t === 'text_image') textImageCount++;
+            else if (t === 'pdf') pdfCount++;
+          });
+        %>
+        <!-- NOTE & INTERACTIVE MODULE TITLE SELECTION PILLS WITH TYPE FILTERS -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border mb-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div class="d-flex align-items-center gap-2.5">
+              <div class="p-2 rounded-3 bg-primary-subtle text-primary">
+                <i class="ri-folder-shared-fill fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold text-dark mb-0">Select Interactive Module / Note Title (<span id="availableNotesCount"><%= notes.length %></span> Available)</h6>
+                <span class="text-muted small">Click any item title below to open in studio</span>
+              </div>
+            </div>
+            <span class="badge bg-light text-secondary border font-weight-medium rounded-pill px-3 py-1.5">
+              <i class="ri-cursor-line me-1 text-primary"></i> Interactive Selector
+            </span>
+          </div>
+
+          <!-- TYPE FILTER CATEGORY TABS -->
+          <div class="d-flex align-items-center gap-2 mb-3 flex-wrap border-bottom pb-3">
+            <button type="button" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 btn-primary shadow-xs filter-type-btn transition-all hover-lift" data-filter="all" onclick="filterNotesByType('all', this)">
+              <i class="ri-apps-2-line me-1"></i> All Items (<%= notes.length %>)
+            </button>
+            <button type="button" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 btn-light border text-dark filter-type-btn transition-all hover-lift" data-filter="pdf" onclick="filterNotesByType('pdf', this)">
+              <i class="ri-file-pdf-fill text-danger me-1"></i> PDF Reading Notes (<%= pdfCount %>)
+            </button>
+            <button type="button" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-2 btn-light border text-dark filter-type-btn transition-all hover-lift" data-filter="text_image" onclick="filterNotesByType('text_image', this)">
+              <i class="ri-image-2-fill text-success me-1"></i> Text Images & Diagrams (<%= textImageCount %>)
+            </button>
+          </div>
+
+          <div class="d-flex gap-2.5 flex-wrap" id="noteTitlePills">
+            <div id="noNotesFilterAlert" class="d-none text-muted small py-3 px-3 bg-light rounded-3 w-100 text-center border">
+              <i class="ri-information-line me-1 text-primary"></i> No notes or modules found for this filter category.
+            </div>
+            <% notes.forEach((n, idx) => { %>
+              <% 
+                const itemType = getNoteItemType(n);
+                const isImage = itemType === 'text_image';
+                const is3d = itemType === '3d_model';
+                const isPdf = itemType === 'pdf';
+              %>
+              <button type="button" 
+                      data-type="<%= itemType %>" 
+                      data-note-idx="<%= idx %>" 
+                      class="btn btn-sm rounded-pill font-weight-bold px-4 py-2.5 transition-all note-pill-btn <%= idx === 0 ? 'btn-primary shadow-sm active-note-btn' : 'btn-light border text-dark hover-lift' %>" 
+                      style="<%= idx === 0 ? 'background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%); border: none;' : '' %>" 
+                      onclick="switchActiveNote(<%= idx %>, this)">
+                <% if (isImage) { %>
+                  <i class="ri-image-fill text-success me-1.5 fs-6"></i> <%= n.title %> <span class="badge bg-success-subtle text-success ms-1 small">Text Image</span>
+                <% } else if (is3d) { %>
+                  <i class="ri-sparkles-fill text-info me-1.5 fs-6"></i> <%= n.title %> <span class="badge bg-info-subtle text-info ms-1 small">Interactive Module</span>
+                <% } else { %>
+                  <i class="<%= isPdf ? 'ri-file-pdf-2-fill text-danger' : 'ri-file-word-fill text-primary' %> me-1.5 fs-6"></i> <%= n.title %>
+                <% } %>
+              </button>
+            <% }) %>
+          </div>
+        </div>
+
+        <%
+          function getNoteHotspots(n) {
+            const text = ((n.title || '') + ' ' + (n.content || '') + ' ' + (n.file_url || '')).toLowerCase();
+            
+            // 1. BRAIN & NEUROLOGICAL SYSTEM (If specifically neuro without spine keywords)
+            if ((text.includes('brain') || text.includes('cerebr') || text.includes('prefrontal') || text.includes('temporal lobe') || text.includes('limbic')) && 
+                !text.includes('spine') && !text.includes('vertebr') && !text.includes('cervical') && !text.includes('lumbar') && !text.includes('sacrum') && !text.includes('1789105558496') && !text.includes('1789119063738') && !text.includes('1789119063739')) {
+              return [
+                {
+                  id: 1,
+                  title: 'Prefrontal Cortex (Executive Function)',
+                  subtitle: 'Anterior Frontal Neocortex (Brodmann Areas 9, 10, 11, 46, 47)',
+                  whatItMeans: 'The prefrontal cortex constitutes the anterior portion of the frontal lobes. It is the most phylogenetically recent cortical region and coordinates higher-order metacognition, goal-directed behavior, impulse suppression, and personality expression.',
+                  whatItDoes: 'Synthesizes sensory inputs, internal emotional state, and working memory to formulate strategies, evaluate moral consequences, plan motor actions, and regulate emotional reactivity from the underlying limbic system.',
+                  whyWeNeedIt: 'Without prefrontal executive control, human behavior becomes stimulus-driven, impulsive, socially disinhibited, and devoid of foresight or structured planning.',
+                  nerveSupply: 'Anterior Cerebral Artery (ACA), Middle Cerebral Artery (MCA) & Mesocortical Dopaminergic Pathway',
+                  relatedTopics: 'Dysexecutive Syndrome, Traumatic Brain Injury (Frontal Contusion), ADHD, Major Depressive Disorder, and Frontotemporal Dementia (Pick Disease).',
+                  action: 'Executive Decision Making, Working Memory Consolidation & Inhibitory Impulse Control',
+                  clinicalPearl: 'Frontal lobe release signs (grasp, snout, palmomental reflexes) emerge when cortical inhibition fails. Evaluated with the Stroop Color-Word test and Wisconsin Card Sorting Test.'
+                },
+                {
+                  id: 2,
+                  title: 'Limbic System & Amygdala',
+                  subtitle: 'Subcortical Affective & Threat-Appraisal Circuit',
+                  whatItMeans: 'The limbic system is an interconnected ring of phylogenetically ancient structures including the almond-shaped amygdala, cingulate gyrus, and mamillary bodies situated deep within the medial temporal and subcortical regions.',
+                  whatItDoes: 'Acts as the brain emotional sentinel and survival alarm. Rapidly assesses sensory stimuli for threat, fear, and valence, triggering sympathetic fight-or-flight autonomic cascades via the hypothalamus and pituitary axis.',
+                  whyWeNeedIt: 'Crucial for threat survival and emotional memory tagging. It primes cardiovascular and adrenal responses within milliseconds before conscious cortical evaluation occurs.',
+                  nerveSupply: 'Circle of Willis Branches, Anterior Choroidal Artery & Cholinergic Septal Projections',
+                  relatedTopics: 'Post-Traumatic Stress Disorder (PTSD), Panic Disorder, Generalized Anxiety, Kluver-Bucy Syndrome (bilateral amygdala ablation), and Emotional Dysregulation.',
+                  action: 'Affective Appraisal, Threat Detection, Autonomic Priming & Emotional Memory Consolidation',
+                  clinicalPearl: 'In PTSD and chronic panic states, hyperactive amygdalar output overpowers prefrontal top-down inhibition. Mindful diaphragmatic breathing downregulates sympathetic tone via vagal nerve stimulation.'
+                },
+                {
+                  id: 3,
+                  title: 'Hippocampus & Medial Temporal Lobe',
+                  subtitle: 'Allocortical Seashore-Shaped Memory Keystone',
+                  whatItMeans: 'The hippocampus is a curved seahorse-shaped allocortical structure situated within the medial temporal lobe, forming the core of the circuit of Papez.',
+                  whatItDoes: 'Essential for consolidating immediate and short-term declarative memories into durable long-term storage in neocortical networks, while generating internal cognitive spatial maps for physical navigation.',
+                  whyWeNeedIt: 'Without the hippocampus, new episodic and semantic memories cannot be created (dense anterograde amnesia, as seen in famous patient H.M.).',
+                  nerveSupply: 'Posterior Cerebral Artery (PCA) Branches, Anterior Choroidal Artery & Entorhinal Pathway',
+                  relatedTopics: 'Alzheimer Disease (early neurofibrillary tangle deposition), Anterograde Amnesia, Temporal Lobe Epilepsy (Mesial Temporal Sclerosis), and Chronic Stress Hippocampal Atrophy.',
+                  action: 'Declarative Memory Consolidation, Spatial Navigation & Synaptic Long-Term Potentiation (LTP)',
+                  clinicalPearl: 'Mini-Mental State Examination (MMSE) 3-word delayed recall test is the quickest bedside screen for hippocampal consolidation deficits. Aerobic exercise stimulates brain-derived neurotrophic factor (BDNF), inducing hippocampal neurogenesis.'
+                },
+                {
+                  id: 4,
+                  title: 'Temporal Lobe & Auditory Cortex',
+                  subtitle: 'Lateral Temporal Neocortex & Wernicke Area (Brodmann 22, 41, 42)',
+                  whatItMeans: 'The temporal lobe resides below the lateral Sylvian fissure and contains Heschl gyri (primary auditory cortex) and the posterior superior temporal gyrus (Wernicke language comprehension area on the dominant hemisphere).',
+                  whatItDoes: 'Decodes auditory frequencies, rhythm, and phonemes, transforming acoustic waves into intelligible semantic language, while mediating visual face recognition (fusiform gyrus).',
+                  whyWeNeedIt: 'Essential for verbal communication, auditory comprehension, musical interpretation, and linking auditory inputs to stored conceptual memory.',
+                  nerveSupply: 'Middle Cerebral Artery (MCA) Inferior Division & Posterior Cerebral Artery (PCA)',
+                  relatedTopics: 'Wernicke Sensory (Receptive) Aphasia, Auditory Agnosia, Prosopagnosia (Face Blindness), and Temporal Lobe Seizures with auditory hallucinations.',
+                  action: 'Auditory Frequency Decoding, Language Comprehension & Phonological Processing',
+                  clinicalPearl: 'Wernicke aphasia features fluent, rapid speech that lacks coherent meaning ("word salad") accompanied by severe loss of comprehension. The patient is typically unaware of their communication deficit.'
+                },
+                {
+                  id: 5,
+                  title: 'Brainstem & Reticular Formation',
+                  subtitle: 'Midbrain, Pons, Medulla & Ascending Reticular Activating System (ARAS)',
+                  whatItMeans: 'The brainstem connects the cerebral hemispheres with the spinal cord, comprising the midbrain, pons, and medulla oblongata, interwoven with diffuse networks of the reticular formation.',
+                  whatItDoes: 'Controls vital autonomous reflex circuits for cardiac rhythm, vascular tone, and spontaneous respiratory drive. Contains nuclei for cranial nerves III through XII and the ARAS regulating arousal, consciousness, and sleep-wake cycles.',
+                  whyWeNeedIt: 'The master biological life-support conduit. Brainstem damage compromises spontaneous respiration and cardiovascular rhythm, leading to coma or brain death.',
+                  nerveSupply: 'Basilar Artery, Vertebral Arteries, Posterior Inferior Cerebellar Artery (PICA) & Anterior Inferior Cerebellar Artery (AICA)',
+                  relatedTopics: 'Brainstem Stroke (Wallenberg Lateral Medullary Syndrome), Locked-In Syndrome (basilar thrombosis), Coma & Brain Death Criteria, and Cranial Nerve Palsies.',
+                  action: 'Autonomic Cardiorespiratory Regulation, Cranial Reflex Arcs & Ascending Reticular Consciousness',
+                  clinicalPearl: 'Brainstem function is tested via the pupillary light reflex (CN II/III), corneal reflex (CN V/VII), vestibulo-ocular doll eyes reflex (CN VIII/III/VI), and gag reflex (CN IX/X).'
+                }
+              ];
+            }
+
+            // 2. KNEE & LOWER EXTREMITY (If specifically knee without spine keywords)
+            if ((text.includes('knee') || text.includes('patell') || text.includes('femur') || text.includes('tibia')) && 
+                !text.includes('spine') && !text.includes('vertebr') && !text.includes('cervical') && !text.includes('lumbar')) {
+              return [
+                {
+                  id: 1,
+                  title: 'Femur Head & Neck',
+                  subtitle: 'Proximal Femoral Articular Component & Bony Fulcrum',
+                  whatItMeans: 'The femur head is a spherical articular bone covered with smooth hyaline cartilage that nests into the acetabulum of the pelvis, supported by the angled femoral neck.',
+                  whatItDoes: 'Transmits ground reaction and gravitational compressive loads from the pelvis to the femoral shaft while facilitating tri-axial hip range of motion: flexion, extension, abduction, adduction, and rotation.',
+                  whyWeNeedIt: 'Provides the massive mechanical lever arm and freedom of movement necessary for bipedal locomotion, stair climbing, running, and athletic agility.',
+                  nerveSupply: 'Femoral Nerve, Obturator Nerve, Superior Gluteal Nerve & Medial Circumflex Femoral Artery',
+                  relatedTopics: 'Subcapital Femoral Neck Fracture, Avascular Necrosis (AVN) of Femoral Head, Hip Osteoarthritis, and Slipped Capital Femoral Epiphysis (SCFE).',
+                  action: 'Bipedal Compressive Weight Bearing, Hip Articulation & Pelvic Load Dissipation',
+                  clinicalPearl: 'Subcapital femoral fractures tear the retinacular vessels arising from the medial circumflex femoral artery, leading to high rates of avascular necrosis. Trendelenburg test evaluates gluteus medius abductor weakness.'
+                },
+                {
+                  id: 2,
+                  title: 'Quadriceps Femoris Tendon',
+                  subtitle: 'Common Conjoined Tendon of Quadriceps Musculature',
+                  whatItMeans: 'A thick, fibrous connective tissue band uniting the rectus femoris, vastus lateralis, vastus medialis, and vastus intermedius into the superior base of the patella.',
+                  whatItDoes: 'Transfers the enormous contractile force of the four quadriceps muscles across the patella to extend the knee joint against gravity during walking, jumping, and rising from a chair.',
+                  whyWeNeedIt: 'Primary active stabilizer preventing the knee from buckling into flexion under body weight during the stance phase of walking and running.',
+                  nerveSupply: 'Femoral Nerve (L2, L3, L4) & Lateral Circumflex Femoral Artery',
+                  relatedTopics: 'Quadriceps Tendon Rupture, Quadriceps Tendinopathy, Extensor Mechanism Lag, and Patellofemoral Pain Syndrome (PFPS).',
+                  action: 'Active Knee Extension against Gravity & Deceleration during Eccentric Squatting',
+                  clinicalPearl: 'Acute rupture presents with a palpable suprapatellar sulcus gap and total inability to perform an active straight leg raise. Extensor lag indicates vastus medialis weakness requiring targeted terminal knee extensions.'
+                },
+                {
+                  id: 3,
+                  title: 'Anterior Cruciate Ligament (ACL)',
+                  subtitle: 'Intra-Articular Primary Passive Knee Stabilizer',
+                  whatItMeans: 'A robust, dense fibrous band originating from the medial aspect of the lateral femoral condyle and inserting onto the anterior intercondylar area of the proximal tibia.',
+                  whatItDoes: 'Provides 85% of total passive resistance preventing anterior translation of the tibia relative to the femur, while checking excessive knee internal rotation and hyperextension.',
+                  whyWeNeedIt: 'Prevents knee subluxation during sudden pivoting, cutting, rapid deceleration, and jump-landing maneuvers in high-velocity athletics.',
+                  nerveSupply: 'Tibial Nerve Articular Branches (Proprioceptive Ruffini/Pacini corpuscles) & Middle Genicular Artery',
+                  relatedTopics: 'ACL Tear (Non-Contact Pivot Injury), Unhappy Triad (O-Donoghue: ACL, MCL, Medial Meniscus), Hemarthrosis, and Post-Op Rehabilitation.',
+                  action: 'Restricts Anterior Tibial Translation & Controls Dynamic Rotational Joint Laxity',
+                  clinicalPearl: 'Lachman test at 30° knee flexion is the most sensitive physical exam test for ACL integrity. An acute audible pop followed by rapid tense hemarthrosis within 2 hours indicates an ACL tear until proven otherwise.'
+                },
+                {
+                  id: 4,
+                  title: 'Patellar Ligament (Tendon)',
+                  subtitle: 'Distal Fibrous Continuation of Quadriceps Extensor Mechanism',
+                  whatItMeans: 'A thick, flat, heavy fibrous band extending from the inferior apex and margins of the patella to the tibial tuberosity, measuring roughly 4.5 cm in length.',
+                  whatItDoes: 'Transmits quadriceps contractile tensile forces from the patella to the tibia, utilizing the patella as a mechanical pulley to increase quadriceps extensor mechanical advantage by 30%.',
+                  whyWeNeedIt: 'Enables high-torque knee extension and absorbs intense eccentric shock loads during deceleration and ground impact.',
+                  nerveSupply: 'Femoral Nerve Articular Branches (L3–L4) & Inferior Genicular Arteries',
+                  relatedTopics: 'Patellar Tendinopathy (Jumper Knee), Patellar Tendon Rupture, Sinding-Larsen-Johansson Syndrome, and Patellar Reflex Arc (L3-L4).',
+                  action: 'Transmits Extensor Tensile Force to Tibia & Facilitates Deep Tendon Reflex Arc',
+                  clinicalPearl: 'Tapping the patellar ligament tests the L3-L4 monosynaptic stretch reflex. Eccentric decline-board squats are the gold standard evidence-based physical therapy for recalcitrant patellar tendinopathy.'
+                },
+                {
+                  id: 5,
+                  title: 'Tibial Tuberosity',
+                  subtitle: 'Anterior Proximal Tibial Apophysis & Insertion Landmark',
+                  whatItMeans: 'An oblong, prominent bony elevation located on the anterior proximal surface of the tibia, just distal to the tibial condyles.',
+                  whatItDoes: 'Acts as the definitive bony insertion anchor for the patellar ligament, serving as the terminal leverage point for the entire quadriceps extensor apparatus.',
+                  whyWeNeedIt: 'Provides a rigid bony attachment point with adequate mechanical offset from the knee joint axis, optimizing quadriceps torque production.',
+                  nerveSupply: 'Periosteal Sensory Nerve Endings & Anterior Tibial Recurrent Artery',
+                  relatedTopics: 'Osgood-Schlatter Disease (Traction Apophysitis in adolescents), Tibial Tuberosity Avulsion Fracture, and Superficial Infrapatellar Bursitis.',
+                  action: 'Distal Anchor for Extensor Mechanism & Mechanical Torque Production Leverage Point',
+                  clinicalPearl: 'In adolescent athletes undergoing rapid growth spurts, repetitive quadriceps traction causes micro-avulsions of the secondary ossification center, resulting in painful prominence known as Osgood-Schlatter disease.'
+                }
+              ];
+            }
+
+            // 3. PRIMARY ANATOMICAL SPINAL COLUMN (CERVICAL, THORACIC, LUMBAR, SACRUM, COCCYX)
+            // This is the default anatomical dataset matching the spine diagram with pins 1-5!
+            return [
+              {
+                id: 1,
+                title: 'Cervical Spine (C1 - C7)',
+                subtitle: 'Lordotic Mobile Cranio-Cervical Segment (Neck)',
+                whatItMeans: 'The cervical spine comprises 7 specialized vertebrae (C1 to C7) located in the neck. C1 (Atlas) and C2 (Axis) form a dedicated pivot joint facilitating 50% of all head rotation. C3–C7 possess unique transverse foramina that create a protective bony conduit for the ascending vertebral arteries supplying the brain.',
+                whatItDoes: 'Supports the cranium (4.5–5.5 kg) while permitting the greatest multi-axial range of motion of any spinal segment: 80–90° axial rotation, 45–50° flexion/extension, and 45° lateral bending. It shields the cervical spinal cord and routes 8 pairs of cervical spinal nerves (C1–C8) controlling the diaphragm, neck, shoulders, arms, and hands.',
+                whyWeNeedIt: 'Allows independent visual, auditory, and vestibular orientation without turning the entire torso. Its gentle anterior lordotic curvature acts as a hydraulic shock absorber, dampening mechanical ground impact forces before they reach the skull and brain.',
+                nerveSupply: 'C1–C8 Cervical Spinal Nerves, Brachial Plexus (C5–T1), Phrenic Nerve (C3–C5), & Vertebral Arteries',
+                relatedTopics: 'Cervical Radiculopathy (C6-C7 pinched nerve), Whiplash Acceleration-Deceleration Injury, Cervical Spondylosis, Text Neck / Forward Head Posture Syndrome, and Vertebrobasilar Insufficiency (VBI).',
+                action: 'Head & Neck Rotation (80-90°), Sagittal Flexion/Extension, and Axial Cranial Load Support',
+                clinicalPearl: 'Spurling test evaluates cervical nerve root compromise. C3, C4, C5 nerve roots keep the diaphragm alive via the phrenic nerve. Deep neck flexor endurance training (longus colli/capitis) is fundamental in cervical physical rehabilitation.'
+              },
+              {
+                id: 2,
+                title: 'Thoracic Spine (T1 - T12 / D1 - D12)',
+                subtitle: 'Kyphotic Rigid Cage & Cardiopulmonary Protective Segment (Mid-Back)',
+                whatItMeans: 'The thoracic spine consists of 12 robust vertebrae (T1 to T12 or D1 to D12) occupying the mid-back. Each vertebra features specialized costal facets that articulate directly with 12 pairs of ribs at costovertebral and costotransverse synovial joints, forming the posterior foundation of the thoracic cage.',
+                whatItDoes: 'Provides high structural rigidity to anchor the cardiopulmonary cage, protecting the heart, lungs, and great vessels from trauma. Due to overlapping spinous processes and rib attachments, flexion/extension is strictly limited, while accommodating axial rotation and bucket-handle / pump-handle rib expansion during breathing.',
+                whyWeNeedIt: 'Acts as an indispensable protective vault around life-sustaining cardiopulmonary organs while providing the biomechanical expansion necessary for negative-pressure pulmonary ventilation and upright posture against gravity.',
+                nerveSupply: 'Thoracic Spinal Nerves (T1–T12), Intercostal Nerves & Posterior Intercostal Arteries',
+                relatedTopics: 'Postural Hyperkyphosis (Dowager Hump), Adolescent Idiopathic Scoliosis (Cobb angle), Costochondritis & Tietze Syndrome, Thoracic Outlet Syndrome (TOS), and Costovertebral Joint Hypomobility.',
+                action: 'Thoracic Cage Stabilization, Axial Trunk Rotation & Costal Kinematics for Respiration',
+                clinicalPearl: 'Hypomobility in costovertebral joints directly impairs pulmonary vital capacity and promotes shoulder impingement. Thoracic extension mobilizations and foam-roller thoracic openers restore normal respiratory and shoulder mechanics.'
+              },
+              {
+                id: 3,
+                title: 'Lumbar Spine (L1 - L5)',
+                subtitle: 'Lordotic Massive Axial Weight-Bearing Fulcrum (Lower Back)',
+                whatItMeans: 'The lumbar spine is composed of 5 massive, thick, kidney-shaped vertebrae (L1 to L5) in the lower back. They are equipped with broad intervertebral discs and vertically oriented sagittal facet joints built specifically to withstand immense axial compressive loads.',
+                whatItDoes: 'Acts as the central load-bearing fulcrum of the human skeleton, carrying the weight of the head, torso, and upper limbs. It provides generous sagittal trunk flexion (40–60°) and extension (20–35°), while interlocking sagittal facets deliberately restrict rotation to protect discs from torsional tearing.',
+                whyWeNeedIt: 'Transfers the gravitational and dynamic load of the upper body down through the sacral base into the pelvic ring and legs during standing, lifting, running, and jumping. Its natural lordotic arch dampens ground impact forces like a heavy-duty spring.',
+                nerveSupply: 'Lumbar Plexus (L1–L4), Sciatic Nerve Roots (L4–S3), Lumbar Arteries & Radicular Arteries',
+                relatedTopics: 'L4–L5 & L5–S1 Disc Herniation, Sciatica / Lumbar Radiculopathy, Spinal Stenosis (Neurogenic Claudication), Spondylolysis / Spondylolisthesis (Scottie dog sign), and Core Musculature Instability.',
+                action: 'Trunk Flexion/Extension, Axial Weight Distribution & Center-of-Gravity Stabilization',
+                clinicalPearl: 'Straight Leg Raise (Lasegue test) between 35°–70° isolates sciatic/L5-S1 disc tension. McGill Big 3 exercises (Curl-up, Side-bridge, Bird-dog) build 360° muscular spine stiffness without compressive shear.'
+              },
+              {
+                id: 4,
+                title: 'Sacrum (Pelvic Vertebrae S1 - S5)',
+                subtitle: 'Fused Triangular Pelvic Keystone & Weight-Distribution Base',
+                whatItMeans: 'The sacrum is a large, triangular, wedge-shaped bone formed by the fusion of 5 sacral vertebrae (S1 to S5). Positioned like an inverted pyramid between the left and right iliac bones, it forms the bilateral sacroiliac (SI) synovial joints and posterior pelvic wall.',
+                whatItDoes: 'Serves as the structural keystone of the pelvic ring. It receives all descending axial forces from the L5-S1 lumbosacral junction and channels them laterally across the sacroiliac joints into the pelvic girdle, acetabula, and femoral heads during both bilateral stance and reciprocal walking.',
+                whyWeNeedIt: 'Bridges the axial spine with the appendicular lower extremities. Without the sacrum wedge fit, form closure, and dense ligamentous network, the human pelvis would collapse outward under the torso weight during gait.',
+                nerveSupply: 'Sacral Plexus (S1–S4), Sciatic Nerve (L4–S3), Pudendal Nerve (S2–S4), Superior & Inferior Gluteal Arteries',
+                relatedTopics: 'Sacroiliac (SI) Joint Dysfunction, Sacroiliitis (Ankylosing Spondylitis / HLA-B27), Piriformis Syndrome, Sacral Stress Fractures, and Pregnancy-Related Pelvic Girdle Pain (Relaxin laxity).',
+                action: 'Sacroiliac Joint Force Distribution, Pelvic Ring Load Transmission & Nutation Kinematics',
+                clinicalPearl: 'Patrick (FABER) and Gaenslen provocative tests isolate SI joint inflammation. Sacral nutation (forward-inferior sacral base tilt) wedges the sacrum tighter between ilia, creating self-locking stability during heel-strike gait.'
+              },
+              {
+                id: 5,
+                title: 'Coccyx (Tailbone Co1 - Co4)',
+                subtitle: 'Vestigial Distal Anchor & Pelvic Diaphragm Base',
+                whatItMeans: 'The coccyx is the terminal caudal segment of the vertebral column, consisting of 3 to 5 (typically 4) fused rudimentary vertebral segments that articulate with the sacral apex via a fibrocartilaginous sacrococcygeal symphysis.',
+                whatItDoes: 'Acts as an indispensable muscular and ligamentous anchor for the pelvic floor diaphragm (levator ani, coccygeus, pubococcygeus) and external anal sphincter. When seated leaning back, the coccyx and two ischial tuberosities form an equitable 3-point weight-bearing tripod.',
+                whyWeNeedIt: 'Maintains the structural integrity of the pelvic floor, providing basal support for the bladder, rectum, and pelvic viscera against intra-abdominal pressures generated by coughing, sneezing, and heavy lifting. Without this anchor, incontinence or prolapse occur.',
+                nerveSupply: 'Coccygeal Nerve (Co1), Anococcygeal Nerves, Middle Sacral Artery & Coccygeal Plexus',
+                relatedTopics: 'Coccydynia (chronic tailbone pain), Postpartum Coccyx Subluxation, Pelvic Floor Hypertonicity & Spasm, Direct Fall / Contusion Injuries, and Levator Ani Syndrome.',
+                action: 'Pelvic Floor Diaphragm Anchoring, Sitting Tripod Load Distribution & Continence Support',
+                clinicalPearl: 'Bimanual palpation of the sacrococcygeal joint isolates painful hypermobility. Conservative physiotherapy management includes coccygeal wedge cushions, internal levator ani myofascial release, and pelvic floor relaxation protocols.'
+              }
+            ];
+          }
+        %>
+
+        <!-- FULL PAGE DOCUMENT & INTERACTIVE MODULE VIEWER CARDS -->
+        <% notes.forEach((note, idx) => { %>
+          <% 
+            const ext = ((note.file_url || '').split('?')[0].split('.').pop() || '').toLowerCase();
+            const itemType = getNoteItemType(note);
+            const isImage = itemType === 'text_image';
+            const is3d = itemType === '3d_model';
+            const isPdf = itemType === 'pdf';
+            const noteHotspots = getNoteHotspots(note);
+            const firstHotspot = noteHotspots[0];
+          %>
+          <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white border mb-4 note-viewer-card <%= idx === 0 ? '' : 'd-none' %>" id="note-card-<%= idx %>">
+            
+            <!-- HEADER BAR WITH TITLE & EXPAND TOGGLE -->
+            <div class="card-header p-3.5 d-flex align-items-center justify-content-between flex-wrap gap-2 text-white" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-bottom: 1px solid rgba(255,255,255,0.1);">
+              <div class="d-flex align-items-center gap-2.5">
+                <% if (isImage) { %>
+                  <div class="bg-success text-white rounded-3 px-2 py-1 shadow-sm d-flex align-items-center justify-content-center">
+                    <i class="ri-image-line fs-5"></i>
+                  </div>
+                <% } else if (is3d) { %>
+                  <div class="bg-info text-dark rounded-3 px-2 py-1 shadow-sm d-flex align-items-center justify-content-center">
+                    <i class="ri-sparkles-line fs-5"></i>
+                  </div>
+                <% } else { %>
+                  <div class="bg-danger text-white rounded-3 px-2 py-1 shadow-sm d-flex align-items-center justify-content-center">
+                    <i class="ri-file-pdf-2-fill fs-5"></i>
+                  </div>
+                <% } %>
+                <div>
+                  <h6 class="fw-bold text-white mb-0" style="letter-spacing: -0.2px;"><%= note.title %></h6>
+                  <span class="text-white-50 small" style="font-size: 0.78rem;">
+                    <i class="ri-shield-check-line text-success me-1"></i> Verified Subject Module
+                  </span>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                <% if (isImage) { %>
+                  <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-20 rounded-pill px-3 py-1.5 font-weight-medium">
+                    <i class="ri-zoom-in-line me-1"></i> Zoomable Text Image
+                  </span>
+                  <a href="<%= note.file_url %>" target="_blank" class="btn btn-sm btn-outline-light rounded-pill px-3.5 py-1.5 font-weight-semibold">
+                    <i class="ri-external-link-line me-1"></i> Open Full HD Image
+                  </a>
+                <% } else if (is3d) { %>
+                  <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-20 rounded-pill px-3 py-1.5 font-weight-medium">
+                    <i class="ri-sparkles-line me-1"></i> Interactive WebGL Module
+                  </span>
+                  <button type="button" class="btn btn-sm btn-info rounded-pill px-4 py-1.5 font-weight-bold text-dark shadow-sm fullscreen-toggle-btn" onclick="toggleInPageFullscreen('note-card-<%= idx %>')">
+                    <i class="ri-expand-arrows-line me-1"></i> Expand Studio
+                  </button>
+                <% } else { %>
+                  <span class="badge bg-white bg-opacity-10 text-light font-weight-medium rounded-pill px-3 py-1.5 d-none d-sm-inline-flex align-items-center">
+                    <i class="ri-aspect-ratio-line me-1 text-info"></i> Fit Width Reader
+                  </span>
+                  <button type="button" class="btn btn-sm rounded-pill px-4 py-1.5 font-weight-bold text-white shadow-sm fullscreen-toggle-btn transition-all hover-lift" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none;" onclick="toggleInPageFullscreen('note-card-<%= idx %>')">
+                    <i class="ri-expand-arrows-line me-1"></i> Expand Full Page
+                  </button>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- VIEWER BODY -->
+            <div class="card-body p-0 bg-white">
+              <% if (note.content) { %>
+                <!-- SUMMARY & OBJECTIVES HIGHLIGHTS BOX (ELEGANT CLINICAL CALLOUT) -->
+                <div class="p-3.5 p-md-4 border-bottom position-relative" style="background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border-left: 5px solid #0284c7;">
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                    <span class="badge rounded-pill text-uppercase font-weight-bold px-3 py-1 shadow-xs" style="background: #e0f2fe; color: #0369a1; font-size: 0.76rem; letter-spacing: 0.5px;">
+                      <i class="ri-book-read-line me-1"></i> Academic Syllabus & Overview
+                    </span>
+                    <span class="text-muted small" style="font-size: 0.8rem;">
+                      <i class="ri-check-double-line text-success me-1"></i> High-Yield Physiotherapy Competency
+                    </span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1.5 d-flex align-items-center gap-2" style="letter-spacing: -0.2px;">
+                    <i class="ri-award-line text-primary fs-5"></i> Module Objectives & Core Takeaways
+                  </h6>
+                  <div class="text-secondary small leading-relaxed" style="font-size: 0.94rem; line-height: 1.7; color: #334155;">
+                    <%- note.content.replace(/\[INTERACTIVE_MODULE.*?\]/g, '').replace(/\n/g, '<br>') %>
+                  </div>
+                </div>
+              <% } %>
+
+              <% if (is3d) { %>
+                <!-- 3D WEBGL ROTATABLE MODEL STUDIO VIEWER -->
+                <div class="p-4 text-center position-relative overflow-hidden" style="background: linear-gradient(135deg, #0b192c 0%, #1e3e62 100%);">
+                  <div class="d-flex align-items-center justify-content-between mb-3 text-white flex-wrap gap-2">
+                    <span class="badge bg-info text-dark rounded-pill px-3 py-1.5 font-weight-bold d-inline-flex align-items-center gap-1.5">
+                      <i class="ri-sparkles-line fs-6"></i> Interactive WebGL Module Studio
+                    </span>
+                    <span class="text-white-50 small">
+                      <i class="ri-drag-move-line text-warning me-1"></i> Drag / Touch to Rotate 360°
+                    </span>
+                  </div>
+
+                  <div class="p-3 bg-dark rounded-4 border border-secondary shadow-lg position-relative d-flex align-items-center justify-content-center" style="min-height: 480px; background: #0b192c !important;">
+                    <% if (note.file_url && (note.file_url.endsWith('.html') || note.file_url.endsWith('.htm') || note.file_url.endsWith('.zip'))) { %>
+                      <iframe src="<%= note.file_url %>" title="<%= note.title %>" style="width: 100%; height: 65vh; border: none;" allowfullscreen></iframe>
+                    <% } else { %>
+                      <!-- ROYAL 3D CANVAS SIMULATOR WITH REAL-TIME ROTATABLE MODEL INTERFACING -->
+                      <div class="w-100 py-2 text-center text-white position-relative">
+                        <canvas id="canvas3D-<%= idx %>" class="note-3d-canvas" style="width: 100%; max-width: 720px; height: 420px; cursor: grab; background: transparent; display: block; margin: 0 auto;"></canvas>
+                        <div class="mt-2 text-center">
+                          <span class="badge bg-dark bg-opacity-75 text-warning border border-secondary rounded-pill px-3.5 py-1.5 small font-weight-bold">
+                            <i class="ri-drag-move-line me-1"></i> Drag Mouse or Touch Screen to Orbit & Rotate 360° Real-Time 3D Engine
+                          </span>
+                        </div>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+
+              <% } else if (isImage) { %>
+                <!-- INTERACTIVE HD HOTSPOT IDENTIFICATION MODEL (DUAL-COLUMN STUDIO) -->
+                <div class="p-3 p-md-4 bg-white">
+                  
+                  <!-- SECTION TITLE BANNER -->
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="rounded-3 shadow-xs d-flex align-items-center justify-content-center text-white" style="width: 46px; height: 46px; background: linear-gradient(135deg, #0284c7 0%, #0a5dc2 100%);">
+                        <i class="ri-focus-3-line fs-4"></i>
+                      </div>
+                      <div>
+                        <div class="d-flex align-items-center gap-2 mb-0.5">
+                          <h5 class="fw-bold text-dark mb-0" style="letter-spacing: -0.2px;">Interactive Anatomical Hotspot Studio</h5>
+                          <span class="badge rounded-pill px-2.5 py-0.5 font-weight-semibold" style="background: #e0f2fe; color: #0369a1; font-size: 0.72rem;">5 PIN LANDMARKS</span>
+                        </div>
+                        <p class="text-muted small mb-0" style="font-size: 0.88rem;">
+                          Select any pin (P1–P5) on the diagram or use the quick tabs to explore clinical anatomy, biomechanics, and assessment pearls.
+                        </p>
+                      </div>
+                    </div>
+                    <% if (note.file_url && note.file_url !== '/images/logo-icon.png') { %>
+                      <a href="<%= note.file_url %>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3.5 py-2 font-weight-semibold d-inline-flex align-items-center gap-1.5 transition-all hover-lift" style="border-width: 1.5px;">
+                        <i class="ri-external-link-line fs-6"></i> Open Full HD Image
+                      </a>
+                    <% } %>
+                  </div>
+
+                  <div class="row g-4 align-items-stretch">
+                    
+                    <!-- LEFT COLUMN: DIAGRAM WITH NUMBERED HOTSPOT PIN BUTTONS 1-5 -->
+                    <div class="col-lg-5 col-md-6">
+                      <div class="p-3.5 rounded-4 border h-100 position-relative d-flex flex-column align-items-center justify-content-between overflow-hidden shadow-xs" style="background: #f8fafc;">
+                        <div class="d-flex align-items-center justify-content-between w-100 mb-2 px-1 text-muted small" style="font-size: 0.8rem;">
+                          <span><i class="ri-hand-coin-line text-primary me-1"></i> Click pins to inspect</span>
+                          <span class="badge bg-white text-secondary border rounded-pill px-2.5 py-1">High-Res Diagram</span>
+                        </div>
+
+                        <% const displayImg = (note.file_url && note.file_url !== '/images/logo-icon.png') ? note.file_url : 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop&q=80'; %>
+                        <div class="position-relative w-100 text-center my-auto p-2 bg-white rounded-3 shadow-xs border" style="max-height: 520px; display: flex; align-items: center; justify-content: center;">
+                          <img src="<%= displayImg %>" alt="<%= note.title %>" class="img-fluid rounded-3 w-100" style="max-height: 480px; object-fit: contain; cursor: zoom-in;" onclick="window.open(this.src, '_blank')">
+
+                          <!-- 5 NUMBERED INTERACTIVE PIN BUTTONS OVERLAID ON IMAGE -->
+                          <% 
+                            const defaultPins = [
+                              { id: 1, top: '22%', left: '50%' },
+                              { id: 2, top: '48%', left: '50%' },
+                              { id: 3, top: '64%', left: '48%' },
+                              { id: 4, top: '78%', left: '50%' },
+                              { id: 5, top: '88%', left: '52%' }
+                            ];
+                          %>
+                          <% defaultPins.forEach(pin => { %>
+                            <button type="button" 
+                                    id="pin-btn-<%= idx %>-<%= pin.id %>" 
+                                    class="btn rounded-circle p-0 font-weight-bold shadow hotspot-pin-btn <%= pin.id === 1 ? 'active-pin' : '' %>" 
+                                    style="position: absolute; top: <%= pin.top %>; left: <%= pin.left %>; transform: translate(-50%, -50%); width: 36px; height: 36px; line-height: 36px; background: <%= pin.id === 1 ? 'linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%)' : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' %>; color: #ffffff; border: 2.5px solid #ffffff; font-size: 0.95rem; z-index: 10;" 
+                                    onclick="selectHotspotPin('<%= idx %>', <%= pin.id %>, this)">
+                              <%= pin.id %>
+                            </button>
+                          <% }) %>
+                        </div>
+
+                        <div class="w-100 mt-2 text-center">
+                          <span class="text-muted" style="font-size: 0.78rem;">
+                            <i class="ri-zoom-in-line text-primary me-1"></i> Click on the image to view in original full resolution
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: DYNAMIC & CLICKABLE PIN STRUCTURE DETAIL CARD -->
+                    <div class="col-lg-7 col-md-6">
+                      <div class="p-3.5 p-md-4 bg-white rounded-4 border h-100 d-flex flex-column justify-content-between shadow-xs" id="pinDetailCard-<%= idx %>" style="border-color: #e2e8f0;">
+                        
+                        <div>
+                          <!-- TOP INTERACTIVE PIN SELECTOR STRIP -->
+                          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2 pb-3 border-bottom">
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                              <span class="text-secondary small font-weight-bold me-1" style="font-size: 0.84rem;">
+                                <i class="ri-map-pin-user-line text-primary me-1"></i> Landmark:
+                              </span>
+                              <% (noteHotspots || []).forEach(pin => { %>
+                                <button type="button" 
+                                        id="pin-tab-<%= idx %>-<%= pin.id %>" 
+                                        class="btn btn-sm rounded-pill font-weight-bold px-3 py-1.5 pin-selector-tab <%= pin.id === 1 ? 'btn-primary shadow-sm active' : 'btn-light border text-dark hover-lift' %>" 
+                                        style="font-size: 0.82rem; <%= pin.id === 1 ? 'background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%); border: none;' : '' %>"
+                                        onclick="selectHotspotPin('<%= idx %>', <%= pin.id %>)"
+                                        title="Click to view details for <%= pin.title %>">
+                                  <i class="ri-map-pin-2-fill me-1 <%= pin.id === 1 ? 'text-white' : 'text-primary' %>"></i> P<%= pin.id %>
+                                </button>
+                              <% }) %>
+                            </div>
+                            <div class="d-flex align-items-center gap-1.5">
+                              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 font-weight-semibold hover-lift" onclick="cycleHotspotPin('<%= idx %>', -1)" title="Previous Landmark">
+                                <i class="ri-arrow-left-s-line"></i> Prev
+                              </button>
+                              <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 font-weight-semibold hover-lift" onclick="cycleHotspotPin('<%= idx %>', 1)" title="Next Landmark">
+                                Next <i class="ri-arrow-right-s-line"></i>
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- FULL WIDTH PIN STRUCTURE BADGE (CLICKABLE) -->
+                          <div class="badge w-100 py-2.5 rounded-3 font-weight-bold text-white mb-3 shadow-xs d-flex align-items-center justify-content-between px-3.5" 
+                               id="pinBadge-<%= idx %>" 
+                               style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%) !important; font-size: 0.88rem; letter-spacing: 0.3px; cursor: pointer;"
+                               onclick="cycleHotspotPin('<%= idx %>', 1)"
+                               title="Click to advance to the next anatomical landmark">
+                            <span><i class="ri-focus-2-line me-1.5"></i> Pin Structure #1 (Active Landmark)</span>
+                            <span class="small font-weight-normal opacity-75 d-none d-sm-inline">Next Landmark <i class="ri-arrow-right-line ms-1"></i></span>
+                          </div>
+
+                          <!-- MAIN STRUCTURE HEADING & SUBTITLE -->
+                          <div class="p-3.5 rounded-3 border mb-3 transition-all hover-lift" 
+                               onclick="cycleHotspotPin('<%= idx %>', 1)" 
+                               style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); cursor: pointer; border-color: #cbd5e1;" 
+                               title="Click to advance to the next anatomical structure">
+                            <div class="d-flex align-items-center justify-content-between mb-1 flex-wrap gap-2">
+                              <h4 class="fw-bold text-dark mb-0" id="pinTitle-<%= idx %>" style="letter-spacing: -0.3px; font-size: 1.35rem;">
+                                <%= firstHotspot.title %>
+                              </h4>
+                              <span class="badge rounded-pill px-3 py-1.5 font-weight-semibold shadow-xs" id="pinSubtitle-<%= idx %>" style="background: #e0f2fe; color: #0284c7; font-size: 0.78rem;">
+                                <%= firstHotspot.subtitle || 'Anatomical Segment' %>
+                              </span>
+                            </div>
+                          </div>
+
+                          <!-- 1. WHAT IT MEANS (ANATOMY & DEFINITION) -->
+                          <div class="p-3.5 med-section-card mb-3 transition-all hover-lift" 
+                               style="border-left: 4px solid #0284c7 !important; cursor: pointer;"
+                               onclick="pulseDetailCard(this)"
+                               title="Anatomical Definition & Overview">
+                            <div class="fw-bold small mb-1.5 d-flex align-items-center justify-content-between" style="color: #0369a1;">
+                              <span class="d-flex align-items-center gap-1.5">
+                                <i class="ri-book-open-line fs-5"></i> 1. What It Means (Anatomy & Definition):
+                              </span>
+                              <span class="badge rounded-pill px-2.5 py-0.5 small" style="background: #e0f2fe; color: #0284c7;">Anatomy</span>
+                            </div>
+                            <p class="text-dark small mb-0 leading-relaxed" id="pinMeaning-<%= idx %>" style="font-size: 0.92rem; line-height: 1.7; color: #1e293b;">
+                              <%= firstHotspot.whatItMeans || firstHotspot.description %>
+                            </p>
+                          </div>
+
+                          <!-- 2. WHAT IT DOES (FUNCTION & BIOMECHANICS) -->
+                          <div class="p-3.5 med-section-card mb-3 transition-all hover-lift" 
+                               style="border-left: 4px solid #0d9488 !important; cursor: pointer;"
+                               onclick="pulseDetailCard(this)"
+                               title="Functional Actions & Biomechanics">
+                            <div class="fw-bold small mb-1.5 d-flex align-items-center justify-content-between" style="color: #0f766e;">
+                              <span class="d-flex align-items-center gap-1.5">
+                                <i class="ri-settings-3-line fs-5"></i> 2. What It Does (Function & Biomechanics):
+                              </span>
+                              <span class="badge text-white small rounded-pill px-2.5 py-0.5" style="background: #0d9488;">Function</span>
+                            </div>
+                            <p class="text-dark small mb-0 leading-relaxed" id="pinDoes-<%= idx %>" style="font-size: 0.92rem; line-height: 1.7; color: #1e293b;">
+                              <%= firstHotspot.whatItDoes || firstHotspot.action %>
+                            </p>
+                          </div>
+
+                          <!-- 3. WHY WE NEED IT (PURPOSE & CLINICAL IMPORTANCE) -->
+                          <div class="p-3.5 med-section-card mb-3 transition-all hover-lift" 
+                               style="border-left: 4px solid #d97706 !important; cursor: pointer;"
+                               onclick="pulseDetailCard(this)"
+                               title="Why the Human Body Needs This Structure">
+                            <div class="fw-bold small mb-1.5 d-flex align-items-center justify-content-between" style="color: #b45309;">
+                              <span class="d-flex align-items-center gap-1.5">
+                                <i class="ri-heart-pulse-line fs-5"></i> 3. Why We Need It (Purpose & Importance):
+                              </span>
+                              <span class="badge rounded-pill px-2.5 py-0.5 small" style="background: #fef3c7; color: #92400e;">Clinical Purpose</span>
+                            </div>
+                            <p class="text-dark small mb-0 leading-relaxed" id="pinWhy-<%= idx %>" style="font-size: 0.92rem; line-height: 1.7; color: #1e293b;">
+                              <%= firstHotspot.whyWeNeedIt || 'Maintains structural equilibrium, force distribution, and protects vital neurovascular tissues.' %>
+                            </p>
+                          </div>
+
+                          <!-- 4. INNERVATION & ARTERIAL SUPPLY -->
+                          <div class="p-3.5 med-section-card mb-3 transition-all hover-lift" 
+                               style="border-left: 4px solid #6366f1 !important; cursor: pointer;"
+                               onclick="pulseDetailCard(this)"
+                               title="Innervation and Vascular Pathway">
+                            <div class="fw-bold small mb-1 d-flex align-items-center justify-content-between" style="color: #4338ca;">
+                              <span class="d-flex align-items-center gap-1.5">
+                                <i class="ri-flashlight-fill fs-5" style="color: #6366f1;"></i> Innervation & Arterial Supply:
+                              </span>
+                              <span class="badge rounded-pill px-2.5 py-0.5 small" style="background: #e0e7ff; color: #4338ca;">Neural & Vascular</span>
+                            </div>
+                            <div class="font-weight-semibold small" id="pinNerve-<%= idx %>" style="font-size: 0.92rem; color: #1e1b4b;">
+                              <%= firstHotspot.nerveSupply %>
+                            </div>
+                          </div>
+
+                          <!-- 5. RELATED TOPICS & CLINICAL CONDITIONS -->
+                          <div class="p-3.5 med-section-card mb-3 transition-all hover-lift" 
+                               style="border-left: 4px solid #a855f7 !important; cursor: pointer;"
+                               onclick="pulseDetailCard(this)"
+                               title="Related Clinical Pathologies & Conditions">
+                            <div class="fw-bold small mb-1 d-flex align-items-center justify-content-between" style="color: #7e22ce;">
+                              <span class="d-flex align-items-center gap-1.5">
+                                <i class="ri-links-line fs-5" style="color: #a855f7;"></i> Related Topics & Clinical Conditions:
+                              </span>
+                              <span class="badge rounded-pill px-2.5 py-0.5 small" style="background: #f3e8ff; color: #7e22ce;">Pathologies</span>
+                            </div>
+                            <div class="small leading-relaxed" id="pinRelated-<%= idx %>" style="font-size: 0.90rem; color: #3b0764;">
+                              <%= firstHotspot.relatedTopics || 'Spinal kinematics, postural dysfunction, and nerve root decompression therapy.' %>
+                            </div>
+                          </div>
+
+                          <!-- 6. HIGH-YIELD CLINICAL EXAM PEARL & ASSESSMENT -->
+                          <div class="p-3.5 med-section-card transition-all hover-lift" 
+                               style="border-left: 4px solid #16a34a !important; cursor: pointer;"
+                               onclick="pulseDetailCard(this)"
+                               title="High-Yield Clinical Examination Pearl">
+                            <div class="fw-bold small mb-1 d-flex align-items-center justify-content-between" style="color: #15803d;">
+                              <span class="d-flex align-items-center gap-1.5">
+                                <i class="ri-lightbulb-flash-fill fs-5" style="color: #16a34a;"></i> High-Yield Clinical Exam Pearl & Assessment:
+                              </span>
+                              <span class="badge text-white small rounded-pill px-2.5 py-0.5" style="background: #16a34a;">Exam Pearl</span>
+                            </div>
+                            <div class="small leading-relaxed" id="pinPearl-<%= idx %>" style="font-size: 0.89rem; color: #14532d;">
+                              <%= firstHotspot.clinicalPearl || 'Palpation and clinical motion testing isolate structural dysfunction and neural impingement.' %>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              <% } else if (note.file_url) { %>
+                <% if (ext === 'pdf') { %>
+                  <iframe src="<%= note.file_url %>#view=FitH&toolbar=0&navpanes=0&scrollbar=1" title="<%= note.title %>" style="width: 100%; height: 85vh; border: none; background: #ffffff;" allowfullscreen></iframe>
+                <% } else { %>
+                  <!-- DOCX / DOC / TXT / PPT IN-PAGE DOCUMENT VIEWER & DOWNLOAD TOOLBAR -->
+                  <div class="p-4 p-md-5 bg-white font-sans text-dark">
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded-4 bg-light border mb-4 flex-wrap gap-2 shadow-sm">
+                      <div class="d-flex align-items-center gap-2.5">
+                        <div class="rounded-3 bg-primary text-white p-2.5 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                          <i class="ri-file-word-fill fs-4"></i>
+                        </div>
+                        <div>
+                          <h6 class="fw-bold text-dark mb-0"><%= note.title %></h6>
+                          <span class="text-muted small"><%= ext.toUpperCase() %> Document • In-Page Reader & Study Takeaways</span>
+                        </div>
+                      </div>
+                      <a href="<%= note.file_url %>" download class="btn btn-sm btn-primary rounded-pill px-4 py-2 font-weight-bold shadow-sm d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%); border: none;">
+                        <i class="ri-download-cloud-2-line fs-6"></i> Download Original <%= ext.toUpperCase() %> Document
+                      </a>
+                    </div>
+                  </div>
+                <% } %>
+              <% } else if (!note.content) { %>
+                <div class="p-5 text-center text-muted">
+                  <i class="ri-file-text-line display-4 mb-2 opacity-50"></i>
+                  <p class="mb-0 font-weight-bold">No document file attached for this entry.</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+
+        <script>
+          let currentNotesFilterType = 'all';
+
+          function switchActiveNote(targetIdx, btnEl) {
+            // Show target card and hide others
+            document.querySelectorAll('.note-viewer-card').forEach((card, i) => {
+              if (i === targetIdx) {
+                card.classList.remove('d-none');
+              } else {
+                card.classList.add('d-none');
+              }
+            });
+
+            // Update pill styling WITHOUT wiping d-none or display style!
+            document.querySelectorAll('#noteTitlePills .note-pill-btn').forEach(btn => {
+              btn.classList.remove('btn-primary', 'shadow-sm', 'active-note-btn');
+              btn.classList.add('btn-light', 'border', 'text-dark', 'hover-lift');
+              btn.style.background = '';
+              btn.style.border = '';
+            });
+
+            if (btnEl) {
+              btnEl.classList.remove('btn-light', 'border', 'text-dark', 'hover-lift');
+              btnEl.classList.add('btn-primary', 'shadow-sm', 'active-note-btn');
+              btnEl.style.background = 'linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%)';
+              btnEl.style.border = 'none';
+            }
+
+            // Ensure non-matching pills strictly stay hidden if a filter is active
+            if (currentNotesFilterType !== 'all') {
+              document.querySelectorAll('.note-pill-btn').forEach(pill => {
+                const pillType = pill.getAttribute('data-type');
+                if (pillType !== currentNotesFilterType) {
+                  pill.style.setProperty('display', 'none', 'important');
+                  pill.classList.add('d-none');
+                }
+              });
+            }
+
+            init3DCanvasForIndex(targetIdx);
+          }
+
+          function filterNotesByType(type, btnEl) {
+            currentNotesFilterType = type;
+
+            // 1. Update filter tab buttons UI
+            document.querySelectorAll('.filter-type-btn').forEach(btn => {
+              btn.classList.remove('btn-primary', 'shadow-sm');
+              btn.classList.add('btn-light', 'border', 'text-dark');
+            });
+            if (btnEl) {
+              btnEl.classList.remove('btn-light', 'border', 'text-dark');
+              btnEl.classList.add('btn-primary', 'shadow-sm');
+            }
+
+            // 2. Filter the note pills
+            const pills = document.querySelectorAll('.note-pill-btn');
+            let firstMatch = null;
+            let visibleCount = 0;
+
+            pills.forEach(pill => {
+              const pillType = pill.getAttribute('data-type');
+              const idx = parseInt(pill.getAttribute('data-note-idx'), 10);
+              const match = (type === 'all' || pillType === type);
+
+              if (match) {
+                pill.style.setProperty('display', 'inline-flex', 'important');
+                pill.classList.remove('d-none');
+                visibleCount++;
+                if (!firstMatch) {
+                  firstMatch = { idx, el: pill };
+                }
+              } else {
+                pill.style.setProperty('display', 'none', 'important');
+                pill.classList.add('d-none');
+              }
+            });
+
+            // 3. Update count header if present
+            const countHeaderEl = document.getElementById('availableNotesCount');
+            if (countHeaderEl) {
+              countHeaderEl.textContent = visibleCount;
+            }
+
+            // 4. Handle empty state if no matches
+            const noAlert = document.getElementById('noNotesFilterAlert');
+            if (noAlert) {
+              if (visibleCount === 0) {
+                noAlert.classList.remove('d-none');
+                document.querySelectorAll('.note-viewer-card').forEach(card => card.classList.add('d-none'));
+              } else {
+                noAlert.classList.add('d-none');
+              }
+            }
+
+            // 5. Switch active note to the first matching visible item
+            if (firstMatch) {
+              switchActiveNote(firstMatch.idx, firstMatch.el);
+            }
+          }
+
+          const allNotesHotspotsMap = {};
+          <% notes.forEach((note, idx) => { %>
+            allNotesHotspotsMap['<%= idx %>'] = <%- JSON.stringify(getNoteHotspots(note)) %>;
+          <% }) %>
+
+          const activePinIdMap = {};
+
+          function selectHotspotPin(noteIdx, pinId, btnEl) {
+            activePinIdMap[noteIdx] = pinId;
+            const list = allNotesHotspotsMap[noteIdx] || [];
+            const item = list.find(h => h.id === pinId) || list[(pinId - 1) % (list.length || 1)] || {
+              title: 'Pin Structure #' + pinId,
+              description: 'Anatomical landmark detail for pin structure #' + pinId + '.',
+              nerveSupply: 'Regional Nerve Supply',
+              action: 'Anatomical Function & Clinical Significance',
+              clinicalPearl: 'Palpation and clinical motion testing isolate structural dysfunction and neural impingement.'
+            };
+
+            // 1. Update image pin buttons on the diagram
+            const diagramPinBtn = document.getElementById('pin-btn-' + noteIdx + '-' + pinId);
+            document.querySelectorAll('[id^="pin-btn-' + noteIdx + '-"]').forEach(btn => {
+              btn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+              btn.style.color = '#ffffff';
+              btn.style.transform = 'translate(-50%, -50%) scale(1)';
+              btn.style.boxShadow = '';
+              btn.classList.remove('active-pin');
+            });
+            if (diagramPinBtn) {
+              diagramPinBtn.style.background = 'linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%)';
+              diagramPinBtn.style.color = '#ffffff';
+              diagramPinBtn.style.transform = 'translate(-50%, -50%) scale(1.22)';
+              diagramPinBtn.classList.add('active-pin');
+            }
+
+            // 2. Update the pin-tab buttons in the detail card strip
+            document.querySelectorAll('[id^="pin-tab-' + noteIdx + '-"]').forEach(tab => {
+              tab.classList.remove('btn-primary', 'shadow-sm', 'active');
+              tab.classList.add('btn-light', 'border', 'text-dark', 'hover-lift');
+              tab.style.background = '';
+              tab.style.border = '';
+              const icon = tab.querySelector('i');
+              if (icon) {
+                icon.classList.remove('text-white');
+                icon.classList.add('text-primary');
+              }
+            });
+
+            const activeTab = document.getElementById('pin-tab-' + noteIdx + '-' + pinId);
+            if (activeTab) {
+              activeTab.classList.remove('btn-light', 'border', 'text-dark', 'hover-lift');
+              activeTab.classList.add('btn-primary', 'shadow-sm', 'active');
+              activeTab.style.background = 'linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%)';
+              activeTab.style.border = 'none';
+              const icon = activeTab.querySelector('i');
+              if (icon) {
+                icon.classList.remove('text-primary');
+                icon.classList.add('text-white');
+              }
+            }
+
+            // 3. Update text content in detail card
+            const badge = document.getElementById('pinBadge-' + noteIdx);
+            const title = document.getElementById('pinTitle-' + noteIdx);
+            const subtitle = document.getElementById('pinSubtitle-' + noteIdx);
+            const meaning = document.getElementById('pinMeaning-' + noteIdx);
+            const does = document.getElementById('pinDoes-' + noteIdx);
+            const why = document.getElementById('pinWhy-' + noteIdx);
+            const nerve = document.getElementById('pinNerve-' + noteIdx);
+            const related = document.getElementById('pinRelated-' + noteIdx);
+            const pearl = document.getElementById('pinPearl-' + noteIdx);
+
+            if (badge) {
+              badge.innerHTML = '<span><i class="ri-focus-2-line me-1.5"></i> Pin Structure #' + pinId + ' (Active Landmark)</span><span class="small font-weight-normal opacity-75 d-none d-sm-inline">Next Landmark <i class="ri-arrow-right-line ms-1"></i></span>';
+            }
+            if (title) title.innerText = item.title;
+            if (subtitle) subtitle.innerText = item.subtitle || 'Anatomical Landmark';
+            if (meaning) meaning.innerText = item.whatItMeans || item.description || 'Anatomical landmark definition and structural arrangement.';
+            if (does) does.innerText = item.whatItDoes || item.action || 'Biomechanical kinematics and functional actions.';
+            if (why) why.innerText = item.whyWeNeedIt || 'Critical structural protection, force transmission, and physiological support.';
+            if (nerve) nerve.innerText = item.nerveSupply || 'Regional Somatic Nerves & Arterial Supply';
+            if (related) related.innerText = item.relatedTopics || 'Spinal kinematics, postural stability, and clinical pathologies.';
+            if (pearl) pearl.innerText = item.clinicalPearl || 'Palpation and clinical motion testing isolate structural dysfunction and neural impingement.';
+
+            // 4. Subtle pulse animation on detail card
+            const detailCard = document.getElementById('pinDetailCard-' + noteIdx);
+            if (detailCard) {
+              detailCard.style.transition = 'box-shadow 0.25s ease';
+              detailCard.style.boxShadow = '0 0 0 3px rgba(10, 93, 194, 0.25)';
+              setTimeout(() => {
+                detailCard.style.boxShadow = '';
+              }, 400);
+            }
+          }
+
+          function cycleHotspotPin(noteIdx, delta) {
+            const list = allNotesHotspotsMap[noteIdx] || [1, 2, 3, 4, 5];
+            const count = list.length || 5;
+            const currentPin = activePinIdMap[noteIdx] || 1;
+            let nextPin = currentPin + delta;
+            if (nextPin > count) nextPin = 1;
+            if (nextPin < 1) nextPin = count;
+            selectHotspotPin(noteIdx, nextPin);
+          }
+
+          function pulseDetailCard(el) {
+            if (!el) return;
+            el.style.transition = 'all 0.2s ease';
+            el.style.transform = 'scale(1.02)';
+            el.style.borderColor = '#0a5dc2';
+            setTimeout(() => {
+              el.style.transform = '';
+              el.style.borderColor = '';
+            }, 300);
+          }
+
+          function init3DCanvasForIndex(idx) {
+            const canvas = document.getElementById('canvas3D-' + idx);
+            if (!canvas || typeof THREE === 'undefined' || canvas.dataset.initialized) return;
+            canvas.dataset.initialized = 'true';
+            const container = canvas.parentElement;
+            const width = container.clientWidth || 640;
+            const height = 420;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.set(0, 0, 5);
+
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight1 = new THREE.DirectionalLight(0x0284c7, 1.6);
+            dirLight1.position.set(5, 5, 5);
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0x10b981, 1.2);
+            dirLight2.position.set(-5, -5, -2);
+            scene.add(dirLight2);
+
+            const group = new THREE.Group();
+            const brainGeo = new THREE.IcosahedronGeometry(1.4, 3);
+            const brainMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.2, flatShading: true });
+            const brainMesh = new THREE.Mesh(brainGeo, brainMat);
+            group.add(brainMesh);
+
+            const wireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.4 });
+            const wireMesh = new THREE.Mesh(brainGeo, wireMat);
+            wireMesh.scale.setScalar(1.05);
+            group.add(wireMesh);
+
+            const particleGeo = new THREE.BufferGeometry();
+            const count = 100;
+            const positions = new Float32Array(count * 3);
+            for (let i = 0; i < count * 3; i++) {
+              positions[i] = (Math.random() - 0.5) * 4.5;
+            }
+            particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particleMat = new THREE.PointsMaterial({ color: 0xf59e0b, size: 0.06, transparent: true, opacity: 0.8 });
+            group.add(new THREE.Points(particleGeo, particleMat));
+
+            scene.add(group);
+
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            canvas.addEventListener('mousedown', e => { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; });
+            window.addEventListener('mouseup', () => isDragging = false);
+            canvas.addEventListener('mousemove', e => {
+              if (!isDragging) return;
+              group.rotation.y += (e.clientX - previousMousePosition.x) * 0.01;
+              group.rotation.x += (e.clientY - previousMousePosition.y) * 0.01;
+              previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            let previousTouch = null;
+            canvas.addEventListener('touchstart', e => { if (e.touches.length === 1) previousTouch = e.touches[0]; });
+            canvas.addEventListener('touchmove', e => {
+              if (!previousTouch || e.touches.length !== 1) return;
+              const touch = e.touches[0];
+              group.rotation.y += (touch.clientX - previousTouch.clientX) * 0.01;
+              group.rotation.x += (touch.clientY - previousTouch.clientY) * 0.01;
+              previousTouch = touch;
+            });
+            canvas.addEventListener('touchend', () => previousTouch = null);
+
+            function animate() {
+              requestAnimationFrame(animate);
+              if (!isDragging && !previousTouch) {
+                group.rotation.y += 0.005;
+              }
+              renderer.render(scene, camera);
+            }
+            animate();
+          }
+
+          document.addEventListener('DOMContentLoaded', () => {
+            init3DCanvasForIndex(0);
+          });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js" onload="init3DCanvasForIndex(0)"></script>
+      <% } else { %>
+        <!-- CLEAN EMPTY STATE NOTICE WHEN NO NOTES ARE UPLOADED YET -->
+        <div class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center border mb-4">
+          <div class="py-4">
+            <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 76px; height: 76px;">
+              <i class="ri-file-text-line display-5"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-2">No Study Notes Uploaded Yet</h4>
+            <p class="text-secondary small mb-0 mx-auto leading-relaxed" style="max-width: 480px;">There are currently no study notes or PDF guides published for <%= category.name %>. Study materials will appear here once updated by faculty.</p>
+          </div>
+        </div>
+      <% } %>
+
+      <script>
+        function toggleInPageFullscreen(cardId) {
+          const card = document.getElementById(cardId);
+          if (!card) return;
+          const btn = card.querySelector('.fullscreen-toggle-btn');
+          if (card.classList.contains('note-card-fullscreen')) {
+            card.classList.remove('note-card-fullscreen');
+            document.body.style.overflow = '';
+            if (btn) btn.innerHTML = '<i class="ri-expand-arrows-line me-1"></i> Expand Full Page';
+          } else {
+            card.classList.add('note-card-fullscreen');
+            document.body.style.overflow = 'hidden';
+            if (btn) btn.innerHTML = '<i class="ri-contract-arrows-line me-1"></i> Exit Full Page';
+          }
+        }
+      </script>
+    <% } %>
+
+
+
+    <!-- 6. CROSS-SECTIONS -->
+    <% if (activeSection === 'cross-sections') { %>
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+          <h3 class="fw-bold text-dark mb-1"><i class="ri-layout-grid-line text-primary me-2"></i>Coronal, Sagittal & Transverse Cross-Sections</h3>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <% (interactiveData.crossSections || []).forEach(cs => { %>
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white border">
+              <img src="<%= cs.image %>" alt="<%= cs.title %>" class="card-img-top" style="height: 220px; object-fit: cover;">
+              <div class="card-body p-4">
+                <span class="badge bg-primary-subtle text-primary font-weight-bold px-3 py-1 rounded-pill small mb-2"><%= cs.view %></span>
+                <h5 class="fw-bold text-dark mb-3"><%= cs.title %></h5>
+                <div class="fw-bold text-dark small mb-2">Identified Structures:</div>
+                <div class="d-flex flex-wrap gap-1.5">
+                  <% cs.labels.forEach(lbl => { %>
+                    <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 small"><%= lbl %></span>
+                  <% }) %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <!-- 7. MRIS -->
+    <% if (activeSection === 'mri-scans') { %>
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+          <h3 class="fw-bold text-dark mb-1"><i class="ri-pulse-line text-success me-2"></i>Clinical MRI & Scan Diagnostic Desk</h3>
+        </div>
+      </div>
+
+      <% (interactiveData.mriScans || []).forEach(mri => { %>
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border mb-4">
+          <h5 class="fw-bold text-dark mb-3"><%= mri.title %></h5>
+          <div class="row g-4">
+            <div class="col-md-6 text-center">
+              <div class="rounded-4 overflow-hidden border mb-3">
+                <img src="<%= mri.normalImg %>" alt="Normal Scan" class="img-fluid w-100" style="height: 240px; object-fit: cover;">
+              </div>
+              <span class="badge bg-success-subtle text-success font-weight-bold px-3 py-1.5 rounded-pill mb-2">Normal Anatomical Scan</span>
+              <p class="text-secondary small mb-0"><%= mri.anatomyDesc %></p>
+            </div>
+
+            <div class="col-md-6 text-center">
+              <div class="rounded-4 overflow-hidden border mb-3">
+                <img src="<%= mri.pathologyImg %>" alt="Pathology Scan" class="img-fluid w-100" style="height: 240px; object-fit: cover;">
+              </div>
+              <span class="badge bg-danger-subtle text-danger font-weight-bold px-3 py-1.5 rounded-pill mb-2">Pathology Lesion Scan</span>
+              <p class="text-secondary small mb-0"><%= mri.mriDesc %></p>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <!-- 8. STROKE & PATHOLOGY MODELS -->
+    <% if (activeSection === 'stroke-models') { %>
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+          <h3 class="fw-bold text-dark mb-1"><i class="ri-heart-pulse-line text-danger me-2"></i>Stroke & Clinical Pathology Case Models</h3>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <% (interactiveData.clinicalCases || []).forEach(cc => { %>
+          <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white border">
+              <span class="badge bg-danger-subtle text-danger font-weight-bold px-3 py-1.5 rounded-pill w-fit mb-3">
+                Clinical Case Model
+              </span>
+              <h5 class="fw-bold text-dark mb-3"><%= cc.title %></h5>
+              
+              <div class="bg-light rounded-3 p-3 mb-3 border">
+                <div class="fw-bold text-dark small mb-1"><i class="ri-user-search-line me-1 text-primary"></i> Patient Presentation:</div>
+                <p class="text-secondary small mb-0"><%= cc.history %></p>
+              </div>
+
+              <div class="fw-bold text-dark small mb-2"><i class="ri-stethoscope-line me-1 text-warning"></i> Diagnostic Findings:</div>
+              <ul class="list-unstyled mb-3">
+                <% cc.findings.forEach(f => { %>
+                  <li class="small text-secondary mb-1.5 d-flex align-items-center"><i class="ri-checkbox-circle-fill text-danger me-2"></i> <%= f %></li>
+                <% }) %>
+              </ul>
+
+              <div class="bg-primary-subtle text-primary rounded-3 p-3 mt-auto border border-primary-subtle">
+                <div class="fw-bold small mb-1"><i class="ri-heart-pulse-fill me-1"></i> Physiotherapy Rehab Protocol:</div>
+                <div class="small fw-semibold"><%= cc.rehabPlan %></div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% } %>
+  </div>
+</div>
+
+<script>
+  const hotspotsData = <%- JSON.stringify(interactiveData.hotspots || []) %>;
+
+  function showHotspotInfo(id) {
+    const hs = hotspotsData.find(item => item.id === id);
+    if (!hs) return;
+    document.getElementById('hsId').innerText = hs.id;
+    document.getElementById('hsTitle').innerText = hs.title;
+    document.getElementById('hsDesc').innerText = hs.description;
+    document.getElementById('hsNerve').innerText = hs.nerveSupply;
+    document.getElementById('hsAction').innerText = hs.action;
+  }
+</script>

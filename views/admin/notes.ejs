@@ -1,0 +1,478 @@
+<!-- ============ NOTES & INTERACTIVE MODULES MANAGEMENT ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <span class="badge bg-primary-subtle text-primary font-weight-bold px-3 py-1 rounded-pill small">
+        <i class="ri-sparkles-line me-1"></i> FACULTY & ADMIN STUDIO
+      </span>
+      <span class="badge bg-success-subtle text-success font-weight-bold px-2.5 py-1 rounded-pill small">
+        <i class="ri-shield-check-line me-1"></i> Interactive Materials Hub
+      </span>
+    </div>
+    <h3 class="fw-bold text-dark mb-1">Notes and Interactive Modules Management</h3>
+    <p class="text-secondary small mb-0">Upload and manage PDF reading notes, high-resolution text images & diagrams, and 3D WebGL rotatable models.</p>
+  </div>
+
+  <!-- 3 CREATION BUTTONS FOR PDF, TEXT IMAGE, AND 3D WEBGL MODELS -->
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <button class="btn btn-outline-danger rounded-pill font-weight-bold shadow-sm px-3.5 py-2 hover-lift" onclick="openNoteModal('pdf')">
+      <i class="ri-file-pdf-line me-1"></i> + Add Study Notes File
+    </button>
+    <button class="btn btn-outline-success rounded-pill font-weight-bold shadow-sm px-3.5 py-2 hover-lift" onclick="openNoteModal('text_image')">
+      <i class="ri-image-line me-1"></i> + Add Text Image / Diagram
+    </button>
+    <button class="btn btn-primary rounded-pill font-weight-bold shadow-sm px-4 py-2 hover-lift" onclick="openNoteModal('3d_model')" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%); border: none;">
+      <i class="ri-sparkles-line me-1"></i> + Add Interactive Module
+    </button>
+  </div>
+</div>
+
+<!-- FILTER TABS BAR -->
+<div class="card border-0 shadow-sm rounded-4 p-3 bg-white border mb-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap" id="adminNoteFilterTabs">
+      <button type="button" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-1.5 btn-primary shadow-sm filter-tab-btn" onclick="filterAdminNotes('all', this)">
+        All Items (<%= notes.length %>)
+      </button>
+      <button type="button" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-1.5 btn-light border text-dark filter-tab-btn" onclick="filterAdminNotes('pdf', this)">
+        <i class="ri-file-pdf-line text-danger me-1"></i> PDF & Reading Notes
+      </button>
+      <button type="button" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-1.5 btn-light border text-dark filter-tab-btn" onclick="filterAdminNotes('text_image', this)">
+        <i class="ri-image-line text-success me-1"></i> Text Images & Diagrams
+      </button>
+      <button type="button" class="btn btn-sm rounded-pill font-weight-bold px-3.5 py-1.5 btn-light border text-dark filter-tab-btn" onclick="filterAdminNotes('3d_model', this)">
+        <i class="ri-sparkles-line text-info me-1"></i> Interactive Modules
+      </button>
+    </div>
+    <span class="text-muted small"><i class="ri-information-line me-1"></i> Click any item to launch full interactive preview</span>
+  </div>
+</div>
+
+<!-- NOTES & INTERACTIVE MODULES TABLE -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white border">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" id="adminNotesTable">
+      <thead class="bg-light">
+        <tr>
+          <th class="ps-4">Title & Type</th>
+          <th>Subject Category</th>
+          <th>Year</th>
+          <th>Attached File / URL</th>
+          <th>Interactive Studio Viewer</th>
+          <th>Created Date</th>
+          <th class="pe-4 text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!notes || notes.length === 0) { %>
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="ri-file-text-line display-4 d-block mb-2 text-muted opacity-50"></i>
+              No study notes or interactive modules uploaded yet. Use the buttons above to publish materials.
+            </td>
+          </tr>
+        <% } else { %>
+          <% notes.forEach(note => { %>
+            <% 
+              const ext = ((note.file_url || '').split('.').pop() || '').toLowerCase();
+              const isImage = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif', 'dicom'].includes(ext) || (note.content || '').includes('[INTERACTIVE_MODULE:TEXT_IMAGE]') || (note.title || '').toLowerCase().includes('image');
+              const is3d = ['glb', 'gltf', 'zip', 'html', 'htm'].includes(ext) || (note.content || '').includes('[INTERACTIVE_MODULE:3D]') || (note.title || '').toLowerCase().includes('3d') || (note.title || '').toLowerCase().includes('webgl');
+              const isPdf = ext === 'pdf';
+              let itemType = 'pdf';
+              if (isImage) itemType = 'text_image';
+              else if (is3d) itemType = '3d_model';
+            %>
+            <tr data-type="<%= itemType %>" class="admin-note-row">
+              <td class="ps-4">
+                <div class="d-flex align-items-center gap-3">
+                  <% if (isImage) { %>
+                    <div class="rounded-3 bg-success-subtle text-success p-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                      <i class="ri-image-line fs-5"></i>
+                    </div>
+                  <% } else if (is3d) { %>
+                    <div class="rounded-3 bg-info-subtle text-info p-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                      <i class="ri-box-3-line fs-5"></i>
+                    </div>
+                  <% } else { %>
+                    <div class="rounded-3 bg-danger-subtle text-danger p-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                      <i class="ri-file-pdf-2-fill fs-5"></i>
+                    </div>
+                  <% } %>
+                  <div>
+                    <h6 class="fw-bold text-dark mb-1 line-clamp-1"><%= note.title %></h6>
+                    <% if (isImage) { %>
+                      <span class="badge bg-success-subtle text-success font-weight-semibold rounded-pill px-2.5 py-0.5 small">
+                        <i class="ri-image-fill me-1"></i> Text Image & Diagram
+                      </span>
+                    <% } else if (is3d) { %>
+                      <span class="badge bg-info-subtle text-info font-weight-semibold rounded-pill px-2.5 py-0.5 small">
+                        <i class="ri-box-3-fill me-1"></i> 3D WebGL Model
+                      </span>
+                    <% } else { %>
+                      <span class="badge bg-danger-subtle text-danger font-weight-semibold rounded-pill px-2.5 py-0.5 small">
+                        <i class="ri-file-pdf-2-fill me-1"></i> PDF Reading Notes
+                      </span>
+                    <% } %>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge bg-primary-subtle text-primary font-weight-bold px-2.5 py-1 rounded-pill"><%= note.subject_name %></span></td>
+              <td><span class="badge bg-secondary-subtle text-secondary font-weight-bold px-2.5 py-1 rounded-pill">Year <%= note.year %></span></td>
+              <td>
+                <% if (note.file_url) { %>
+                  <a href="<%= note.file_url %>" target="_blank" class="btn btn-sm btn-light border text-dark rounded-pill px-3 py-1 font-weight-medium small text-truncate" style="max-width: 180px;">
+                    <i class="ri-link me-1 text-primary"></i> <%= note.file_url.split('/').pop() %>
+                  </a>
+                <% } else { %>
+                  <span class="text-muted small">In-Built Text</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (isImage) { %>
+                  <button type="button" class="btn btn-sm btn-success rounded-pill px-3.5 py-1.5 font-weight-bold shadow-sm" onclick="openAdminViewer('text_image', `<%= note.title.replace(/'/g, "\\'") %>`, `<%= note.file_url %>`, `<%= (note.content || '').replace(/'/g, "\\'").replace(/\n/g, '\\n') %>`)">
+                    <i class="ri-image-line me-1"></i> Open Text Image
+                  </button>
+                <% } else if (is3d) { %>
+                  <button type="button" class="btn btn-sm btn-info text-dark rounded-pill px-3.5 py-1.5 font-weight-bold shadow-sm" onclick="openAdminViewer('3d_model', `<%= note.title.replace(/'/g, "\\'") %>`, `<%= note.file_url %>`, `<%= (note.content || '').replace(/'/g, "\\'").replace(/\n/g, '\\n') %>`)">
+                    <i class="ri-box-3-line me-1"></i> Launch 3D Model
+                  </button>
+                <% } else { %>
+                  <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3.5 py-1.5 font-weight-bold" onclick="openAdminViewer('pdf', `<%= note.title.replace(/'/g, "\\'") %>`, `<%= note.file_url %>`, `<%= (note.content || '').replace(/'/g, "\\'").replace(/\n/g, '\\n') %>`)">
+                    <i class="ri-file-pdf-line me-1"></i> View PDF Reader
+                  </button>
+                <% } %>
+              </td>
+              <td class="small text-muted"><%= new Date(note.created_at || Date.now()).toLocaleDateString() %></td>
+              <td class="pe-4 text-end">
+                <form action="/admin/notes/<%= note.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this note/interactive module?')">
+                  <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Delete Note">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ UPLOAD NOTE / INTERACTIVE MODULE MODAL ============ -->
+<div class="modal fade" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      
+      <!-- DYNAMIC MODAL HEADER -->
+      <div class="modal-header text-white p-4" id="modalHeaderBox" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%);">
+        <div>
+          <h5 class="modal-title font-weight-bold text-white mb-1" id="addNoteModalLabel">
+            <i class="ri-file-add-line me-1 text-warning"></i> Add New Study Note / Interactive Module
+          </h5>
+          <p class="text-white-75 small mb-0" id="modalHeaderSubtitle">Upload study guides, text images & diagrams, or 3D WebGL models.</p>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/notes" method="POST" enctype="multipart/form-data" id="adminNoteUploadForm">
+        <input type="hidden" name="item_type" id="modalItemType" value="pdf">
+
+        <div class="modal-body p-4 bg-light">
+          
+          <!-- TYPE SWITCHER BUTTONS INSIDE MODAL -->
+          <div class="mb-4 text-center p-3 bg-white rounded-4 border">
+            <label class="form-label font-weight-semibold text-dark mb-2 d-block">Select Content Category Type:</label>
+            <div class="btn-group w-100" role="group">
+              <button type="button" class="btn btn-outline-danger font-weight-bold py-2 modal-type-btn active" id="btnTypePdf" onclick="setModalType('pdf')">
+                <i class="ri-file-pdf-line me-1"></i> PDF / Study Notes
+              </button>
+              <button type="button" class="btn btn-outline-success font-weight-bold py-2 modal-type-btn" id="btnTypeImage" onclick="setModalType('text_image')">
+                <i class="ri-image-line me-1"></i> Text Image / Diagram
+              </button>
+              <button type="button" class="btn btn-outline-info font-weight-bold py-2 modal-type-btn" id="btnType3d" onclick="setModalType('3d_model')">
+                <i class="ri-box-3-line me-1"></i> 3D WebGL Model
+              </button>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-8">
+              <label class="form-label fw-bold text-dark small">Title / Interactive Module Name <span class="text-danger">*</span></label>
+              <input type="text" name="title" id="modalTitleInput" class="form-control form-control-lg bg-white fw-bold" placeholder="e.g. Upper Limb Muscle Attachments & Nerve Supply" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold text-dark small">Subject Category <span class="text-danger">*</span></label>
+              <select name="category_id" class="form-select form-select-lg bg-white fw-bold" required>
+                <% categories.forEach(cat => { %>
+                  <option value="<%= cat.id %>"><%= cat.name %> (Year <%= cat.year %>)</option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <!-- FILE UPLOAD DROPZONE -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-dark small">
+              <i class="ri-upload-cloud-2-line text-primary me-1"></i> Attach Media / Document File
+            </label>
+            <input type="file" name="note_file" id="modalFileInput" class="form-control form-control-lg bg-white" onchange="handleAdminFileSelect(this)">
+            <span class="text-muted small d-block mt-1" id="fileTypeHelpText">Supports PDF, DOCX, TXT, PNG, JPG, WEBP, SVG, 3D GLB, ZIP files up to 100MB.</span>
+          </div>
+
+          <!-- LIVE IMAGE PREVIEW (FOR TEXT IMAGES) -->
+          <div class="mb-3 d-none text-center p-3 bg-dark rounded-4 border" id="modalImagePreviewBox">
+            <span class="badge bg-success text-white mb-2 font-weight-bold">Live Text Image Preview</span>
+            <img src="" id="modalPreviewImg" class="img-fluid rounded-3 shadow" style="max-height: 240px; object-fit: contain;">
+          </div>
+
+          <!-- OPTIONAL FILE URL STRING -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-dark small">
+              <i class="ri-link me-1 text-secondary"></i> Or Enter External URL / 3D Embed Link
+            </label>
+            <input type="text" name="file_url" id="modalUrlInput" class="form-control bg-white" placeholder="/uploads/notes/file.pdf or 3D WebGL link">
+          </div>
+
+          <!-- MODEL OBJECTIVES & DESCRIPTION TEXTAREA -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-dark small" id="modalContentLabel">
+              <i class="ri-article-line text-primary me-1"></i> Description, Model Objectives & Interpret Features
+            </label>
+            <textarea name="content" id="modalContentInput" rows="5" class="form-control bg-white small" placeholder="Enter summary, anatomical landmarks, clinical significance, model objectives, and interpret features..."></textarea>
+          </div>
+
+        </div>
+
+        <div class="modal-footer bg-white border-top p-3">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold" style="background: #0a5dc2; border: none;">
+            <i class="ri-save-line me-1"></i> Save Note / Interactive Module
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADMIN INTERACTIVE MEDIA STUDIO VIEWER MODAL ============ -->
+<div class="modal fade" id="adminViewerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden bg-dark text-white">
+      
+      <!-- HEADER -->
+      <div class="modal-header border-bottom border-secondary border-opacity-25 p-3.5 text-white" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+        <div class="d-flex align-items-center gap-3">
+          <div id="adminViewerIconBox" class="p-2.5 rounded-3 bg-primary text-white d-flex align-items-center justify-content-center">
+            <i class="ri-file-text-line fs-4"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-white mb-0" id="adminViewerTitle">Interactive Viewer</h5>
+            <span class="badge bg-success-subtle text-success font-weight-semibold rounded-pill px-2.5 py-0.5 small mt-1" id="adminViewerTypeBadge">
+              Verified Module
+            </span>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- BODY VIEWER DISPLAY -->
+      <div class="modal-body p-0 bg-black">
+        
+        <!-- 1. TEXT IMAGE VIEWER CONTAINER -->
+        <div id="adminViewerImgBox" class="p-4 text-center d-none position-relative">
+          <div class="d-flex align-items-center justify-content-between mb-3 text-white flex-wrap gap-2 px-2">
+            <span class="badge bg-success rounded-pill px-3 py-1.5 font-weight-bold">
+              <i class="ri-image-line me-1"></i> Interactive High-Resolution Text Image & Diagram
+            </span>
+            <a href="#" id="adminViewerImgFullLink" target="_blank" class="btn btn-sm btn-outline-light rounded-pill px-3.5 py-1.5 font-weight-semibold">
+              <i class="ri-external-link-line me-1"></i> Open Full HD Image
+            </a>
+          </div>
+          <div class="p-3 bg-dark rounded-4 border border-secondary shadow-lg">
+            <img src="" id="adminViewerImg" class="img-fluid rounded-3 shadow" style="max-height: 75vh; object-fit: contain; cursor: zoom-in;" onclick="window.open(this.src, '_blank')">
+          </div>
+        </div>
+
+        <!-- 2. 3D WEBGL MODEL STUDIO CONTAINER -->
+        <div id="adminViewer3dBox" class="p-4 text-center d-none">
+          <div class="d-flex align-items-center justify-content-between mb-3 text-white flex-wrap gap-2 px-2">
+            <span class="badge bg-info text-dark rounded-pill px-3 py-1.5 font-weight-bold">
+              <i class="ri-box-3-line me-1"></i> 3D WebGL Rotatable Model Studio
+            </span>
+            <span class="text-white-50 small">
+              <i class="ri-drag-move-line text-warning me-1"></i> Drag / Touch to Rotate 360° Axis
+            </span>
+          </div>
+          <div class="p-3 bg-dark rounded-4 border border-secondary shadow-lg position-relative d-flex align-items-center justify-content-center" style="min-height: 520px;">
+            <iframe id="adminViewer3dFrame" src="" style="width: 100%; height: 68vh; border: none;" allowfullscreen class="d-none"></iframe>
+            <div id="adminViewer3dPlaceholder" class="w-100 py-5 text-center text-white">
+              <i class="ri-box-3-line display-1 text-info opacity-75 mb-3 d-block"></i>
+              <h4 class="fw-bold text-white mb-2" id="adminViewer3dTitle">3D WebGL Model Viewer</h4>
+              <p class="text-white-50 small mb-4 mx-auto" style="max-width: 520px;">
+                Interactive 3D WebGL rotatable joint and anatomical model engine initialized. Rotate full 360° axis, zoom tissue layers, and inspect clinical attachment points.
+              </p>
+              <a href="#" id="adminViewer3dLink" target="_blank" class="btn btn-info rounded-pill px-4 py-2.5 font-weight-bold text-dark shadow-lg">
+                <i class="ri-play-circle-fill me-1 fs-5"></i> Launch 3D Explorer Engine
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. PDF READER CONTAINER -->
+        <div id="adminViewerPdfBox" class="d-none">
+          <iframe id="adminViewerPdfFrame" src="" style="width: 100%; height: 80vh; border: none; background: #ffffff;"></iframe>
+        </div>
+
+        <!-- SUMMARY & OBJECTIVES DETAILS FOOTER BOX -->
+        <div class="p-4 bg-dark border-top border-secondary border-opacity-25" id="adminViewerDescBox">
+          <h6 class="fw-bold text-info mb-2 d-flex align-items-center gap-1.5">
+            <i class="ri-magic-line text-warning fs-5"></i> Model Objectives & Interpret Features:
+          </h6>
+          <div class="text-white-75 small leading-relaxed" id="adminViewerDescText" style="font-size: 0.95rem; line-height: 1.7;">
+            Detailed study content and features will appear here.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ CLIENT-SIDE SCRIPT FOR FILTERING, AUTO-EXTRACT, AND MODALS ============ -->
+<script>
+  function openNoteModal(type) {
+    setModalType(type);
+    const modal = new bootstrap.Modal(document.getElementById('addNoteModal'));
+    modal.show();
+  }
+
+  function setModalType(type) {
+    document.getElementById('modalItemType').value = type;
+    document.querySelectorAll('.modal-type-btn').forEach(btn => btn.classList.remove('active'));
+    
+    const headerBox = document.getElementById('modalHeaderBox');
+    const headerTitle = document.getElementById('addNoteModalLabel');
+    const headerSub = document.getElementById('modalHeaderSubtitle');
+    const previewBox = document.getElementById('modalImagePreviewBox');
+
+    if (type === 'text_image') {
+      document.getElementById('btnTypeImage').classList.add('active');
+      headerBox.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+      headerTitle.innerHTML = '<i class="ri-image-line me-1"></i> Add Text Image & Diagram';
+      headerSub.innerText = 'Upload high-resolution anatomical diagrams, text images, and clinical charts.';
+      document.getElementById('fileTypeHelpText').innerText = 'Upload JPG, PNG, WEBP, SVG diagrams (auto-extracts title & model description).';
+    } else if (type === '3d_model') {
+      document.getElementById('btnType3d').classList.add('active');
+      headerBox.style.background = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)';
+      headerTitle.innerHTML = '<i class="ri-box-3-line me-1"></i> Add 3D / WebGL Model';
+      headerSub.innerText = 'Upload 3D models (.glb, .gltf, .zip) or enter 3D WebGL embed studio URL.';
+      document.getElementById('fileTypeHelpText').innerText = 'Upload 3D model GLB/ZIP or enter WebGL link.';
+    } else {
+      document.getElementById('btnTypePdf').classList.add('active');
+      headerBox.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+      headerTitle.innerHTML = '<i class="ri-file-pdf-line me-1"></i> Add Study Notes File';
+      headerSub.innerText = 'Upload PDF or Word documents for pure reading study guides.';
+      document.getElementById('fileTypeHelpText').innerText = 'Supports PDF, DOCX, TXT study guides.';
+      previewBox.classList.add('d-none');
+    }
+  }
+
+  function handleAdminFileSelect(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const name = file.name;
+    const ext = (name.split('.').pop() || '').toLowerCase();
+    
+    // Auto-fill title if empty or default
+    const titleInput = document.getElementById('modalTitleInput');
+    if (!titleInput.value || titleInput.value.includes('Untitled')) {
+      const cleanName = name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+      titleInput.value = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+    }
+
+    // Auto-detect image
+    if (['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'].includes(ext)) {
+      setModalType('text_image');
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('modalPreviewImg').src = e.target.result;
+        document.getElementById('modalImagePreviewBox').classList.remove('d-none');
+      };
+      reader.readAsDataURL(file);
+
+      // Auto fill description/objective
+      const contentInput = document.getElementById('modalContentInput');
+      if (!contentInput.value) {
+        contentInput.value = `Interactive Text Image & Diagram: ${name}\n\n- Model Objective: Clear visual identification of anatomical landmarks and structures.\n- Interpret Features: High-yield key points, nerve supply, and clinical features highlighted.`;
+      }
+    } else if (['glb', 'gltf', 'zip', 'html', 'htm'].includes(ext)) {
+      setModalType('3d_model');
+      const contentInput = document.getElementById('modalContentInput');
+      if (!contentInput.value) {
+        contentInput.value = `3D WebGL Rotatable Model: ${name}\n\n- Model Objective: Orbit, rotate 360°, and inspect 3D joint and muscle biomechanics.\n- Interpret Features: GPU-accelerated interactive WebGL rendering.`;
+      }
+    }
+  }
+
+  function filterAdminNotes(type, btnEl) {
+    document.querySelectorAll('.filter-tab-btn').forEach(btn => {
+      btn.className = 'btn btn-sm rounded-pill font-weight-bold px-3.5 py-1.5 btn-light border text-dark filter-tab-btn';
+    });
+    if (btnEl) btnEl.className = 'btn btn-sm rounded-pill font-weight-bold px-3.5 py-1.5 btn-primary shadow-sm filter-tab-btn';
+
+    document.querySelectorAll('.admin-note-row').forEach(row => {
+      const rowType = row.getAttribute('data-type');
+      if (type === 'all' || rowType === type) {
+        row.classList.remove('d-none');
+      } else {
+        row.classList.add('d-none');
+      }
+    });
+  }
+
+  function openAdminViewer(type, title, fileUrl, content) {
+    document.getElementById('adminViewerTitle').innerText = title;
+    const cleanContent = (content || '').replace(/\[INTERACTIVE_MODULE.*?\]/g, '').trim();
+    document.getElementById('adminViewerDescText').innerHTML = cleanContent ? cleanContent.replace(/\n/g, '<br>') : 'Verified PhysioEdvance Study Material';
+
+    const imgBox = document.getElementById('adminViewerImgBox');
+    const box3d = document.getElementById('adminViewer3dBox');
+    const pdfBox = document.getElementById('adminViewerPdfBox');
+
+    imgBox.classList.add('d-none');
+    box3d.classList.add('d-none');
+    pdfBox.classList.add('d-none');
+
+    if (type === 'text_image') {
+      imgBox.classList.remove('d-none');
+      document.getElementById('adminViewerImg').src = fileUrl;
+      document.getElementById('adminViewerImgFullLink').href = fileUrl;
+      document.getElementById('adminViewerTypeBadge').className = 'badge bg-success-subtle text-success font-weight-semibold rounded-pill px-2.5 py-0.5 small mt-1';
+      document.getElementById('adminViewerTypeBadge').innerHTML = '<i class="ri-image-fill me-1"></i> Text Image & Diagram';
+    } else if (type === '3d_model') {
+      box3d.classList.remove('d-none');
+      document.getElementById('adminViewer3dTitle').innerText = title;
+      document.getElementById('adminViewer3dLink').href = fileUrl || '#';
+      if (fileUrl && (fileUrl.endsWith('.html') || fileUrl.endsWith('.htm') || fileUrl.endsWith('.zip'))) {
+        document.getElementById('adminViewer3dFrame').src = fileUrl;
+        document.getElementById('adminViewer3dFrame').classList.remove('d-none');
+        document.getElementById('adminViewer3dPlaceholder').classList.add('d-none');
+      } else {
+        document.getElementById('adminViewer3dFrame').classList.add('d-none');
+        document.getElementById('adminViewer3dPlaceholder').classList.remove('d-none');
+      }
+      document.getElementById('adminViewerTypeBadge').className = 'badge bg-info-subtle text-info font-weight-semibold rounded-pill px-2.5 py-0.5 small mt-1';
+      document.getElementById('adminViewerTypeBadge').innerHTML = '<i class="ri-box-3-fill me-1"></i> 3D WebGL Rotatable Model';
+    } else {
+      pdfBox.classList.remove('d-none');
+      document.getElementById('adminViewerPdfFrame').src = fileUrl ? (fileUrl + '#view=FitH&toolbar=1') : '';
+      document.getElementById('adminViewerTypeBadge').className = 'badge bg-danger-subtle text-danger font-weight-semibold rounded-pill px-2.5 py-0.5 small mt-1';
+      document.getElementById('adminViewerTypeBadge').innerHTML = '<i class="ri-file-pdf-2-fill me-1"></i> PDF Reading Notes';
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('adminViewerModal'));
+    modal.show();
+  }
+</script>

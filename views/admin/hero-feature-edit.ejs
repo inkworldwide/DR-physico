@@ -1,0 +1,82 @@
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <a href="/admin/hero#hero-features-section" class="btn btn-outline-secondary rounded-pill px-3 py-2">
+      <i class="ri-arrow-left-line me-1"></i> Back to Hero Section
+    </a>
+    <div>
+      <h4 class="mb-0 fw-bold">Edit Feature Card: <%= feature.title %></h4>
+      <span class="text-muted small">Update card title, subtitle text/numbers, icon, link, and position</span>
+    </div>
+  </div>
+  <a href="/" target="_blank" class="btn btn-outline-primary rounded-pill px-3 py-2">
+    <i class="ri-external-link-line me-1"></i> View Homepage
+  </a>
+</div>
+
+<form action="/admin/features/<%= feature.id %>/update" method="POST">
+  <div class="row g-4 justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0" style="border-radius: 16px;">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="mb-0 fw-bold text-dark"><i class="ri-apps-2-line me-2 text-primary"></i>Card Configuration</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Card Title</label>
+              <input type="text" name="title" class="form-control form-control-lg" value="<%= feature.title %>" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Subtitle / Number Count</label>
+              <input type="text" name="subtitle" class="form-control form-control-lg" value="<%= feature.subtitle %>" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Remix Icon Class</label>
+              <input type="text" name="icon" class="form-control" value="<%= feature.icon %>">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Target URL Link</label>
+              <input type="text" name="url" class="form-control" value="<%= feature.url %>">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Theme Badge Color</label>
+              <select name="badge_color" class="form-select">
+                <option value="warning" <%= feature.badge_color === 'warning' ? 'selected' : '' %>>Warning (Amber Gold)</option>
+                <option value="info" <%= feature.badge_color === 'info' ? 'selected' : '' %>>Info (Sky Blue)</option>
+                <option value="success" <%= feature.badge_color === 'success' ? 'selected' : '' %>>Success (Emerald Green)</option>
+                <option value="danger" <%= feature.badge_color === 'danger' ? 'selected' : '' %>>Danger (Rose Red)</option>
+                <option value="primary" <%= feature.badge_color === 'primary' ? 'selected' : '' %>>Primary (Royal Blue)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold text-primary">
+                <i class="ri-sort-asc me-1"></i> Position / Display Order
+              </label>
+              <input type="number" name="display_order" class="form-control form-control-lg fw-bold text-primary border-primary" value="<%= feature.display_order || 1 %>" min="1" required>
+            </div>
+            <div class="col-12 mt-4">
+              <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3 border">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="pe-feature-icon bg-<%= feature.badge_color || 'primary' %>-subtle text-<%= feature.badge_color || 'primary' %> p-2 rounded-3 fs-3">
+                    <i class="<%= feature.icon %>"></i>
+                  </div>
+                  <div>
+                    <span class="fw-bold d-block text-dark"><%= feature.title %></span>
+                    <span class="text-muted small"><%= feature.subtitle %></span>
+                  </div>
+                </div>
+                <span class="badge bg-success">Live Card Preview</span>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-3 mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 font-weight-bold shadow-sm">
+              <i class="ri-save-line me-1"></i> Save Changes
+            </button>
+            <a href="/admin/hero#hero-features-section" class="btn btn-outline-secondary rounded-pill px-4 py-2">Cancel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

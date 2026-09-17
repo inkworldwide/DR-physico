@@ -1,0 +1,117 @@
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <a href="/admin/team" class="btn btn-outline-secondary rounded-pill px-3 py-2">
+      <i class="ri-arrow-left-line me-1"></i> Back to Team Management
+    </a>
+    <div>
+      <h4 class="mb-0 fw-bold">Add Expert Teacher / Faculty Member</h4>
+      <span class="text-muted small">Fill in the profile details below to add a new teacher, faculty member, worker, or specialist.</span>
+    </div>
+  </div>
+</div>
+
+<form action="/admin/team" method="POST">
+  <div class="row g-4">
+    <!-- Left Column: Primary Details -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 mb-4" style="border-radius: 16px;">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="mb-0 fw-bold text-dark"><i class="ri-user-add-line me-2 text-primary"></i>Member Information</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control form-control-lg" required placeholder="e.g. Dr. Rajesh Sharma">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Designation / Role Title <span class="text-danger">*</span></label>
+              <input type="text" name="designation" class="form-control form-control-lg" placeholder="e.g. Faculty, Teacher, Worker, Senior Lecturer" required id="newDesignationInput">
+              <div class="mt-2 d-flex flex-wrap gap-1">
+                <button type="button" class="btn btn-sm btn-light border py-1 px-2 text-primary fw-semibold" onclick="document.getElementById('newDesignationInput').value='Academic Faculty'">+ Faculty</button>
+                <button type="button" class="btn btn-sm btn-light border py-1 px-2 text-primary fw-semibold" onclick="document.getElementById('newDesignationInput').value='Expert Teacher'">+ Teacher</button>
+                <button type="button" class="btn btn-sm btn-light border py-1 px-2 text-primary fw-semibold" onclick="document.getElementById('newDesignationInput').value='Operations Worker'">+ Worker / Staff</button>
+                <button type="button" class="btn btn-sm btn-light border py-1 px-2 text-primary fw-semibold" onclick="document.getElementById('newDesignationInput').value='Subject Specialist'">+ Specialist</button>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Role Title (Optional)</label>
+              <input type="text" name="role" class="form-control form-control-lg" placeholder="e.g. Lead Instructor, Senior Faculty">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Staff Group Section <span class="text-danger">*</span></label>
+              <select name="group_name" class="form-select form-select-lg" required>
+                <option value="teaching_staff" selected>🎓 Teaching Staff (Academic Faculty / Teacher)</option>
+                <option value="non_teaching_staff">💼 Non-Teaching Staff (Admin & Operations Worker)</option>
+                <option value="subject_experts">🔬 Experts for all subjects (Subject Specialist)</option>
+                <option value="technical_assistance">💻 Technical Assistance (Platform Support Worker)</option>
+                <option value="other_staff">👥 Other Staff & Collaborators</option>
+                <option value="founding">🏆 Founding / Leadership Board</option>
+                <option value="advisory">🏛️ Advisory Board Member</option>
+                <option value="legal_business">⚖️ Legal & Business Advisory</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Qualifications / Degrees</label>
+              <input type="text" name="qualification" class="form-control form-control-lg" placeholder="e.g. BPT, MPT (Cardio), PhD">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold text-primary">
+                <i class="ri-sort-asc me-1"></i> Position / Display Order
+              </label>
+              <input type="number" name="display_order" class="form-control form-control-lg fw-bold text-primary border-primary" value="<%= members.length + 1 %>" min="1" required>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label font-weight-bold">Photo URL (Optional)</label>
+              <input type="text" name="photo" class="form-control form-control-lg" placeholder="/images/team/default-avatar.png">
+              <small class="text-muted d-block mt-1">Leave empty to use standard avatar icon.</small>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label font-weight-bold">Bio / Responsibilities Overview</label>
+              <textarea name="bio" rows="3" class="form-control" placeholder="Brief summary of member experience and teaching subjects..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Showcase & Submission -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 mb-4" style="border-radius: 16px;">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="mb-0 fw-bold text-dark"><i class="ri-star-line me-2 text-warning"></i>About Page Display</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="form-check form-switch p-3 bg-light rounded-3 border mb-4">
+            <input class="form-check-input ms-0 me-3" type="checkbox" name="show_on_about" value="1" id="showAboutPageSwitch">
+            <label class="form-check-label font-weight-bold fs-6 text-dark" for="showAboutPageSwitch">
+              <i class="ri-star-fill text-warning me-1"></i> Display Statement on About Page
+            </label>
+            <span class="text-muted small d-block mt-1">Enabling this makes this member's quote visible on `/about`.</span>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label font-weight-bold text-dark fs-6">About Page Quote Statement (Optional)</label>
+            <textarea name="statement" rows="5" class="form-control fs-6 p-3" placeholder="Enter quote or vision statement to showcase on About page..."></textarea>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow">
+              <i class="ri-check-line me-1"></i> Save & Add Team Member
+            </button>
+            <a href="/admin/team" class="btn btn-outline-secondary rounded-pill py-2">
+              Cancel
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

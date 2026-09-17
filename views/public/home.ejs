@@ -1,0 +1,868 @@
+<!-- ============ HERO BANNER — Ultra-Modern Premium Style ============ -->
+<section class="pe-promo-banner">
+  <div class="container position-relative z-2">
+    <div class="row align-items-center g-4 pt-1 pb-3 pt-lg-2 pb-lg-3">
+      <!-- Left Column: Headline, 5 Key Offerings, CTAs, Search -->
+      <div class="col-lg-6">
+        <div class="pe-hero-content-box">
+          <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3.5 py-2 rounded-pill mb-3 shadow-sm d-inline-flex align-items-center" style="font-size: 0.8rem; letter-spacing: 0.05em; background-color: #f59e0b !important;">
+            <i class="<%= (typeof heroSettings !== 'undefined' && heroSettings.badgeIcon) ? heroSettings.badgeIcon : 'ri-heart-pulse-fill' %> me-1"></i> <%= (typeof heroSettings !== 'undefined' && heroSettings.badgeText) ? heroSettings.badgeText : '#1 Platform for BPT Students & Physios' %>
+          </span>
+          <h1 class="pe-hero-title">
+            <%= (typeof heroSettings !== 'undefined' && heroSettings.titlePrefix) ? heroSettings.titlePrefix : 'Advanced Physiotherapy Education,' %> <span class="pe-gradient-text"><%= (typeof heroSettings !== 'undefined' && heroSettings.titleHighlight) ? heroSettings.titleHighlight : 'All in One Place.' %></span>
+          </h1>
+          <p class="pe-hero-subtext">
+            <%- (typeof heroSettings !== 'undefined' && heroSettings.subtext) ? heroSettings.subtext : 'Master your BPT degree with expert-led <strong>Seminars</strong>, HD <strong>Recorded Videos</strong>, interactive <strong>Workshops</strong>, real-time <strong>Live Classes</strong>, and 100% <strong>Free Courses</strong>.' %>
+          </p>
+
+          <!-- CTAs (Fixed & Unaltered) -->
+          <div class="d-flex gap-3 flex-wrap align-items-center mb-4">
+            <a href="/subjects" class="btn btn-primary btn-lg pe-btn-glow px-4">
+              <i class="ri-compass-3-line me-1"></i> Explore Subjects
+            </a>
+            <a href="/live-sessions" class="btn btn-outline-light btn-lg px-4">
+              <i class="ri-calendar-event-line me-1"></i> Join Live Sessions
+            </a>
+          </div>
+
+          <!-- Search bar (Fixed & Unaltered) -->
+          <form action="/courses" method="GET" class="pe-promo-search">
+            <i class="ri-search-line me-2 text-primary" style="font-size: 1.2rem;"></i>
+            <input type="text" name="search" placeholder="Search Seminars, Workshops, Anatomy, Neuro...">
+            <button type="submit">
+              Search <i class="ri-arrow-right-line ms-1"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Visual Image Showcase -->
+      <div class="col-lg-6 position-relative">
+        <div class="pe-hero-visual-wrapper">
+          <!-- Main Hero Image with Frame -->
+          <div class="pe-hero-img-container">
+            <img src="<%= (typeof heroSettings !== 'undefined' && heroSettings.imageUrl) ? heroSettings.imageUrl : '/images/hero_physio_education.jpg' %>" alt="Physiotherapy Education & Clinical Workshop" class="pe-hero-main-img img-fluid">
+            <div class="pe-hero-img-overlay"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Hero Feature Cards Strip (Smart Auto-Color & Related Icon Resolver) -->
+    <% if (typeof heroFeatures !== 'undefined' && heroFeatures.length > 0) { 
+         const COLOR_PALETTE = ['warning', 'info', 'purple', 'success', 'danger', 'primary', 'indigo', 'teal', 'orange'];
+         function resolveSmartIcon(title, fallbackIcon) {
+           if (!title) return fallbackIcon || 'ri-star-line';
+           const t = title.toLowerCase();
+           if (t.includes('student') || t.includes('learner') || t.includes('enroll')) return 'ri-graduation-cap-line';
+           if (t.includes('seminar') || t.includes('webinar')) return 'ri-slideshow-3-line';
+           if (t.includes('record') || t.includes('video') || t.includes('lecture')) return 'ri-video-download-line';
+           if (t.includes('workshop') || t.includes('practical')) return 'ri-tools-line';
+           if (t.includes('live') || t.includes('class')) return 'ri-live-line';
+           if (t.includes('free') || t.includes('course') || t.includes('module')) return 'ri-gift-line';
+           if (t.includes('note') || t.includes('study') || t.includes('pdf')) return 'ri-file-text-line';
+           return fallbackIcon || 'ri-star-line';
+         }
+    %>
+      <div class="pe-hero-features-grid mt-4 pt-2">
+        <div class="row g-3">
+          <% heroFeatures.forEach((feat, idx) => { 
+               const assignedColor = (feat.badge_color && feat.badge_color !== 'warning') ? feat.badge_color : COLOR_PALETTE[idx % COLOR_PALETTE.length];
+               const assignedIcon = resolveSmartIcon(feat.title, feat.icon);
+          %>
+            <div class="col-6 col-md">
+              <a href="<%= feat.url || '/courses' %>" class="pe-feature-card">
+                <div class="pe-feature-icon bg-<%= assignedColor %>-subtle text-<%= assignedColor %>">
+                  <i class="<%= assignedIcon %>"></i>
+                </div>
+                <div>
+                  <div class="pe-feature-title"><%= feat.title %></div>
+                  <div class="pe-feature-desc font-weight-bold text-dark"><%= feat.subtitle %></div>
+                </div>
+              </a>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+
+<!-- ============ PRESENT COURSES SLIDER TICKER ============ -->
+<% if (typeof heroSettings === 'undefined' || heroSettings.tickerEnabled !== false) { %>
+<section class="pe-therapy-slider-section">
+  <div class="container-fluid px-0">
+    <div class="pe-therapy-slider">
+      <div class="pe-therapy-track" style="animation-duration: <%= (typeof heroSettings !== 'undefined' && heroSettings.tickerSpeed) ? heroSettings.tickerSpeed : 110 %>s;">
+        <% 
+          let tickerSubjects = [];
+          [1,2,3,4].forEach(y => {
+            if (typeof categoriesByYear !== 'undefined' && categoriesByYear[y]) {
+              tickerSubjects = tickerSubjects.concat(categoriesByYear[y]);
+            }
+          });
+          if (tickerSubjects.length === 0 && typeof activeCourses !== 'undefined') {
+            tickerSubjects = activeCourses;
+          }
+          const marqueeList = tickerSubjects.concat(tickerSubjects).concat(tickerSubjects); 
+        %>
+        <% marqueeList.forEach(sub => { %>
+          <a href="/subjects/<%= sub.slug %>" class="pe-therapy-pill" title="View <%= sub.name %>">
+            <i class="ri-book-read-line me-1.5 text-warning"></i>
+            <span><%= sub.name %></span>
+            <% if (typeof SUBJECT_ABBREVIATIONS !== 'undefined' && SUBJECT_ABBREVIATIONS[sub.name]) { %>
+              <span class="badge bg-white text-primary ms-1.5 rounded-pill" style="font-size: 0.72rem; padding: 0.25rem 0.55rem; font-weight: 700;"><%= SUBJECT_ABBREVIATIONS[sub.name] %></span>
+            <% } else if (sub.year) { %>
+              <span class="badge bg-white text-primary ms-1.5 rounded-pill" style="font-size: 0.72rem; padding: 0.25rem 0.55rem; font-weight: 700;">Year <%= sub.year %></span>
+            <% } %>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- ================================================================= -->
+<!-- DYNAMIC REORDERABLE HOMEPAGE SECTIONS (Admin Position Order)      -->
+<!-- ================================================================= -->
+<% 
+  const activeSectionsList = (typeof homepageSections !== 'undefined' && homepageSections && homepageSections.length > 0)
+    ? homepageSections
+    : [
+        { section_key: 'learning_journey' },
+        { section_key: 'curriculum' },
+        { section_key: 'featured_subjects' },
+        { section_key: 'faculty_trust' },
+        { section_key: 'vision_mission' },
+        { section_key: 'founders' },
+        { section_key: 'callback_appointment' },
+        { section_key: 'cta' }
+      ];
+%>
+
+<% activeSectionsList.forEach(secItem => { %>
+
+  <!-- 1. LEARNING JOURNEY 5-PILLAR SECTION -->
+  <% if (secItem.section_key === 'learning_journey') { %>
+    <% if (typeof journeySettings === 'undefined' || journeySettings.isEnabled !== false) { 
+         const activeJourneyCards = (typeof journeyCards !== 'undefined' && journeyCards && journeyCards.length > 0) ? journeyCards : [
+           { title: 'MCQs', subtitle: 'Practice subject-wise MCQs with instant results', icon: 'ri-file-text-line', url: '/learning-modules?type=mcq', badge_color: 'primary' },
+           { title: 'LAQs & SAQs', subtitle: 'Prepare with structured long and short answers', icon: 'ri-edit-2-line', url: '/learning-modules?type=large-qa', badge_color: 'info' },
+           { title: 'Case Discussion', subtitle: 'Discuss clinical cases with peers and mentors', icon: 'ri-group-line', url: '/live-discussion', badge_color: 'success' },
+           { title: 'Live Classes', subtitle: 'Join interactive learning sessions', icon: 'ri-play-circle-fill', url: '/live-sessions', badge_color: 'danger' },
+           { title: 'Reference Books', subtitle: 'Explore recommended textbooks and resources', icon: 'ri-book-2-line', url: '/subjects', badge_color: 'warning' }
+         ];
+    %>
+    <section class="pe-section pe-learning-journey-section py-5 position-relative" id="journey-section">
+      <div class="container py-2">
+        <div class="text-center mb-5">
+          <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-3.5 py-2 rounded-pill mb-3 shadow-xs" style="font-size: 0.78rem; letter-spacing: 0.05em;">
+            <i class="<%= (typeof journeySettings !== 'undefined' && journeySettings.badgeIcon) || 'ri-compass-3-line' %> me-1.5 fs-6 align-middle"></i> <%= (typeof journeySettings !== 'undefined' && journeySettings.badgeText) || 'Academic Pathways & Resources' %>
+          </span>
+          <h2 class="pe-section-title font-weight-bold display-6 mb-3 text-dark" style="letter-spacing: -0.02em;"><%= (typeof journeySettings !== 'undefined' && journeySettings.title) || 'Your Learning Journey' %></h2>
+          <p class="pe-section-sub mx-auto text-secondary leading-relaxed" style="max-width: 680px; font-size: 1.05rem;">
+            <%= (typeof journeySettings !== 'undefined' && journeySettings.subtext) || 'Access everything you need for academic learning, examination preparation and clinical application.' %>
+          </p>
+        </div>
+
+        <div class="pe-journey-grid">
+          <% activeJourneyCards.forEach(card => { 
+               const themeClass = 'pe-journey-' + (card.badge_color || 'primary');
+          %>
+            <a href="<%= card.url || '#' %>" class="pe-journey-card <%= themeClass %>">
+              <div class="pe-journey-icon">
+                <i class="<%= card.icon || 'ri-file-text-line' %>"></i>
+              </div>
+              <h3 class="pe-journey-title"><%= card.title %></h3>
+              <p class="pe-journey-desc"><%= card.subtitle || '' %></p>
+              <div class="pe-journey-arrow">
+                <i class="ri-arrow-right-line"></i>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+  <!-- 2. ACADEMIC CURRICULUM BY YEAR -->
+  <% } else if (secItem.section_key === 'curriculum') { %>
+    <% if (typeof curriculumSettings === 'undefined' || curriculumSettings.isEnabled !== false) { %>
+    <section class="pe-section bg-white py-5 position-relative" id="subjects-section">
+      <div class="container py-2">
+        <div class="text-center mb-5">
+          <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-3.5 py-2 rounded-pill mb-3 shadow-xs" style="font-size: 0.78rem; letter-spacing: 0.05em;">
+            <i class="<%= (typeof curriculumSettings !== 'undefined' && curriculumSettings.badgeIcon) || 'ri-graduation-cap-line' %> me-1.5 fs-6 align-middle"></i> <%= (typeof curriculumSettings !== 'undefined' && curriculumSettings.badgeText) || 'Academic Curriculum & Syllabus' %>
+          </span>
+          <h2 class="pe-section-title font-weight-bold display-6 mb-3 text-dark" style="letter-spacing: -0.02em;"><%= (typeof curriculumSettings !== 'undefined' && curriculumSettings.title) || 'Comprehensive Physiotherapy Curriculum by Year' %></h2>
+          <p class="pe-section-sub mx-auto text-secondary leading-relaxed" style="max-width: 740px; font-size: 1.05rem;">
+            <%= (typeof curriculumSettings !== 'undefined' && curriculumSettings.subtext) || 'Master foundational medical sciences, clinical assessments, rehabilitation specialties, and allied disciplines — structured systematically as per the Indian Physiotherapy University curriculum.' %>
+          </p>
+        </div>
+
+        <!-- 5 Clickable Executive Year Cards Navigation -->
+        <div class="pe-year-cards-row mb-5" role="tablist" id="yearCardsNav">
+          <% 
+            const cCards = (typeof curriculumCards !== 'undefined' && curriculumCards && curriculumCards.length > 0) ? curriculumCards : [
+              { year_key: '1', tag: 'Year 1 • Foundation', title: 'First Year', subtitle: 'Core Anatomy, Physiology, Biomechanics & basic principles', icon: 'ri-book-3-fill', theme_color: 'primary' },
+              { year_key: '2', tag: 'Year 2 • Clinical Core', title: 'Second Year', subtitle: 'Pathology, Pharmacology, Exercise Therapy & Electrotherapy', icon: 'ri-microscope-line', theme_color: 'success' },
+              { year_key: '3', tag: 'Year 3 • Advanced Practice', title: 'Third Year', subtitle: 'General Medicine, Surgery, Orthopedics & Clinical Diagnosis', icon: 'ri-heart-pulse-fill', theme_color: 'danger' },
+              { year_key: '4', tag: 'Year 4 • Specialties & Rehab', title: 'Fourth Year', subtitle: 'Neurology, Cardiothoracic, Sports PT & Community Rehabilitation', icon: 'ri-stethoscope-fill', theme_color: 'warning' },
+              { year_key: 'other', tag: 'Allied • Interdisciplinary', title: 'Other Subjects', subtitle: 'Allied health, research methodology & clinical skill modules', icon: 'ri-apps-2-fill', theme_color: 'purple' }
+            ];
+            const activeTargetId = cCards[0].year_key === 'other' ? 'yearOther' : ('year' + cCards[0].year_key);
+          %>
+          <% cCards.forEach((c, idx) => { 
+               const targetId = c.year_key === 'other' ? 'yearOther' : ('year' + c.year_key);
+               const colorClass = c.theme_color ? `pe-year-card-${c.theme_color}` : (c.year_key === 'other' ? 'pe-year-card-other' : `pe-year-card-${c.year_key}`);
+          %>
+            <button type="button" class="pe-year-card-btn <%= colorClass %> <%= idx===0 ? 'active' : '' %>" id="btn-<%= targetId %>" data-bs-toggle="pill" data-bs-target="#<%= targetId %>" role="tab" aria-controls="<%= targetId %>" aria-selected="<%= idx===0 ? 'true' : 'false' %>">
+              <% if (c.tag) { %>
+                <span class="pe-year-card-tag"><%= c.tag %></span>
+              <% } %>
+              <div class="pe-year-card-icon">
+                <i class="<%= c.icon || 'ri-book-3-fill' %>"></i>
+              </div>
+              <h4 class="pe-year-card-title"><%= c.title %></h4>
+              <% if (c.subtitle) { %>
+                <p class="pe-year-card-sub"><%= c.subtitle %></p>
+              <% } %>
+              <div class="pe-year-card-footer mt-auto pt-2 text-center">
+                <span class="pe-year-card-arrow">
+                  <i class="ri-arrow-right-line"></i>
+                </span>
+              </div>
+            </button>
+          <% }) %>
+        </div>
+
+        <!-- Tab Content Panels -->
+        <div class="tab-content" id="yearCardsContent">
+          <% 
+            const yearMeta = {
+              1: { label: 'First Year BPT', subtitle: 'Foundational medical sciences, anatomy osteology, physiology, and basic physiotherapy modalities', color: 'primary', bgGradient: 'linear-gradient(135deg, rgba(10, 93, 194, 0.08) 0%, rgba(2, 132, 199, 0.04) 100%)', borderColor: '#d0e3fa', icon: 'ri-book-3-fill' },
+              2: { label: 'Second Year BPT', subtitle: 'Clinical pathology, pharmacology principles, exercise therapy techniques, and electrophysical agents', color: 'success', bgGradient: 'linear-gradient(135deg, rgba(22, 163, 74, 0.08) 0%, rgba(34, 197, 94, 0.04) 100%)', borderColor: '#bbf7d0', icon: 'ri-microscope-line' },
+              3: { label: 'Third Year BPT', subtitle: 'General medicine, surgical rehabilitation, adult & pediatric orthopedics, and clinical diagnosis', color: 'danger', bgGradient: 'linear-gradient(135deg, rgba(225, 29, 72, 0.08) 0%, rgba(244, 63, 94, 0.04) 100%)', borderColor: '#fecdd3', icon: 'ri-heart-pulse-fill' },
+              4: { label: 'Fourth Year BPT', subtitle: 'Neurological rehabilitation, cardiothoracic management, sports physiotherapy, and community health', color: 'warning', bgGradient: 'linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%)', borderColor: '#fde68a', icon: 'ri-stethoscope-fill' }
+            };
+          %>
+          <% [1,2,3,4].forEach((y) => { %>
+            <div class="tab-pane fade <%= activeTargetId===('year'+y)?'show active':'' %>" id="year<%= y %>" role="tabpanel" aria-labelledby="btn-year<%= y %>">
+              <div class="pe-year-banner-header d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3" style="background: <%= yearMeta[y].bgGradient %>; border: 1.5px solid <%= yearMeta[y].borderColor %>;">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="p-2.5 rounded-4 bg-white text-<%= yearMeta[y].color %> shadow-sm fs-4 d-flex align-items-center justify-content-center flex-shrink-0" style="width:50px; height:50px;">
+                    <i class="<%= yearMeta[y].icon %>"></i>
+                  </div>
+                  <div>
+                    <h5 class="fw-bold text-dark mb-0.5"><%= yearMeta[y].label %> Curriculum</h5>
+                    <p class="text-secondary small mb-0"><%= yearMeta[y].subtitle %></p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-white text-<%= yearMeta[y].color %> border shadow-xs rounded-pill px-3 py-2 fw-bold font-monospace small">
+                    <%= (categoriesByYear[y] || []).length %> Core Subjects
+                  </span>
+                  <a href="/subjects?year=<%= y %>" class="btn btn-sm btn-white bg-white border shadow-xs text-dark rounded-pill px-3.5 py-1.5 fw-semibold" style="transition: all 0.2s ease;">
+                    Explore Syllabus <i class="ri-arrow-right-s-line"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="row g-3 g-md-4">
+                <% (categoriesByYear[y] || []).forEach(cat => { %>
+                  <div class="col-6 col-md-4 col-lg-3">
+                    <a href="/subjects/<%= cat.slug %>" class="pe-subject-box text-decoration-none d-block h-100">
+                      <div class="pe-subject-box-inner p-3.5 p-md-4 rounded-4 bg-white border h-100 position-relative shadow-xs">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                          <div class="pe-subject-icon bg-<%= yearMeta[y].color %>-subtle text-<%= yearMeta[y].color %> fs-3">
+                            <i class="<%= cat.icon || 'ri-book-open-line' %>"></i>
+                          </div>
+                          <% if (typeof SUBJECT_ABBREVIATIONS !== 'undefined' && SUBJECT_ABBREVIATIONS[cat.name]) { %>
+                            <span class="badge bg-light text-<%= yearMeta[y].color %> border rounded-pill px-2.5 py-1 small fw-bold font-monospace">
+                              <%= SUBJECT_ABBREVIATIONS[cat.name] %>
+                            </span>
+                          <% } else { %>
+                            <span class="pe-subject-arrow-btn">
+                              <i class="ri-arrow-right-line"></i>
+                            </span>
+                          <% } %>
+                        </div>
+                        <h6 class="pe-subject-title mb-1.5"><%= cat.name %></h6>
+                        <div class="d-flex align-items-center justify-content-between text-muted small mt-auto pt-2 border-top">
+                          <span class="d-inline-flex align-items-center text-muted" style="font-size: 0.8rem;">
+                            <i class="ri-checkbox-circle-fill text-success me-1"></i>
+                            <%= cat.course_count || 0 %> module<%= cat.course_count !== 1 ? 's' : '' %>
+                          </span>
+                          <span class="text-primary fw-bold small d-none d-sm-inline-flex align-items-center gap-0.5" style="font-size: 0.8rem;">
+                            Explore <i class="ri-arrow-right-s-line"></i>
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                <% }) %>
+              </div>
+            </div>
+          <% }) %>
+
+          <!-- Other Subjects Panel -->
+          <div class="tab-pane fade <%= activeTargetId==='yearOther'?'show active':'' %>" id="yearOther" role="tabpanel" aria-labelledby="btn-yearOther">
+            <div class="pe-year-banner-header d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%); border: 1.5px solid #ddd6fe;">
+              <div class="d-flex align-items-center gap-3">
+                <div class="p-2.5 rounded-4 bg-white text-purple shadow-sm fs-4 d-flex align-items-center justify-content-center flex-shrink-0" style="width:50px; height:50px;">
+                  <i class="ri-apps-2-fill"></i>
+                </div>
+                <div>
+                  <h5 class="fw-bold text-dark mb-0.5">Other Subjects & Allied Disciplines</h5>
+                  <p class="text-secondary small mb-0">Interdisciplinary clinical topics, research methodologies, and electives</p>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-white text-purple border shadow-xs rounded-pill px-3 py-2 fw-bold font-monospace small">
+                  <%= otherSubjects.length %> Elective Subjects
+                </span>
+                <a href="/subjects" class="btn btn-sm btn-white bg-white border shadow-xs text-dark rounded-pill px-3.5 py-1.5 fw-semibold" style="transition: all 0.2s ease;">
+                  View All <i class="ri-arrow-right-s-line"></i>
+                </a>
+              </div>
+            </div>
+
+            <div class="row g-3 g-md-4">
+              <% if (!otherSubjects || otherSubjects.length === 0) { %>
+                <div class="col-12 text-center py-5 text-muted">
+                  <i class="ri-folder-open-line fs-1 d-block mb-2 text-muted"></i>
+                  No additional elective subjects found. Check back soon!
+                </div>
+              <% } %>
+              <% otherSubjects.forEach(cat => { %>
+                <div class="col-6 col-md-4 col-lg-3">
+                  <a href="/subjects/<%= cat.slug %>" class="pe-subject-box text-decoration-none d-block h-100">
+                    <div class="pe-subject-box-inner p-3.5 p-md-4 rounded-4 bg-white border h-100 position-relative shadow-xs">
+                      <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="pe-subject-icon bg-purple-subtle text-purple fs-3">
+                          <i class="<%= cat.icon || 'ri-book-open-line' %>"></i>
+                        </div>
+                        <% if (typeof SUBJECT_ABBREVIATIONS !== 'undefined' && SUBJECT_ABBREVIATIONS[cat.name]) { %>
+                          <span class="badge bg-light text-purple border rounded-pill px-2.5 py-1 small fw-bold font-monospace">
+                            <%= SUBJECT_ABBREVIATIONS[cat.name] %>
+                          </span>
+                        <% } else { %>
+                          <span class="pe-subject-arrow-btn">
+                            <i class="ri-arrow-right-line"></i>
+                          </span>
+                        <% } %>
+                      </div>
+                      <h6 class="pe-subject-title mb-1.5"><%= cat.name %></h6>
+                      <div class="d-flex align-items-center justify-content-between text-muted small mt-auto pt-2 border-top">
+                        <span class="d-inline-flex align-items-center text-muted" style="font-size: 0.8rem;">
+                          <i class="ri-checkbox-circle-fill text-success me-1"></i>
+                          <%= cat.course_count || 0 %> module<%= cat.course_count !== 1 ? 's' : '' %>
+                        </span>
+                        <span class="text-primary fw-bold small d-none d-sm-inline-flex align-items-center gap-0.5" style="font-size: 0.8rem;">
+                          Explore <i class="ri-arrow-right-s-line"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+  <!-- 3. FEATURED SUBJECTS & COURSES -->
+  <% } else if (secItem.section_key === 'featured_subjects') { %>
+    <section class="pe-section bg-white">
+      <div class="container">
+        <div class="d-flex align-items-end justify-content-between mb-4 flex-wrap gap-3">
+          <div>
+            <span class="pe-eyebrow">Top Rated</span>
+            <h2 class="pe-section-title mb-0">Featured Subjects</h2>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#featuredCoursesModal">
+              <i class="ri-star-fill text-warning me-1"></i> Display All Featured Subjects
+            </button>
+            <a href="/subjects" class="btn btn-outline-primary btn-sm rounded-pill px-3 ms-1">
+              View All Subjects <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="swiper pe-courses-swiper">
+          <div class="swiper-wrapper pb-4">
+            <% featured.forEach(course => { %>
+              <div class="swiper-slide pe-course-slide">
+                <a href="/subjects/<%= course.category_slug || course.slug %>" class="text-decoration-none d-block h-100">
+                  <div class="pe-fc-card">
+                    <!-- Thumbnail with gradient overlay -->
+                    <div class="pe-fc-thumb">
+                      <div class="pe-fc-thumb-bg"></div>
+                      <% if (course.course_type === 'pdf_document') { %>
+                        <span class="badge bg-danger text-white position-absolute top-0 start-0 m-2 px-2.5 py-1 rounded-pill" style="z-index:3;font-size:0.72rem;">
+                          <i class="ri-file-pdf-2-fill me-1"></i>PDF Notes
+                        </span>
+                        <div class="pe-fc-play-icon bg-danger text-white"><i class="ri-file-pdf-2-fill"></i></div>
+                      <% } else { %>
+                        <div class="pe-fc-play-icon"><i class="ri-play-circle-fill"></i></div>
+                      <% } %>
+                    </div>
+                    <!-- Card body -->
+                    <div class="pe-fc-body">
+                      <span class="pe-fc-cat"><%= course.category_name || 'General' %></span>
+                      <h5 class="pe-fc-title"><%= course.title %></h5>
+                      <div class="pe-fc-instructor">
+                        <i class="ri-user-3-line"></i> <%= course.instructor_name %>
+                      </div>
+                      <div class="pe-fc-meta">
+                        <span><i class="ri-star-fill"></i> <%= course.rating_avg ? course.rating_avg.toFixed(1) : '4.8' %> <span class="text-muted-pe">(<%= course.rating_count || 50 %>)</span></span>
+                        <span><i class="ri-time-line"></i> <%= course.duration_hours || 20 %>h</span>
+                      </div>
+                    </div>
+                    <!-- Card footer -->
+                    <div class="pe-fc-footer">
+                      <span class="pe-fc-free"><i class="ri-gift-line"></i> Free</span>
+                      <span class="badge badge-soft-primary"><%= course.target_exam || 'BPT' %></span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            <% }) %>
+          </div>
+          <div class="swiper-pagination pe-swiper-pagination mt-2"></div>
+          <div class="swiper-button-prev pe-swiper-prev"></div>
+          <div class="swiper-button-next pe-swiper-next"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FEATURED SUBJECTS MODAL POP-UP ============ -->
+    <div class="modal fade" id="featuredCoursesModal" tabindex="-1" aria-labelledby="featuredCoursesModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+          <div class="modal-header text-white p-4" style="background: linear-gradient(135deg, #091e3a 0%, #10376d 100%) !important;">
+            <div>
+              <h4 class="modal-title font-weight-bold d-flex align-items-center gap-2 text-white mb-1" id="featuredCoursesModalLabel">
+                <i class="ri-star-fill text-warning"></i> All Featured Subjects
+              </h4>
+              <p class="text-white-50 small mb-0">Explore top-rated featured physiotherapy subjects and interactive modules built for BPT students.</p>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4 bg-light">
+            <div class="row g-4">
+              <% featured.forEach(course => { %>
+                <div class="col-md-6 col-lg-4">
+                  <a href="/subjects/<%= course.category_slug || course.slug %>" class="text-decoration-none d-block h-100">
+                    <div class="pe-fc-card shadow-sm h-100 bg-white" style="border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;">
+                      <div class="pe-fc-thumb position-relative" style="height: 150px;">
+                        <div class="pe-fc-thumb-bg"></div>
+                        <span class="pe-fc-level"><%= course.level %></span>
+                        <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 px-2 py-1" style="z-index:3;font-size:0.7rem;"><i class="ri-star-fill me-1"></i>Featured</span>
+                        <div class="pe-fc-play-icon"><i class="ri-play-circle-fill"></i></div>
+                      </div>
+                      <div class="pe-fc-body p-3">
+                        <span class="pe-fc-cat text-primary fw-bold small text-uppercase"><%= course.category_name || 'General' %></span>
+                        <h6 class="pe-fc-title fw-bold text-dark mb-2" style="font-size: 0.95rem; line-height: 1.3;"><%= course.title %></h6>
+                        <div class="pe-fc-instructor small text-muted mb-2">
+                          <i class="ri-user-3-line me-1"></i> <%= course.instructor_name %>
+                        </div>
+                        <div class="pe-fc-meta small d-flex justify-content-between text-muted">
+                          <span><i class="ri-star-fill text-warning me-1"></i> <%= course.rating_avg ? course.rating_avg.toFixed(1) : '4.8' %> (<%= course.rating_count || 50 %>)</span>
+                          <span><i class="ri-time-line me-1"></i> <%= course.duration_hours || 20 %>h</span>
+                        </div>
+                      </div>
+                      <div class="pe-fc-footer p-3 bg-white border-top d-flex justify-content-between align-items-center">
+                        <span class="text-success fw-bold small"><i class="ri-gift-line me-1"></i> Free</span>
+                        <span class="btn btn-sm btn-primary rounded-pill px-3">View Subject <i class="ri-arrow-right-line ms-1"></i></span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+          <div class="modal-footer bg-white border-0 p-3 justify-content-between">
+            <span class="text-muted small">Showing <%= featured.length %> Featured Subjects</span>
+            <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- 4. FACULTY & CONTENT QUALITY TRUST BAR -->
+  <% } else if (secItem.section_key === 'faculty_trust') { %>
+    <section class="pe-section pe-faculty-trust-section py-4 py-lg-5">
+      <div class="container">
+        <div class="pe-faculty-trust-box position-relative">
+          
+          <!-- Background Ambient Glow & Subtle Grid -->
+          <div class="pe-trust-bg-glow"></div>
+
+          <div class="row align-items-center g-4 g-lg-5 position-relative" style="z-index: 2;">
+            
+            <!-- Left Side: Headline, Narrative & Trust Checkpoints -->
+            <div class="col-lg-5 col-xl-5">
+              <div class="pe-trust-narrative">
+                <div class="pe-trust-badge mb-3">
+                  <span class="pe-trust-pulse-dot"></span>
+                  <i class="ri-shield-check-fill text-primary me-1.5 fs-6"></i>
+                  <span>ACADEMIC & CLINICAL EXCELLENCE</span>
+                </div>
+                <h3 class="pe-faculty-heading mb-3">
+                  Content by <span class="pe-heading-gradient">Qualified Physiotherapists</span>
+                </h3>
+                <p class="pe-faculty-subtext mb-4">
+                  Our academic notes, clinical cases, and assessment modules are meticulously created and peer-reviewed by practicing physiotherapists and senior educators — ensuring reliable, evidence-informed, and university-aligned learning.
+                </p>
+                <div class="pe-trust-tags-wrap d-flex flex-wrap gap-2">
+                  <span class="pe-trust-tag"><i class="ri-checkbox-circle-fill text-success me-1"></i> 100% Peer-Reviewed</span>
+                  <span class="pe-trust-tag"><i class="ri-checkbox-circle-fill text-primary me-1"></i> BPT Syllabus Aligned</span>
+                  <span class="pe-trust-tag"><i class="ri-checkbox-circle-fill text-info me-1"></i> Free for All Students</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: 4 Executive Interactive Micro-Cards -->
+            <div class="col-lg-7 col-xl-7">
+              <div class="pe-trust-cards-grid">
+                
+                <!-- Card 1: Credible & Verified -->
+                <div class="pe-trust-card">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="pe-trust-icon-box pe-trust-icon-cyan">
+                      <i class="ri-shield-check-fill"></i>
+                    </div>
+                    <span class="pe-trust-pill pe-pill-cyan">Peer-Reviewed</span>
+                  </div>
+                  <h5 class="pe-trust-card-title">Credible & Verified Content</h5>
+                  <p class="pe-trust-card-desc">Multi-stage clinical accuracy & standard medical textbook referencing.</p>
+                </div>
+
+                <!-- Card 2: Experienced Faculty -->
+                <div class="pe-trust-card">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="pe-trust-icon-box pe-trust-icon-blue">
+                      <i class="ri-stethoscope-fill"></i>
+                    </div>
+                    <span class="pe-trust-pill pe-pill-blue">Expert Faculty</span>
+                  </div>
+                  <h5 class="pe-trust-card-title">Experienced Physiotherapists</h5>
+                  <p class="pe-trust-card-desc">Curated by certified MPTs, clinical specialists & academic educators.</p>
+                </div>
+
+                <!-- Card 3: Indian Curriculum -->
+                <div class="pe-trust-card">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="pe-trust-icon-box pe-trust-icon-purple">
+                      <i class="ri-focus-3-line"></i>
+                    </div>
+                    <span class="pe-trust-pill pe-pill-purple">BPT Syllabus</span>
+                  </div>
+                  <h5 class="pe-trust-card-title">Focused on Indian Curriculum</h5>
+                  <p class="pe-trust-card-desc">Structured for Year 1 to 4 university exam patterns and practicals.</p>
+                </div>
+
+                <!-- Card 4: Free Mission -->
+                <div class="pe-trust-card">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="pe-trust-icon-box pe-trust-icon-rose">
+                      <i class="ri-heart-3-fill"></i>
+                    </div>
+                    <span class="pe-trust-pill pe-pill-rose">100% Free Mission</span>
+                  </div>
+                  <h5 class="pe-trust-card-title">Supporting Next Generation</h5>
+                  <p class="pe-trust-card-desc">Empowering every physiotherapy student with open-access education.</p>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- 5. VISION & MISSION -->
+  <% } else if (secItem.section_key === 'vision_mission') { %>
+    <section class="pe-section">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card p-4 h-100 border-0 shadow-sm rounded-4 bg-white">
+              <div class="pe-category-icon mb-3" style="width: 52px; height: 52px; font-size: 1.5rem; background: rgba(10, 93, 194, 0.1); color: #0a5dc2; border-radius: 14px; display: flex; align-items: center; justify-content: center;"><i class="ri-eye-line"></i></div>
+              <h5 class="fw-bold text-dark mb-2">Our Vision</h5>
+              <p class="text-secondary small mb-0" style="line-height: 1.65;"><%= (typeof visionMission !== 'undefined' && visionMission.vision) ? visionMission.vision : 'To become the one-stop educational destination for physiotherapy students across India — making advanced, clinically-relevant physiotherapy education accessible to every student, regardless of which college they attend.' %></p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card p-4 h-100 border-0 shadow-sm rounded-4 bg-white">
+              <div class="pe-category-icon mb-3" style="width: 52px; height: 52px; font-size: 1.5rem; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 14px; display: flex; align-items: center; justify-content: center;"><i class="ri-flag-line"></i></div>
+              <h5 class="fw-bold text-dark mb-2">Our Mission</h5>
+              <p class="text-secondary small mb-0" style="line-height: 1.65;"><%= (typeof visionMission !== 'undefined' && visionMission.mission) ? visionMission.mission : '"Help students to help themselves." We build structured notes, digital library content, live discussions, and research resources that empower physiotherapy students to learn independently and confidently, year after year.' %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- 6. CERTIFIED PHYSIOTHERAPISTS & FOUNDERS -->
+  <% } else if (secItem.section_key === 'founders') { %>
+    <% if (typeof founders !== 'undefined' && founders.length) { %>
+    <section class="pe-section bg-white overflow-hidden">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="pe-section-label"><i class="ri-team-line"></i> Our People</span>
+          <h2>Certified Physiotherapists Behind PhysioEdvance</h2>
+          <p class="text-muted-pe mx-auto" style="max-width:500px;">Meet the expert team building the future of physiotherapy education in India.</p>
+        </div>
+        <!-- Static Top 4 Team Members Grid -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-4">
+          <% founders.forEach(f => { %>
+            <div class="col">
+              <div class="pe-team-slide-card h-100 shadow-sm border-0 rounded-4 transition-all bg-white overflow-hidden">
+                <div class="pe-team-slide-img-wrap">
+                  <img src="<%= f.photo %>" alt="<%= f.name %>"
+                    onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(f.name) %>&background=0a5dc2&color=fff&size=256'">
+                  <div class="pe-team-slide-overlay">
+                    <div class="pe-team-slide-bio"><%= f.bio || f.designation %></div>
+                  </div>
+                </div>
+                <div class="pe-team-slide-info p-3 text-center">
+                  <h5 class="mb-0 fw-bold text-dark"><%= f.name %></h5>
+                  <p class="text-primary-pe small fw-600 mb-0"><%= f.designation %></p>
+                  <% if (f.qualification) { %><p class="text-muted-pe small mb-0" style="font-size:0.75rem;margin-top:0.2rem;"><%= f.qualification %></p><% } %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <div class="text-center mt-4">
+          <a href="/the-team" class="btn btn-outline-primary btn-lg">Meet the Full Team <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+  <!-- 7. DIRECT ASSISTANCE & CALLBACK FORM -->
+  <% } else if (secItem.section_key === 'callback_appointment') { %>
+    <section id="appointmentSection" class="pe-section position-relative py-5" style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);">
+      <div class="container py-3">
+        <div class="row g-5 align-items-center">
+          <!-- Left Column: Clean Executive Support Box -->
+          <div class="col-lg-5">
+            <div class="pe-contact-info-wrapper">
+              <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-3 py-2 rounded-pill mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                <i class="ri-phone-find-line me-1"></i> Direct Assistance
+              </span>
+              <h2 class="fw-bold display-6 mb-3 text-dark" style="letter-spacing: -0.02em; line-height: 1.2;">
+                Book an Appointment or Request a Call Back
+              </h2>
+              <p class="text-secondary leading-relaxed mb-4" style="font-size: 1.05rem;">
+                Have questions about BPT subjects, digital library access, upcoming workshops, or live classes? Leave your details and our senior academic advisors will reach out to assist you.
+              </p>
+
+              <!-- 2 Executive Support Bullets -->
+              <div class="d-flex flex-column gap-3 mb-4">
+                <div class="d-flex align-items-center gap-3 p-3 bg-white rounded-3 border-0 shadow-sm">
+                  <div class="pe-category-icon m-0" style="width: 42px; height: 42px; min-width: 42px; font-size: 1.2rem; background: rgba(10, 93, 194, 0.1); color: #0a5dc2; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="ri-user-headset-line"></i>
+                  </div>
+                  <div>
+                    <h6 class="fw-bold text-dark mb-0 fs-6">Expert Faculty Guidance</h6>
+                    <small class="text-muted">Speak directly with experienced BPT educators.</small>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 p-3 bg-white rounded-3 border-0 shadow-sm">
+                  <div class="pe-category-icon m-0" style="width: 42px; height: 42px; min-width: 42px; font-size: 1.2rem; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="ri-shield-check-line"></i>
+                  </div>
+                  <div>
+                    <h6 class="fw-bold text-dark mb-0 fs-6">Fast 24-Hour Response</h6>
+                    <small class="text-muted">Our academic advisors call back within one business day.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <a href="https://wa.me/919964381417" target="_blank" rel="noopener" class="btn btn-success btn-lg rounded-pill px-4 py-2.5 shadow-sm fw-bold d-inline-flex align-items-center gap-2">
+                  <i class="ri-whatsapp-line fs-5"></i> Chat on WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Executive Form Card -->
+          <div class="col-lg-7">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white" style="box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08) !important;">
+              <!-- Top Accent Gradient Line -->
+              <div style="height: 5px; background: linear-gradient(90deg, #0a5dc2 0%, #38bdf8 100%);"></div>
+
+              <div class="card-body p-4 p-md-5">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                  <div>
+                    <h4 class="fw-bold text-dark mb-1">Leave Your Details</h4>
+                    <p class="text-muted small mb-0">Fill out the quick form — we'll handle the rest.</p>
+                  </div>
+                  <span class="badge bg-light text-secondary rounded-pill px-3 py-2 border small">
+                    <i class="ri-lock-2-line me-1 text-primary"></i> 100% Confidential
+                  </span>
+                </div>
+
+                <form action="/appointments" method="POST">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold text-dark small">
+                      <i class="ri-user-line text-primary me-1"></i> Full Name
+                    </label>
+                    <input type="text" name="name" class="form-control form-control-lg bg-light-subtle border-light-subtle" placeholder="e.g. Dr. Rahul Sharma" required>
+                  </div>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold text-dark small">
+                        <i class="ri-phone-line text-primary me-1"></i> Phone Number
+                      </label>
+                      <input type="tel" name="phone" class="form-control form-control-lg bg-light-subtle border-light-subtle" placeholder="+91 9XXXXXXXXX" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold text-dark small">
+                        <i class="ri-mail-line text-primary me-1"></i> Email Address <span class="text-muted fw-normal">(Optional)</span>
+                      </label>
+                      <input type="email" name="email" class="form-control form-control-lg bg-light-subtle border-light-subtle" placeholder="name@example.com">
+                    </div>
+                  </div>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold text-dark small">
+                        <i class="ri-book-open-line text-primary me-1"></i> Academic Year / Program Interest
+                      </label>
+                      <select name="service_type" class="form-select form-select-lg bg-light-subtle border-light-subtle" style="font-size: 0.95rem;">
+                        <option value="BPT 1st Year (Foundation & Osteology)">BPT 1st Year (Foundation & Osteology)</option>
+                        <option value="BPT 2nd Year (Pathology & Biomechanics)">BPT 2nd Year (Pathology & Biomechanics)</option>
+                        <option value="BPT 3rd Year (Medicine, Surgery & Ortho)">BPT 3rd Year (Medicine, Surgery & Ortho)</option>
+                        <option value="BPT 4th Year (Neurology, Sports & Rehab)">BPT 4th Year (Neurology, Sports & Rehab)</option>
+                        <option value="Live Classes & Interactive Workshops">Live Classes & Interactive Workshops</option>
+                        <option value="General Academic Inquiry">General Academic Inquiry</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold text-dark small">
+                        <i class="ri-question-answer-line text-primary me-1"></i> Request Type
+                      </label>
+                      <select name="request_type" class="form-select form-select-lg bg-light-subtle border-light-subtle" style="font-size: 0.95rem;">
+                        <option value="callback" selected>Request a Call Back</option>
+                        <option value="appointment">Book Academic Guidance Session</option>
+                        <option value="notes_help">Library & Notes Access Help</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label fw-bold text-dark small">
+                      <i class="ri-chat-1-line text-primary me-1"></i> Message <span class="text-muted fw-normal">(Optional)</span>
+                    </label>
+                    <textarea name="message" rows="3" class="form-control bg-light-subtle border-light-subtle" placeholder="Write any specific query or question..."></textarea>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%); border: none;">
+                    <i class="ri-send-plane-fill me-1"></i> Submit Request
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- 8. FINAL CTA -->
+  <% } else if (secItem.section_key === 'cta') { %>
+    <% if (typeof ctaSettings === 'undefined' || ctaSettings.isEnabled !== false) { %>
+    <section class="pe-cta-section">
+      <div class="container">
+        <div class="pe-cta-inner text-center">
+          <span class="pe-section-label mb-3">
+            <i class="<%= (typeof ctaSettings !== 'undefined' && ctaSettings.badgeIcon) || 'ri-graduation-cap-line' %>"></i>
+            <%= (typeof ctaSettings !== 'undefined' && ctaSettings.badgeText) || 'Free Forever' %>
+          </span>
+          <h2 class="pe-cta-title">
+            <%= (typeof ctaSettings !== 'undefined' && ctaSettings.title) || 'Start your physiotherapy learning journey today' %>
+          </h2>
+          <p class="pe-cta-sub">
+            <%= (typeof ctaSettings !== 'undefined' && ctaSettings.subtext) || 'Join thousands of physiotherapy students already learning on PhysioEdvance — 100% free.' %>
+          </p>
+          <div class="d-flex gap-3 justify-content-center flex-wrap mt-4">
+            <a href="<%= (typeof ctaSettings !== 'undefined' && ctaSettings.primaryBtnUrl) || '/auth/register' %>" class="btn btn-primary btn-lg pe-cta-btn">
+              <i class="<%= (typeof ctaSettings !== 'undefined' && ctaSettings.primaryBtnIcon) || 'ri-user-add-line' %>"></i>
+              <%= (typeof ctaSettings !== 'undefined' && ctaSettings.primaryBtnText) || 'Create Free Account' %>
+            </a>
+            <a href="<%= (typeof ctaSettings !== 'undefined' && ctaSettings.secondaryBtnUrl) || '/subjects' %>" class="btn btn-outline-light btn-lg">
+              <%= (typeof ctaSettings !== 'undefined' && ctaSettings.secondaryBtnText) || 'Explore Subjects' %>
+              <i class="<%= (typeof ctaSettings !== 'undefined' && ctaSettings.secondaryBtnIcon) || 'ri-arrow-right-line' %>"></i>
+            </a>
+          </div>
+          <% if (typeof ctaSettings !== 'undefined' && ctaSettings.noteText) { %>
+            <p class="pe-cta-note mt-3">
+              <i class="ri-shield-check-line me-1"></i>
+              <%= ctaSettings.noteText %>
+            </p>
+          <% } else { %>
+            <p class="pe-cta-note mt-3"><i class="ri-shield-check-line me-1"></i> No credit card required &nbsp;·&nbsp; <i class="ri-lock-line me-1"></i> 100% Free</p>
+          <% } %>
+        </div>
+      </div>
+    </section>
+    <% } %>
+  <% } %>
+
+<% }) %>
+
+<!-- Chatbot integration point — per proposal's "Chatbot Integration" requirement.
+     Wire your chosen chatbot provider's embed script here (e.g. Tawk.to, Crisp,
+     or a custom one) once you've chosen a provider. Left as a clear placeholder
+     rather than faking a working chatbot. -->
+<!-- <script src="YOUR_CHATBOT_PROVIDER_EMBED_SCRIPT"></script> -->
+
+<script>
+function activateYearCard(btn) {
+  const allBtns = document.querySelectorAll('.pe-year-card-btn');
+  allBtns.forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const tabElList = document.querySelectorAll('#yearCardsNav button[data-bs-toggle="pill"]');
+  tabElList.forEach(tabEl => {
+    tabEl.addEventListener('shown.bs.tab', function(event) {
+      activateYearCard(event.target);
+    });
+  });
+
+  const hash = window.location.hash;
+  if (hash) {
+    let targetBtn = null;
+    if (hash === '#year1' || hash === '#first-year') targetBtn = document.getElementById('btn-year-1');
+    else if (hash === '#year2' || hash === '#second-year') targetBtn = document.getElementById('btn-year-2');
+    else if (hash === '#year3' || hash === '#third-year') targetBtn = document.getElementById('btn-year-3');
+    else if (hash === '#year4' || hash === '#fourth-year') targetBtn = document.getElementById('btn-year-4');
+    else if (hash === '#yearOther' || hash === '#other-subjects') targetBtn = document.getElementById('btn-year-other');
+
+    if (targetBtn && typeof bootstrap !== 'undefined') {
+      const tab = bootstrap.Tab.getOrCreateInstance(targetBtn);
+      tab.show();
+      activateYearCard(targetBtn);
+    }
+  }
+});
+</script>

@@ -1,0 +1,105 @@
+<div class="pe-page-head mb-4">
+  <h4 class="mb-1">Account Settings</h4>
+  <p class="text-muted-pe mb-0">Manage your administrator profile, login email, password, and photo.</p>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="pe-admin-card p-4 text-center">
+      <form action="/profile" method="POST" enctype="multipart/form-data" id="avatarForm">
+        <label for="avatarInput" class="pe-avatar-upload-wrap mb-3 d-block" title="Click to upload a new photo" style="width:6.5rem;margin:0 auto;">
+          <img id="avatarPreview"
+            src="<%= profileUser.avatar || '' %>"
+            class="rounded-circle d-block"
+            style="width:6.5rem;height:6.5rem;object-fit:cover;border:3px solid var(--pe-primary-light);"
+            onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(profileUser.name) %>&background=0a5dc2&color=fff&size=256'">
+          <div class="pe-avatar-cam"><i class="ri-camera-line"></i></div>
+        </label>
+        <p class="text-muted-pe" style="font-size:.7rem;margin-top:.25rem;">Click photo to change (max 3MB)</p>
+        <input type="file" id="avatarInput" name="avatar"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          class="d-none"
+          onchange="previewAndSubmitAvatar(this)">
+        <script>
+        function previewAndSubmitAvatar(input) {
+          if (!input.files || !input.files[0]) return;
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            document.getElementById('avatarPreview').src = e.target.result;
+          };
+          reader.readAsDataURL(input.files[0]);
+          setTimeout(function() { input.closest('form').submit(); }, 300);
+        }
+        </script>
+        <input type="hidden" name="name" value="<%= currentUser.name %>">
+        <input type="hidden" name="phone" value="<%= profileUser.phone || '' %>">
+        <input type="hidden" name="bio" value="<%= profileUser.bio || '' %>">
+      </form>
+      <h5 class="mb-0"><%= currentUser.name %></h5>
+      <p class="text-muted-pe small mb-2"><%= profileUser.email %></p>
+      <span class="badge pe-badge-gradient"><i class="ri-shield-star-line me-1"></i> Administrator</span>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="pe-admin-card p-4 mb-4">
+      <h6 class="mb-3"><i class="ri-user-line me-2 text-primary-pe"></i>Profile Information</h6>
+      <form action="/profile" method="POST">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="name" class="form-control" value="<%= currentUser.name %>" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input type="text" name="phone" class="form-control" value="<%= profileUser.phone || '' %>" placeholder="+91 90000 00000">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Bio</label>
+            <textarea name="bio" class="form-control" rows="3" placeholder="Tell us a bit about yourself..."><%= profileUser.bio || '' %></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3"><i class="ri-save-line"></i> Save Changes</button>
+      </form>
+    </div>
+
+    <div class="pe-admin-card p-4 mb-4">
+      <h6 class="mb-3"><i class="ri-mail-line me-2 text-primary-pe"></i>Change Email Address</h6>
+      <p class="text-muted-pe small">Current email: <strong><%= profileUser.email %></strong></p>
+      <form action="/profile/email" method="POST">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">New Email Address</label>
+            <input type="email" name="newEmail" class="form-control" placeholder="you@example.com" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Confirm Current Password</label>
+            <input type="password" name="currentPassword" class="form-control" placeholder="Required to confirm this change" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-outline-primary mt-3"><i class="ri-mail-send-line"></i> Update Email</button>
+      </form>
+    </div>
+
+    <div class="pe-admin-card p-4">
+      <h6 class="mb-3"><i class="ri-lock-password-line me-2 text-primary-pe"></i>Change Password</h6>
+      <form action="/profile/password" method="POST">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Current Password</label>
+            <input type="password" name="currentPassword" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">New Password</label>
+            <input type="password" name="newPassword" class="form-control" minlength="6" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Confirm New Password</label>
+            <input type="password" name="confirmPassword" class="form-control" minlength="6" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-outline-primary mt-3"><i class="ri-refresh-line"></i> Update Password</button>
+      </form>
+    </div>
+  </div>
+</div>

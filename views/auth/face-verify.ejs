@@ -1,0 +1,176 @@
+<div class="pe-auth-wrapper">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-6">
+        <div class="pe-auth-card">
+
+          <!-- Logo + heading -->
+          <div class="text-center mb-4">
+            <img src="/images/logo-icon.png" alt="PhysioEdvance" class="mx-auto d-block" style="height:4rem;width:auto;">
+            <h3 class="mt-3 mb-1">Face Verification</h3>
+            <p class="text-muted-pe small">Hello, <strong><%= pendingName %></strong> — one more step to confirm it's you.</p>
+          </div>
+
+          <!-- Step indicator -->
+          <div class="pe-step-bar mb-4">
+            <div class="pe-step done">
+              <div class="pe-step-num"><i class="ri-check-line"></i></div>
+              <span>Email & Password</span>
+            </div>
+            <div class="pe-step-line pe-step-line-done"></div>
+            <div class="pe-step active">
+              <div class="pe-step-num">2</div>
+              <span>Face Verification</span>
+            </div>
+          </div>
+
+          <div class="pe-step-info mb-4">
+            <i class="ri-face-recognition-line text-primary-pe me-2"></i>
+            <strong>Step 2 of 2:</strong> Look directly at the camera and click Scan to verify your identity.
+          </div>
+
+          <!-- Face verification box -->
+          <div class="pe-face-box">
+            <div class="pe-face-cam-wrap">
+              <video id="faceVideo" autoplay muted playsinline></video>
+              <canvas id="faceCanvas"></canvas>
+              <div class="pe-face-frame"></div>
+              <div class="pe-face-status" id="faceStatus">
+                <i class="ri-loader-4-line pe-spin"></i> Loading face detection…
+              </div>
+            </div>
+            <p class="text-muted-pe small text-center mt-3 mb-3">
+              <i class="ri-information-line me-1"></i>
+              Position your face clearly in the oval frame. Good lighting helps accuracy.
+            </p>
+            <button class="btn btn-primary w-100 btn-lg" id="faceBtn" onclick="startVerify()" disabled>
+              <i class="ri-scan-line me-1"></i> Verify My Face
+            </button>
+            <div id="faceResult" class="mt-3"></div>
+
+            <% if (failedAttempts >= 1) { %>
+              <div class="alert alert-warning mt-3 mb-0" style="font-size:.85rem;">
+                <i class="ri-error-warning-line me-1"></i> Face not matching? Lighting or angle can throw it off.
+                Since you already confirmed your password, you can re-register your face right now instead:
+                <div class="mt-2">
+                  <button type="button" class="btn btn-sm btn-outline-primary w-100" id="resetFaceBtn" onclick="resetFace()">
+                    <i class="ri-refresh-line me-1"></i> Re-register my face &amp; log in
+                  </button>
+                </div>
+              </div>
+            <% } %>
+
+            <!-- Hidden form submitted on success -->
+            <form id="faceForm" action="/auth/face-verify" method="POST" style="display:none;">
+              <input type="hidden" name="faceDescriptor" id="faceDescInput">
+            </form>
+            <form id="faceResetForm" action="/auth/face-verify/reset" method="POST" style="display:none;">
+              <input type="hidden" name="faceDescriptor" id="faceResetDescInput">
+            </form>
+          </div>
+
+          <div class="text-center mt-4 d-flex justify-content-between align-items-center">
+            <a href="/auth/login" class="small text-muted-pe">
+              <i class="ri-arrow-left-line me-1"></i> Back to Step 1
+            </a>
+            <form action="/auth/face-verify/skip" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-link btn-sm text-decoration-none text-muted-pe">
+                Skip &amp; Login Directly <i class="ri-arrow-right-line ms-1"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+const MODEL_URL = '/face-models';
+let faceApiReady = false;
+let videoStream = null;
+
+window.addEventListener('DOMContentLoaded', initFaceApi);
+
+async function initFaceApi() {
+  try {
+    setStatus('<i class="ri-loader-4-line pe-spin"></i> Loading face models…', 'info');
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+    faceApiReady = true;
+    startCamera();
+  } catch(e) {
+    setStatus('<i class="ri-error-warning-line"></i> Could not load face models: ' + e.message, 'error');
+  }
+}
+
+function startCamera() {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    .then(function(stream) {
+      videoStream = stream;
+      var v = document.getElementById('faceVideo');
+      v.srcObject = stream;
+      v.onloadedmetadata = function() {
+        setStatus('<i class="ri-checkbox-circle-line"></i> Camera ready. Click "Verify My Face".', 'success');
+        document.getElementById('faceBtn').disabled = false;
+      };
+    })
+    .catch(function() {
+      setStatus('<i class="ri-camera-off-line"></i> Camera access denied. Please allow camera access and refresh.', 'error');
+    });
+}
+
+async function startVerify() {
+  var btn = document.getElementById('faceBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ri-loader-4-line pe-spin me-1"></i> Scanning…';
+  setStatus('', '');
+
+  var video = document.getElementById('faceVideo');
+  var result = await faceapi
+    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  if (!result) {
+    setStatus('<i class="ri-error-warning-line"></i> No face detected. Look directly at the camera and try again.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ri-scan-line me-1"></i> Verify My Face';
+    return;
+  }
+
+  setStatus('<i class="ri-checkbox-circle-line"></i> Face captured! Verifying identity…', 'success');
+  document.getElementById('faceDescInput').value = JSON.stringify(Array.from(result.descriptor));
+  document.getElementById('faceForm').submit();
+}
+
+function setStatus(msg, type) {
+  var el = document.getElementById('faceStatus');
+  el.innerHTML = msg;
+  el.className = 'pe-face-status' + (type ? ' pe-face-' + type : '');
+}
+
+async function resetFace() {
+  var btn = document.getElementById('resetFaceBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ri-loader-4-line pe-spin me-1"></i> Scanning…';
+
+  var video = document.getElementById('faceVideo');
+  var result = await faceapi
+    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  if (!result) {
+    setStatus('<i class="ri-error-warning-line"></i> No face detected. Look directly at the camera and try again.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ri-refresh-line me-1"></i> Re-register my face & log in';
+    return;
+  }
+
+  document.getElementById('faceResetDescInput').value = JSON.stringify(Array.from(result.descriptor));
+  document.getElementById('faceResetForm').submit();
+}
+</script>

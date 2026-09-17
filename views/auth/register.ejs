@@ -1,0 +1,301 @@
+<div class="pe-auth-wrapper">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-7">
+        <div class="pe-auth-card">
+
+          <div class="text-center mb-4">
+            <img src="/images/logo-icon.png" alt="PhysioEdvance" class="mx-auto d-block" style="height:4rem;width:auto;">
+            <h3 class="mt-3 mb-1">Create Your Account</h3>
+            <p class="text-muted-pe small">Complete both steps to register — face setup is mandatory</p>
+          </div>
+
+          <!-- Step indicator -->
+          <div class="pe-step-bar mb-4" id="stepBar">
+            <div class="pe-step active" id="step1Dot">
+              <div class="pe-step-num">1</div>
+              <span>Your Details</span>
+            </div>
+            <div class="pe-step-line" id="stepLine"></div>
+            <div class="pe-step" id="step2Dot">
+              <div class="pe-step-num">2</div>
+              <span>Face Setup</span>
+            </div>
+          </div>
+
+          <!-- Flash messages -->
+          <% if (typeof messages !== 'undefined') { %>
+            <% (messages.error || []).forEach(m => { %>
+              <div class="alert alert-danger alert-dismissible d-flex align-items-center gap-2" role="alert">
+                <i class="ri-error-warning-line flex-shrink-0"></i><div><%= m %></div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+              </div>
+            <% }) %>
+          <% } %>
+
+          <form action="/auth/register" method="POST" id="registerForm">
+            <!-- Hidden face descriptor — filled by Step 2 -->
+            <input type="hidden" name="faceDescriptor" id="faceDescriptor">
+
+            <!-- ===== STEP 1: Account Details ===== -->
+            <div id="panelStep1">
+              <div class="pe-2fa-notice mb-4">
+                <i class="ri-user-add-line"></i>
+                <div>
+                  <strong>Step 1 of 2 — Account Details</strong>
+                  <p class="mb-0 small">Fill in your information, then proceed to face setup in Step 2.</p>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <div class="position-relative">
+                  <span class="pe-input-icon"><i class="ri-user-line"></i></span>
+                  <input type="text" name="name" id="reg_name" class="form-control pe-input-padded"
+                    placeholder="Dr. Your Name" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Email Address</label>
+                <div class="position-relative">
+                  <span class="pe-input-icon"><i class="ri-mail-line"></i></span>
+                  <input type="email" name="email" id="reg_email" class="form-control pe-input-padded"
+                    placeholder="you@example.com" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Password</label>
+                <div class="position-relative">
+                  <span class="pe-input-icon"><i class="ri-lock-line"></i></span>
+                  <input type="password" name="password" id="pwdField" class="form-control pe-input-padded"
+                    placeholder="Min. 6 characters" required>
+                  <button type="button" class="pe-pwd-toggle" onclick="togglePwd('pwdField',this)">
+                    <i class="ri-eye-off-line"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="form-label">Confirm Password</label>
+                <div class="position-relative">
+                  <span class="pe-input-icon"><i class="ri-lock-2-line"></i></span>
+                  <input type="password" name="confirmPassword" id="pwdConfirm" class="form-control pe-input-padded"
+                    placeholder="Repeat your password" required>
+                  <button type="button" class="pe-pwd-toggle" onclick="togglePwd('pwdConfirm',this)">
+                    <i class="ri-eye-off-line"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="form-label">I am registering as</label>
+                <select name="role" class="form-select">
+                  <option value="student" selected>Student (Undergraduate / Learner)</option>
+                  <option value="intern">Intern (Clinical Intern)</option>
+                  <option value="clinician">Clinician (Practicing Physiotherapist)</option>
+                  <option value="educator">Academic or educator (Faculty / Lecturer)</option>
+                  <option value="researcher">Researcher (Research Scholar / Fellow)</option>
+                  <option value="instructor">Instructor (Course Creator)</option>
+                </select>
+              </div>
+
+              <button type="button" class="btn btn-primary w-100 btn-lg" onclick="goToStep2()">
+                Continue to Face Setup <i class="ri-arrow-right-line ms-1"></i>
+              </button>
+            </div>
+
+            <!-- ===== STEP 2: Face Capture ===== -->
+            <div id="panelStep2" style="display:none;">
+              <div class="pe-2fa-notice pe-2fa-notice-face mb-4">
+                <i class="ri-face-recognition-line"></i>
+                <div>
+                  <strong>Step 2 of 2 — Face Setup (Mandatory)</strong>
+                  <p class="mb-0 small">Your face is used to verify your identity every time you log in. You cannot skip this step.</p>
+                </div>
+              </div>
+
+              <div class="pe-face-box">
+                <div class="pe-face-cam-wrap">
+                  <video id="faceVideo" autoplay muted playsinline></video>
+                  <canvas id="faceCanvas"></canvas>
+                  <div class="pe-face-frame"></div>
+                  <div class="pe-face-status" id="faceStatus">
+                    <i class="ri-loader-4-line pe-spin"></i> Loading face detection…
+                  </div>
+                </div>
+                <p class="text-muted-pe small text-center mt-3 mb-3">
+                  <i class="ri-information-line me-1"></i>
+                  Sit in good lighting, look directly at the camera, then click Capture.
+                </p>
+
+                <!-- Capture button (shown first) -->
+                <button type="button" class="btn btn-primary w-100 btn-lg mb-3"
+                  id="captureBtn" onclick="captureFace()" disabled>
+                  <i class="ri-camera-line me-1"></i> Capture My Face
+                </button>
+
+                <!-- Retake + Submit (shown after successful capture) -->
+                <div id="afterCapture" style="display:none;">
+                  <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+                    <i class="ri-checkbox-circle-fill fs-5"></i>
+                    <div><strong>Face captured!</strong> Click "Create Account" to finish, or retake if needed.</div>
+                  </div>
+                  <div class="d-flex gap-3">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1" onclick="retakeFace()">
+                      <i class="ri-camera-line me-1"></i> Retake
+                    </button>
+                    <button type="submit" class="btn btn-success flex-grow-2">
+                      <i class="ri-user-add-line me-1"></i> Create Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center mt-3">
+                <button type="button" class="btn btn-link btn-sm text-muted-pe" onclick="goToStep1()">
+                  <i class="ri-arrow-left-line me-1"></i> Back to Step 1
+                </button>
+              </div>
+            </div>
+
+          </form>
+
+          <p class="text-center small text-muted-pe mb-0 mt-3">
+            Already have an account? <a href="/auth/login" class="fw-600">Log in</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+const MODEL_URL = '/face-models';
+let faceApiReady = false;
+let videoStream = null;
+
+function togglePwd(id, btn) {
+  var f = document.getElementById(id);
+  f.type = f.type === 'password' ? 'text' : 'password';
+  btn.querySelector('i').className = f.type === 'password' ? 'ri-eye-off-line' : 'ri-eye-line';
+}
+
+function goToStep2() {
+  // Validate Step 1 fields before proceeding
+  var name = document.getElementById('reg_name').value.trim();
+  var email = document.getElementById('reg_email').value.trim();
+  var pwd = document.getElementById('pwdField').value;
+  var cpwd = document.getElementById('pwdConfirm').value;
+
+  if (!name) { alert('Please enter your full name.'); return; }
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  if (pwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
+  if (pwd !== cpwd) { alert('Passwords do not match.'); return; }
+
+  // Show Step 2
+  document.getElementById('panelStep1').style.display = 'none';
+  document.getElementById('panelStep2').style.display = '';
+
+  // Update step bar
+  document.getElementById('step1Dot').classList.remove('active');
+  document.getElementById('step1Dot').classList.add('done');
+  document.getElementById('step1Dot').querySelector('.pe-step-num').innerHTML = '<i class="ri-check-line"></i>';
+  document.getElementById('stepLine').classList.add('pe-step-line-done');
+  document.getElementById('step2Dot').classList.add('active');
+
+  // Load face API
+  initFaceApi();
+}
+
+function goToStep1() {
+  document.getElementById('panelStep2').style.display = 'none';
+  document.getElementById('panelStep1').style.display = '';
+  document.getElementById('step1Dot').classList.add('active');
+  document.getElementById('step1Dot').classList.remove('done');
+  document.getElementById('step1Dot').querySelector('.pe-step-num').innerHTML = '1';
+  document.getElementById('stepLine').classList.remove('pe-step-line-done');
+  document.getElementById('step2Dot').classList.remove('active');
+  stopCamera();
+}
+
+async function initFaceApi() {
+  if (faceApiReady) { startCamera(); return; }
+  try {
+    setStatus('<i class="ri-loader-4-line pe-spin"></i> Loading face detection models…', 'info');
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+    faceApiReady = true;
+    setStatus('<i class="ri-checkbox-circle-line"></i> Ready. Starting camera…', 'success');
+    startCamera();
+  } catch(e) {
+    setStatus('<i class="ri-error-warning-line"></i> Could not load models: ' + e.message, 'error');
+  }
+}
+
+function startCamera() {
+  if (videoStream) return;
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    .then(function(stream) {
+      videoStream = stream;
+      var v = document.getElementById('faceVideo');
+      v.srcObject = stream;
+      v.onloadedmetadata = function() {
+        setStatus('<i class="ri-checkbox-circle-line"></i> Camera ready — look directly at the camera.', 'success');
+        document.getElementById('captureBtn').disabled = false;
+      };
+    })
+    .catch(function() {
+      setStatus('<i class="ri-camera-off-line"></i> Camera access denied. Please allow camera and refresh.', 'error');
+    });
+}
+
+function stopCamera() {
+  if (videoStream) {
+    videoStream.getTracks().forEach(function(t) { t.stop(); });
+    videoStream = null;
+  }
+}
+
+async function captureFace() {
+  var btn = document.getElementById('captureBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ri-loader-4-line pe-spin me-1"></i> Capturing…';
+  setStatus('', '');
+
+  var video = document.getElementById('faceVideo');
+  var result = await faceapi
+    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  if (!result) {
+    setStatus('<i class="ri-error-warning-line"></i> No face detected. Look at the camera and try again.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ri-camera-line me-1"></i> Capture My Face';
+    return;
+  }
+
+  // Save descriptor
+  document.getElementById('faceDescriptor').value = JSON.stringify(Array.from(result.descriptor));
+  setStatus('<i class="ri-checkbox-circle-line"></i> Face captured successfully!', 'success');
+
+  // Show after-capture buttons, hide capture button
+  btn.style.display = 'none';
+  document.getElementById('afterCapture').style.display = '';
+}
+
+function retakeFace() {
+  document.getElementById('faceDescriptor').value = '';
+  document.getElementById('captureBtn').style.display = '';
+  document.getElementById('captureBtn').disabled = false;
+  document.getElementById('captureBtn').innerHTML = '<i class="ri-camera-line me-1"></i> Capture My Face';
+  document.getElementById('afterCapture').style.display = 'none';
+  setStatus('<i class="ri-checkbox-circle-line"></i> Camera ready — look directly at the camera.', 'success');
+}
+
+function setStatus(msg, type) {
+  var el = document.getElementById('faceStatus');
+  el.innerHTML = msg;
+  el.className = 'pe-face-status' + (type ? ' pe-face-' + type : '');
+}
+</script>

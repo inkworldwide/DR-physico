@@ -1,0 +1,177 @@
+<!-- ============ ADMIN CALL TO ACTION BANNER MANAGER ============ -->
+<div class="pe-page-head mb-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1.5 small text-muted">
+          <li class="breadcrumb-item"><a href="/admin/dashboard" class="text-decoration-none text-muted"><i class="ri-home-4-line me-1"></i>Dashboard</a></li>
+          <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">Call to Action Banner</li>
+        </ol>
+      </nav>
+      <div class="d-flex align-items-center gap-2.5 flex-wrap">
+        <h3 class="fw-bold text-dark mb-0 fs-4 d-flex align-items-center gap-2">
+          <span class="p-2 rounded-3 bg-primary text-white d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px;">
+            <i class="ri-megaphone-line fs-5"></i>
+          </span>
+          <span>Call to Action Banner Manager</span>
+        </h3>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-semibold small">
+          <i class="ri-sparkling-line me-1"></i> Homepage Footer Banner
+        </span>
+      </div>
+      <p class="text-muted small mt-1.5 mb-0">
+        Customize the final conversion CTA banner displayed at the bottom of your homepage.
+      </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <a href="/" target="_blank" class="btn btn-outline-primary rounded-pill px-3.5 py-2 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-xs hover-shadow">
+        <i class="ri-external-link-line fs-5"></i>
+        <span>Preview on Homepage</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LIVE VISUAL PREVIEW BOX ============ -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4" style="background: linear-gradient(120deg, #091e3a 0%, #0a5dc2 60%, #299cdb 130%); color: #fff;">
+  <div class="card-body p-4 p-md-5 text-center position-relative">
+    <span class="badge bg-white text-primary rounded-pill px-3.5 py-1.5 fw-bold mb-3 shadow-sm d-inline-flex align-items-center gap-1.5" style="font-size: 0.82rem; letter-spacing: 0.04em;">
+      <i class="<%= ctaSettings.badgeIcon || 'ri-graduation-cap-line' %>" id="previewBadgeIcon"></i>
+      <span id="previewBadgeText"><%= ctaSettings.badgeText %></span>
+    </span>
+
+    <h2 class="text-white mb-3" style="font-size: clamp(1.75rem, 3.5vw, 2.75rem); font-weight: 800; line-height: 1.15;" id="previewTitle">
+      <%= ctaSettings.title %>
+    </h2>
+
+    <p class="mx-auto mb-4" style="color: rgba(255,255,255,0.85); font-size: 1.05rem; max-width: 580px; line-height: 1.6;" id="previewSubtext">
+      <%= ctaSettings.subtext %>
+    </p>
+
+    <div class="d-flex gap-3 justify-content-center flex-wrap mb-3">
+      <span class="btn btn-white text-primary font-weight-bold rounded-pill px-4 py-2.5 shadow-sm d-inline-flex align-items-center gap-2" style="background:#fff; color:#0a5dc2; font-weight:700; font-size: 1rem;">
+        <i class="<%= ctaSettings.primaryBtnIcon || 'ri-user-add-line' %>" id="previewPrimaryIcon"></i>
+        <span id="previewPrimaryBtn"><%= ctaSettings.primaryBtnText %></span>
+      </span>
+      <span class="btn btn-outline-light rounded-pill px-4 py-2.5 fw-semibold d-inline-flex align-items-center gap-2" style="font-size: 1rem;">
+        <span id="previewSecondaryBtn"><%= ctaSettings.secondaryBtnText %></span>
+        <i class="<%= ctaSettings.secondaryBtnIcon || 'ri-arrow-right-line' %>" id="previewSecondaryIcon"></i>
+      </span>
+    </div>
+
+    <small class="d-block" style="color: rgba(255,255,255,0.7); font-size: 0.85rem;" id="previewNoteText">
+      <i class="ri-shield-check-line me-1"></i> <%= ctaSettings.noteText %>
+    </small>
+  </div>
+</div>
+
+<!-- ============ EDIT FORM ============ -->
+<form action="/admin/cta" method="POST">
+  <div class="row g-4">
+    
+    <!-- Left Column: Content & Copywriting -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom d-flex align-items-center gap-2">
+          <i class="ri-t-box-line text-primary"></i>
+          <span>Headline & Content Copy</span>
+        </h5>
+
+        <div class="row g-3">
+          <!-- Badge Text & Icon -->
+          <div class="col-md-7">
+            <label class="form-label fw-bold text-dark small">Badge Pill Text</label>
+            <input type="text" name="badgeText" class="form-control" value="<%= ctaSettings.badgeText %>" required
+                   oninput="document.getElementById('previewBadgeText').innerText = this.value || 'Free Forever'">
+          </div>
+          <div class="col-md-5">
+            <label class="form-label fw-bold text-dark small">Badge Icon (RemixIcon)</label>
+            <input type="text" name="badgeIcon" class="form-control font-monospace" value="<%= ctaSettings.badgeIcon %>" required>
+          </div>
+
+          <!-- Main Title -->
+          <div class="col-12">
+            <label class="form-label fw-bold text-dark small">Main Headline Title <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control fw-bold" value="<%= ctaSettings.title %>" required
+                   oninput="document.getElementById('previewTitle').innerText = this.value || 'Start your physiotherapy learning journey today'">
+          </div>
+
+          <!-- Subtext / Description -->
+          <div class="col-12">
+            <label class="form-label fw-bold text-dark small">Subtext Description</label>
+            <textarea name="subtext" rows="3" class="form-control"
+                      oninput="document.getElementById('previewSubtext').innerText = this.value || ''"><%= ctaSettings.subtext %></textarea>
+          </div>
+
+          <!-- Trust / Note Text -->
+          <div class="col-12">
+            <label class="form-label fw-bold text-dark small">Trust / Footer Note Text</label>
+            <input type="text" name="noteText" class="form-control" value="<%= ctaSettings.noteText %>"
+                   oninput="document.getElementById('previewNoteText').innerHTML = '<i class=\'ri-shield-check-line me-1\'></i> ' + (this.value || '')">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Buttons & Settings -->
+    <div class="col-lg-5">
+      <!-- Primary Button -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom d-flex align-items-center gap-2">
+          <i class="ri-cursor-line text-primary"></i>
+          <span>Primary Button</span>
+        </h5>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Button Label</label>
+          <input type="text" name="primaryBtnText" class="form-control" value="<%= ctaSettings.primaryBtnText %>" required
+                 oninput="document.getElementById('previewPrimaryBtn').innerText = this.value || 'Create Free Account'">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Destination URL</label>
+          <input type="text" name="primaryBtnUrl" class="form-control font-monospace" value="<%= ctaSettings.primaryBtnUrl %>" required>
+        </div>
+
+        <div class="mb-0">
+          <label class="form-label fw-bold text-dark small">Button Icon</label>
+          <input type="text" name="primaryBtnIcon" class="form-control font-monospace" value="<%= ctaSettings.primaryBtnIcon %>">
+        </div>
+      </div>
+
+      <!-- Secondary Button & Visibility -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom d-flex align-items-center gap-2">
+          <i class="ri-links-line text-secondary"></i>
+          <span>Secondary Button & Visibility</span>
+        </h5>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Secondary Button Label</label>
+          <input type="text" name="secondaryBtnText" class="form-control" value="<%= ctaSettings.secondaryBtnText %>"
+                 oninput="document.getElementById('previewSecondaryBtn').innerText = this.value || 'Explore Subjects'">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Destination URL</label>
+          <input type="text" name="secondaryBtnUrl" class="form-control font-monospace" value="<%= ctaSettings.secondaryBtnUrl %>">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">Section Visibility</label>
+          <select name="isEnabled" class="form-select">
+            <option value="1" <%= ctaSettings.isEnabled ? 'selected' : '' %>>Active (Show CTA Banner on Homepage)</option>
+            <option value="0" <%= !ctaSettings.isEnabled ? 'selected' : '' %>>Disabled (Hide CTA Banner)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2.5 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" style="background: #0a5dc2; border:none;">
+          <i class="ri-save-line fs-5"></i>
+          <span>Save Banner Changes</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</form>

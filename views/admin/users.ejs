@@ -1,0 +1,1337 @@
+<%
+  const studentCount = users.filter(u => u.role === 'student').length;
+  const internCount = users.filter(u => u.role === 'intern').length;
+  const clinicianCount = users.filter(u => u.role === 'clinician').length;
+  const educatorCount = users.filter(u => u.role === 'educator' || u.role === 'academic_educator' || u.role === 'academic_mission').length;
+  const researcherCount = users.filter(u => u.role === 'researcher').length;
+  const instructorCount = users.filter(u => u.role === 'instructor').length;
+  const adminCount = users.filter(u => u.role === 'admin').length;
+  const totalActive = users.length;
+  const trashCount = (deletedUsers || []).length;
+
+  function getRoleInfo(role) {
+    const r = (role || 'student').toLowerCase().trim();
+    if (r === 'admin') {
+      return { cls: 'pe-role-admin', icon: 'ri-shield-star-line', label: 'Admin' };
+    } else if (r === 'instructor') {
+      return { cls: 'pe-role-instructor', icon: 'ri-presentation-line', label: 'Instructor' };
+    } else if (r === 'intern') {
+      return { cls: 'pe-role-intern', icon: 'ri-stethoscope-line', label: 'Intern' };
+    } else if (r === 'clinician') {
+      return { cls: 'pe-role-clinician', icon: 'ri-hospital-line', label: 'Clinician' };
+    } else if (r === 'educator' || r === 'academic_educator' || r === 'academic_mission') {
+      return { cls: 'pe-role-educator', icon: 'ri-book-read-line', label: 'Educator' };
+    } else if (r === 'researcher') {
+      return { cls: 'pe-role-researcher', icon: 'ri-microscope-line', label: 'Researcher' };
+    } else {
+      return { cls: 'pe-role-student', icon: 'ri-graduation-cap-line', label: 'Student' };
+    }
+  }
+%>
+
+<style>
+  .pe-user-kpi-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    border-radius: 16px;
+    padding: 1rem 1.15rem;
+    transition: all 0.25s ease;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 94px;
+  }
+  .pe-user-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    border-color: #cbd5e1;
+  }
+  .pe-user-kpi-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    height: 100%;
+    width: 100%;
+  }
+  .pe-user-kpi-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    line-height: 1.25;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+  }
+  .pe-user-kpi-val {
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-top: 4px;
+  }
+  .pe-user-kpi-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .pe-admin-role-tabs {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 4px;
+    border-radius: 14px;
+  }
+  .admin-role-btn {
+    border-radius: 10px !important;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+    padding: 6px 14px !important;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .admin-role-btn:hover {
+    color: #0a5dc2;
+    background: rgba(10, 93, 194, 0.06);
+  }
+  .admin-role-btn.active {
+    background: #0a5dc2 !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 10px rgba(10, 93, 194, 0.25);
+  }
+  .admin-role-btn.active .badge {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+  }
+  .pe-user-table tbody tr {
+    transition: background-color 0.18s ease;
+  }
+  .pe-user-table tbody tr:hover {
+    background-color: #f8fafc;
+  }
+  .user-avatar-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+  }
+  .pe-pw-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.82rem;
+    color: #334155;
+    transition: all 0.2s ease;
+  }
+  .pe-pw-box:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+  }
+  .pe-pw-toggle-btn, .pe-pw-copy-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #64748b;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .pe-pw-toggle-btn:hover, .pe-pw-copy-btn:hover {
+    background: #0a5dc2;
+    color: #ffffff;
+    border-color: #0a5dc2;
+    transform: scale(1.08);
+  }
+  .pe-pw-copy-btn.copied {
+    background: #10b981 !important;
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+  }
+  .action-btn-circle {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+  }
+  .action-btn-circle:hover {
+    transform: scale(1.08);
+  }
+  .pe-role-option-card {
+    border: 2px solid #e2e8f0 !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background: #ffffff;
+  }
+  .pe-role-option-card:hover {
+    border-color: #93c5fd !important;
+    background: #f8fafc;
+  }
+  .pe-role-option-card:has(.btn-check:checked),
+  .pe-role-option-card.active {
+    border-color: #0a5dc2 !important;
+    background: #eff6ff !important;
+    box-shadow: 0 0 0 1px #0a5dc2;
+  }
+  .pe-user-id-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 3px 8px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    white-space: nowrap;
+  }
+  /* Enterprise Role Badges */
+  .pe-role-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 4px 11px !important;
+    border-radius: 9999px !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+  }
+  .pe-role-admin {
+    background-color: #f3e8ff !important;
+    color: #7e22ce !important;
+    border-color: #d8b4fe !important;
+  }
+  .pe-role-instructor {
+    background-color: #e0e7ff !important;
+    color: #4338ca !important;
+    border-color: #c7d2fe !important;
+  }
+  .pe-role-intern {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fde68a !important;
+  }
+  .pe-role-clinician {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #bbf7d0 !important;
+  }
+  .pe-role-educator {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    border-color: #bae6fd !important;
+  }
+  .pe-role-researcher {
+    background-color: #ccfbf1 !important;
+    color: #0f766e !important;
+    border-color: #99f6e4 !important;
+  }
+  .pe-role-student {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe !important;
+  }
+  .bg-purple-subtle { background-color: #f3e8ff !important; }
+  .text-purple { color: #7e22ce !important; }
+  .border-purple-subtle { border-color: #d8b4fe !important; }
+  .bg-indigo-subtle { background-color: #e0e7ff !important; }
+  .text-indigo { color: #4338ca !important; }
+  .border-indigo-subtle { border-color: #c7d2fe !important; }
+  .bg-teal-subtle { background-color: #ccfbf1 !important; }
+  .text-teal { color: #0f766e !important; }
+  .border-teal-subtle { border-color: #99f6e4 !important; }
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(10, 93, 194, 0.2) !important;
+  }
+</style>
+
+<!-- ============ PAGE HEADER & KPI STATS ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-weight-bold px-2.5 py-1 rounded-pill" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+        <i class="ri-shield-user-line me-1"></i> USER ADMINISTRATION
+      </span>
+      <span class="badge bg-light text-muted border px-2 py-0.5 rounded-pill small">System Directory</span>
+    </div>
+    <h3 class="fw-black text-dark mb-1" style="letter-spacing: -0.5px;">Manage Users & Access</h3>
+    <p class="text-muted small mb-0">Manage credentials and roles for Students, Interns, Clinicians, Educators, Researchers, Instructors & Admins.</p>
+  </div>
+
+  <div class="d-flex align-items-center gap-2">
+    <button type="button" class="btn btn-primary rounded-pill px-3.5 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2 hover-lift" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%); border: none;" data-bs-toggle="modal" data-bs-target="#addUserModal">
+      <i class="ri-user-add-line fs-5"></i> Add User
+    </button>
+  </div>
+</div>
+
+<!-- ============ KPI METRIC CARDS ============ -->
+<div class="row g-3 mb-4 align-items-stretch">
+  <div class="col-6 col-md-4 col-xl-2 d-flex">
+    <div class="pe-user-kpi-card shadow-xs w-100">
+      <div class="pe-user-kpi-header">
+        <div class="d-flex flex-column justify-content-between h-100">
+          <div class="pe-user-kpi-title">Total Active</div>
+          <div class="pe-user-kpi-val text-dark"><%= totalActive %></div>
+        </div>
+        <div class="pe-user-kpi-icon bg-primary-subtle text-primary">
+          <i class="ri-team-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2 d-flex">
+    <div class="pe-user-kpi-card shadow-xs w-100">
+      <div class="pe-user-kpi-header">
+        <div class="d-flex flex-column justify-content-between h-100">
+          <div class="pe-user-kpi-title">Students</div>
+          <div class="pe-user-kpi-val text-primary"><%= studentCount %></div>
+        </div>
+        <div class="pe-user-kpi-icon bg-primary-subtle text-primary">
+          <i class="ri-graduation-cap-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2 d-flex">
+    <div class="pe-user-kpi-card shadow-xs w-100">
+      <div class="pe-user-kpi-header">
+        <div class="d-flex flex-column justify-content-between h-100">
+          <div class="pe-user-kpi-title">Interns / Clinicians</div>
+          <div class="pe-user-kpi-val text-success"><%= internCount + clinicianCount %></div>
+        </div>
+        <div class="pe-user-kpi-icon bg-success-subtle text-success">
+          <i class="ri-hospital-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2 d-flex">
+    <div class="pe-user-kpi-card shadow-xs w-100">
+      <div class="pe-user-kpi-header">
+        <div class="d-flex flex-column justify-content-between h-100">
+          <div class="pe-user-kpi-title">Educators / Research</div>
+          <div class="pe-user-kpi-val text-info"><%= educatorCount + researcherCount %></div>
+        </div>
+        <div class="pe-user-kpi-icon bg-info-subtle text-info">
+          <i class="ri-book-read-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2 d-flex">
+    <div class="pe-user-kpi-card shadow-xs w-100">
+      <div class="pe-user-kpi-header">
+        <div class="d-flex flex-column justify-content-between h-100">
+          <div class="pe-user-kpi-title">Instructors / Admins</div>
+          <div class="pe-user-kpi-val text-purple"><%= instructorCount + adminCount %></div>
+        </div>
+        <div class="pe-user-kpi-icon bg-purple-subtle text-purple">
+          <i class="ri-shield-star-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2 d-flex">
+    <div class="pe-user-kpi-card shadow-xs w-100">
+      <div class="pe-user-kpi-header">
+        <div class="d-flex flex-column justify-content-between h-100">
+          <div class="pe-user-kpi-title">Recycle Bin</div>
+          <div class="pe-user-kpi-val text-danger"><%= trashCount %></div>
+        </div>
+        <div class="pe-user-kpi-icon bg-danger-subtle text-danger">
+          <i class="ri-delete-bin-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROLE FILTERS & LIVE SEARCH ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div class="pe-admin-role-tabs d-inline-flex flex-wrap gap-1">
+    <a href="/admin/users" class="admin-role-btn <%= !filterRole ? 'active' : '' %>">
+      <i class="ri-apps-2-line"></i> All <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= totalActive %></span>
+    </a>
+    <a href="/admin/users?role=student" class="admin-role-btn <%= filterRole === 'student' ? 'active' : '' %>">
+      <i class="ri-graduation-cap-line"></i> Students <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= studentCount %></span>
+    </a>
+    <a href="/admin/users?role=intern" class="admin-role-btn <%= filterRole === 'intern' ? 'active' : '' %>">
+      <i class="ri-stethoscope-line"></i> Interns <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= internCount %></span>
+    </a>
+    <a href="/admin/users?role=clinician" class="admin-role-btn <%= filterRole === 'clinician' ? 'active' : '' %>">
+      <i class="ri-hospital-line"></i> Clinicians <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= clinicianCount %></span>
+    </a>
+    <a href="/admin/users?role=educator" class="admin-role-btn <%= (filterRole === 'educator' || filterRole === 'academic_educator') ? 'active' : '' %>">
+      <i class="ri-book-read-line"></i> Educators <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= educatorCount %></span>
+    </a>
+    <a href="/admin/users?role=researcher" class="admin-role-btn <%= filterRole === 'researcher' ? 'active' : '' %>">
+      <i class="ri-microscope-line"></i> Researchers <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= researcherCount %></span>
+    </a>
+    <a href="/admin/users?role=instructor" class="admin-role-btn <%= filterRole === 'instructor' ? 'active' : '' %>">
+      <i class="ri-presentation-line"></i> Instructors <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= instructorCount %></span>
+    </a>
+    <a href="/admin/users?role=admin" class="admin-role-btn <%= filterRole === 'admin' ? 'active' : '' %>">
+      <i class="ri-shield-star-line"></i> Admins <span class="badge rounded-pill bg-white text-dark ms-1 px-1.5 py-0.5" style="font-size: 0.7rem;"><%= adminCount %></span>
+    </a>
+  </div>
+
+  <div class="d-flex align-items-center gap-2">
+    <div class="input-group input-group-sm" style="width: 260px;">
+      <span class="input-group-text bg-white border-end-0 text-muted"><i class="ri-search-line"></i></span>
+      <input type="text" id="userLiveSearch" class="form-control bg-white border-start-0 ps-0" placeholder="Search name, email, role..." onkeyup="filterUserTable()">
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACTIVE USERS TABLE ============ -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="table-responsive">
+    <table class="table pe-user-table align-middle mb-0" id="activeUsersTable">
+      <thead class="bg-light text-muted small text-uppercase" style="letter-spacing: 0.5px;">
+        <tr>
+          <th class="ps-4 py-3" style="min-width: 140px;">User ID</th>
+          <th class="py-3">User Profile</th>
+          <th class="py-3">Email Address</th>
+          <th class="py-3">Password / Credentials</th>
+          <th class="py-3 text-center">Role</th>
+          <th class="py-3 text-center">Status</th>
+          <th class="py-3">Joined Date</th>
+          <th class="pe-4 py-3 text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (users.length === 0) { %>
+          <tr id="emptyUsersRow">
+            <td colspan="8" class="text-center text-muted py-5">
+              <i class="ri-user-unfollow-line display-5 text-muted opacity-50 d-block mb-2"></i>
+              <h6 class="fw-bold text-dark">No active users found.</h6>
+              <p class="small text-muted mb-0">Try changing the role filter above.</p>
+            </td>
+          </tr>
+        <% } %>
+        <% users.forEach(u => { 
+             const userPass = u.plain_password || (u.role === 'admin' ? 'Admin@123' : (u.role === 'instructor' ? 'Instructor@123' : 'Student@123'));
+             const formattedId = u.user_code || ('PE-' + (u.role ? u.role.substring(0,3).toUpperCase() : 'USR') + '-' + String(u.id).padStart(4, '0'));
+        %>
+          <tr class="user-row" data-search="<%= (u.name + ' ' + u.email + ' ' + u.role + ' ' + formattedId).toLowerCase() %>">
+            <td class="ps-4 py-3">
+              <span class="pe-user-id-pill">
+                <i class="ri-fingerprint-line text-primary"></i> <%= formattedId %>
+              </span>
+            </td>
+            <td class="py-3">
+              <a href="/admin/users/<%= u.id %>" class="d-flex align-items-center gap-2.5 text-decoration-none text-dark group-hover">
+                <img src="<%= u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name) + '&background=0a5dc2&color=fff' %>" 
+                     class="user-avatar-box shadow-xs" 
+                     onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(u.name) %>&background=0a5dc2&color=fff'">
+                <div>
+                  <div class="fw-bold text-dark"><%= u.name %></div>
+                </div>
+              </a>
+            </td>
+            <td class="py-3">
+              <div class="d-inline-flex align-items-center gap-1.5 text-secondary">
+                <i class="ri-mail-line text-muted small"></i>
+                <span class="small font-weight-medium"><%= u.email %></span>
+              </div>
+            </td>
+            <td class="py-3">
+              <div class="pe-pw-box" id="pw-box-<%= u.id %>">
+                <span class="pw-value" data-hidden="true" data-plain="<%= userPass %>">••••••••</span>
+                <button type="button" class="pe-pw-toggle-btn" onclick="togglePassword('<%= u.id %>')" title="Show/Hide Password">
+                  <i class="ri-eye-line" id="eye-icon-<%= u.id %>"></i>
+                </button>
+                <button type="button" class="pe-pw-copy-btn" id="copy-btn-<%= u.id %>" onclick="copyPassword('<%= u.id %>')" title="Copy Password">
+                  <i class="ri-file-copy-line"></i>
+                </button>
+              </div>
+            </td>
+            <td class="py-3 text-center">
+              <% const rInfo = getRoleInfo(u.role); %>
+              <span class="pe-role-badge <%= rInfo.cls %>">
+                <i class="<%= rInfo.icon %>"></i> <%= rInfo.label %>
+              </span>
+            </td>
+            <td class="py-3 text-center">
+              <form action="/admin/users/<%= u.id %>/toggle-active" method="POST" class="d-inline">
+                <button type="submit" class="badge <%= u.is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle' %> rounded-pill px-2.5 py-1 font-weight-bold border-0" style="cursor:pointer;" title="Click to toggle account status">
+                  <i class="ri-<%= u.is_active ? 'checkbox-circle-line' : 'close-circle-line' %> me-1"></i> <%= u.is_active ? 'Active' : 'Inactive' %>
+                </button>
+              </form>
+            </td>
+            <td class="py-3 text-muted small">
+              <i class="ri-calendar-line me-1 text-muted"></i><%= new Date(u.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %>
+            </td>
+            <td class="pe-4 py-3 text-end">
+              <div class="d-inline-flex align-items-center gap-1.5">
+                <a href="/admin/users/<%= u.id %>" class="action-btn-circle btn btn-sm btn-outline-primary" title="View Detailed Profile">
+                  <i class="ri-eye-line"></i>
+                </a>
+                <button type="button" class="action-btn-circle btn btn-sm btn-outline-warning text-dark border shadow-2xs" onclick="openEditUserModal(<%= JSON.stringify(u) %>)" title="Edit User Details & Role">
+                  <i class="ri-edit-line text-warning-emphasis"></i>
+                </button>
+                <% if (u.role !== 'admin') { %>
+                  <form action="/admin/users/<%= u.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Move user &quot;<%= u.name %>&quot; to Deleted Users (Recycle Bin)?')">
+                    <button type="submit" class="action-btn-circle btn btn-sm btn-outline-danger" title="Move to Recycle Bin">
+                      <i class="ri-delete-bin-line"></i>
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ DELETED USERS (RECYCLE BIN / TRASH) ============ -->
+<div class="mt-5 pt-4 border-top">
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <div>
+      <h5 class="fw-black text-danger mb-1 d-flex align-items-center gap-2">
+        <i class="ri-delete-bin-line"></i> Deleted Users (Recycle Bin)
+      </h5>
+      <p class="text-muted small mb-0">Users in the recycle bin can be instantly restored back or permanently deleted from the database.</p>
+    </div>
+    <% if (deletedUsers && deletedUsers.length > 0) { %>
+      <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 rounded-pill font-weight-bold">
+        <i class="ri-recycle-line me-1"></i> <%= deletedUsers.length %> in Recycle Bin
+      </span>
+    <% } %>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5" style="background: #fffafa; border: 1px dashed #f5c2c7 !important;">
+    <div class="table-responsive">
+      <table class="table pe-user-table align-middle mb-0">
+        <thead style="background: #ffebe9;">
+          <tr>
+            <th class="ps-4 py-3" style="min-width: 140px; color: #842029;">User ID</th>
+            <th class="py-3" style="color: #842029;">User</th>
+            <th class="py-3" style="color: #842029;">Email Address</th>
+            <th class="py-3" style="color: #842029;">Password</th>
+            <th class="py-3 text-center" style="color: #842029;">Role</th>
+            <th class="py-3" style="color: #842029;">Deleted At</th>
+            <th class="pe-4 py-3 text-end" style="color: #842029;">Recycle Bin Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!deletedUsers || deletedUsers.length === 0) { %>
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">
+                <i class="ri-check-double-line text-success fs-5 me-1"></i> Recycle bin is empty. No deleted users.
+              </td>
+            </tr>
+          <% } else { %>
+            <% deletedUsers.forEach(u => { 
+                 const userPass = u.plain_password || (u.role === 'admin' ? 'Admin@123' : (u.role === 'instructor' ? 'Instructor@123' : 'Student@123'));
+                 const formattedId = u.user_code || ('PE-' + (u.role ? u.role.substring(0,3).toUpperCase() : 'USR') + '-' + String(u.id).padStart(4, '0'));
+            %>
+              <tr>
+                <td class="ps-4 py-3">
+                  <span class="pe-user-id-pill" style="background: #fee2e2; border-color: #fca5a5; color: #991b1b;">
+                    <i class="ri-fingerprint-line"></i> <%= formattedId %>
+                  </span>
+                </td>
+                <td class="py-3">
+                  <div class="d-flex align-items-center gap-2.5 opacity-75">
+                    <img src="<%= u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name) + '&background=dc3545&color=fff' %>" 
+                         class="user-avatar-box grayscale" 
+                         onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(u.name) %>&background=dc3545&color=fff'">
+                    <div>
+                      <span class="fw-bold text-decoration-line-through text-muted"><%= u.name %></span>
+                      <span class="badge bg-danger text-white ms-2" style="font-size:0.68rem;">Deleted</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 text-muted small"><%= u.email %></td>
+                <td class="py-3">
+                  <div class="pe-pw-box" id="pw-box-del-<%= u.id %>">
+                    <span class="pw-value" data-hidden="true" data-plain="<%= userPass %>">••••••••</span>
+                    <button type="button" class="pe-pw-toggle-btn" onclick="togglePassword('del-<%= u.id %>')" title="Show/Hide Password">
+                      <i class="ri-eye-line" id="eye-icon-del-<%= u.id %>"></i>
+                    </button>
+                    <button type="button" class="pe-pw-copy-btn" id="copy-btn-del-<%= u.id %>" onclick="copyPassword('del-<%= u.id %>')" title="Copy Password">
+                      <i class="ri-file-copy-line"></i>
+                    </button>
+                  </div>
+                </td>
+                <td class="py-3 text-center">
+                  <% const delRInfo = getRoleInfo(u.role); %>
+                  <span class="pe-role-badge <%= delRInfo.cls %>">
+                    <i class="<%= delRInfo.icon %>"></i> <%= delRInfo.label %>
+                  </span>
+                </td>
+                <td class="py-3 text-muted small"><%= new Date(u.updated_at || u.created_at).toLocaleDateString() %></td>
+                <td class="pe-4 py-3 text-end">
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <!-- Restore Form -->
+                    <form action="/admin/users/<%= u.id %>/restore" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1 font-weight-bold d-inline-flex align-items-center gap-1 shadow-xs" title="Restore User">
+                        <i class="ri-restart-line"></i> Restore
+                      </button>
+                    </form>
+
+                    <!-- Permanent Delete Form -->
+                    <form action="/admin/users/<%= u.id %>/permanent-delete" method="POST" class="d-inline" onsubmit="return confirm('WARNING: Are you sure you want to PERMANENTLY delete user &quot;<%= u.name %>&quot;? All associated records will be deleted and CANNOT be recovered!')">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 font-weight-bold d-inline-flex align-items-center gap-1" title="Delete Permanently">
+                        <i class="ri-delete-bin-2-line"></i> Delete Permanently
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword(id) {
+    const box = document.getElementById('pw-box-' + id);
+    if (!box) return;
+    const valEl = box.querySelector('.pw-value');
+    const eyeIcon = document.getElementById('eye-icon-' + id);
+    if (!valEl || !eyeIcon) return;
+
+    const isHidden = valEl.getAttribute('data-hidden') === 'true';
+    const plain = valEl.getAttribute('data-plain') || '';
+
+    if (isHidden) {
+      valEl.innerText = plain;
+      valEl.setAttribute('data-hidden', 'false');
+      eyeIcon.className = 'ri-eye-off-line';
+      box.style.background = '#e0f2fe';
+      box.style.borderColor = '#7dd3fc';
+      box.style.color = '#0369a1';
+    } else {
+      valEl.innerText = '••••••••';
+      valEl.setAttribute('data-hidden', 'true');
+      eyeIcon.className = 'ri-eye-line';
+      box.style.background = '#f1f5f9';
+      box.style.borderColor = '#e2e8f0';
+      box.style.color = '#334155';
+    }
+  }
+
+  function copyPassword(id) {
+    const box = document.getElementById('pw-box-' + id);
+    if (!box) return;
+    const valEl = box.querySelector('.pw-value');
+    const copyBtn = document.getElementById('copy-btn-' + id);
+    if (!valEl || !copyBtn) return;
+
+    const plain = valEl.getAttribute('data-plain') || '';
+    
+    // Copy to clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(plain).then(() => showCopied(copyBtn));
+    } else {
+      // Fallback
+      const tempInput = document.createElement('input');
+      tempInput.value = plain;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showCopied(copyBtn);
+    }
+  }
+
+  function showCopied(btn) {
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="ri-check-line"></i>';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = origHtml;
+      btn.classList.remove('copied');
+    }, 1500);
+  }
+
+  function filterUserTable() {
+    const query = (document.getElementById('userLiveSearch').value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('#activeUsersTable tbody tr.user-row');
+    rows.forEach(row => {
+      const searchData = row.getAttribute('data-search') || '';
+      if (!query || searchData.includes(query)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  function generateRandomPassword() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$';
+    let pw = '';
+    pw += 'ABCDEFGHJKLMNPQRSTUVWXYZ'[(Math.random() * 24) | 0];
+    pw += 'abcdefghijkmnopqrstuvwxyz'[(Math.random() * 24) | 0];
+    pw += '23456789'[(Math.random() * 8) | 0];
+    pw += '@#$'[(Math.random() * 3) | 0];
+    for (let i = 0; i < 4; i++) {
+      pw += chars[(Math.random() * chars.length) | 0];
+    }
+    const input = document.getElementById('newUserPassword');
+    if (input) {
+      input.value = pw;
+    }
+  }
+
+  function toggleModalPwVisibility() {
+    const input = document.getElementById('newUserPassword');
+    const eye = document.getElementById('modalPwEye');
+    if (!input || !eye) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      eye.className = 'ri-eye-off-line';
+    } else {
+      input.type = 'password';
+      eye.className = 'ri-eye-line';
+    }
+  }
+
+  function handleRoleChange(role) {
+    const qual = document.getElementById('lblQualification');
+    const head = document.getElementById('lblHeadline');
+    const qualInput = document.getElementById('inputQualification');
+    const headInput = document.getElementById('inputHeadline');
+
+    document.querySelectorAll('.pe-role-option-card').forEach(card => card.classList.remove('active'));
+    const activeRadio = document.querySelector(`input[name="role"][value="${role}"]`);
+    if (activeRadio) {
+      activeRadio.checked = true;
+      const parentLabel = activeRadio.closest('.pe-role-option-card');
+      if (parentLabel) parentLabel.classList.add('active');
+    }
+
+    if (role === 'student') {
+      if (qual) qual.innerText = 'Degree / Year (e.g. BPT 1st Year)';
+      if (head) head.innerText = 'College / Institution';
+      if (qualInput) qualInput.placeholder = 'e.g. BPT 1st Year, 2nd Year';
+      if (headInput) headInput.placeholder = 'e.g. Apex Institute of Physiotherapy';
+    } else if (role === 'intern') {
+      if (qual) qual.innerText = 'Internship Hospital / Center';
+      if (head) head.innerText = 'Clinical Rotation / Department';
+      if (qualInput) qualInput.placeholder = 'e.g. AIIMS Orthopedic & Neuro Department';
+      if (headInput) headInput.placeholder = 'e.g. 6-Month Compulsory Rotatory Intern';
+    } else if (role === 'clinician') {
+      if (qual) qual.innerText = 'Clinical Qualifications (e.g. BPT, MPT, MIAP)';
+      if (head) head.innerText = 'Clinic / Hospital Name & Specialty';
+      if (qualInput) qualInput.placeholder = 'e.g. MPT (Musculoskeletal), MIAP';
+      if (headInput) headInput.placeholder = 'e.g. Consultant PT at Care Hospital';
+    } else if (role === 'educator') {
+      if (qual) qual.innerText = 'Academic Credentials / Faculty Title';
+      if (head) head.innerText = 'University / Department';
+      if (qualInput) qualInput.placeholder = 'e.g. Associate Professor, MPT, PhD';
+      if (headInput) headInput.placeholder = 'e.g. Dept. of Physiotherapy, Metro University';
+    } else if (role === 'researcher') {
+      if (qual) qual.innerText = 'Research Focus / Fellowship';
+      if (head) head.innerText = 'Research Lab / Institution';
+      if (qualInput) qualInput.placeholder = 'e.g. Biomechanics & Gait Analysis Research';
+      if (headInput) headInput.placeholder = 'e.g. National Center for Health Research';
+    } else if (role === 'instructor') {
+      if (qual) qual.innerText = 'Teaching Credentials (e.g. MPT, PhD)';
+      if (head) head.innerText = 'Designation / Specialization';
+      if (qualInput) qualInput.placeholder = 'e.g. MPT (Neuro), Certified Master Trainer';
+      if (headInput) headInput.placeholder = 'e.g. Senior Lecturer & Course Author';
+    } else {
+      if (qual) qual.innerText = 'Department / Title';
+      if (head) head.innerText = 'Administrative Scope';
+      if (qualInput) qualInput.placeholder = 'e.g. Platform Operations Lead';
+      if (headInput) headInput.placeholder = 'e.g. Full Platform & System Superadmin';
+    }
+  }
+
+  function handleEditRoleChange(role) {
+    const qual = document.getElementById('editLblQualification');
+    const head = document.getElementById('editLblHeadline');
+    const qualInput = document.getElementById('editInputQualification');
+    const headInput = document.getElementById('editInputHeadline');
+
+    document.querySelectorAll('.pe-edit-role-card').forEach(card => card.classList.remove('active'));
+    const activeRadio = document.querySelector(`input[name="role"][value="${role}"]#editRole_${role}`);
+    if (activeRadio) {
+      activeRadio.checked = true;
+      const parentLabel = activeRadio.closest('.pe-edit-role-card');
+      if (parentLabel) parentLabel.classList.add('active');
+    }
+
+    if (role === 'student') {
+      if (qual) qual.innerText = 'Degree / Year (e.g. BPT 1st Year)';
+      if (head) head.innerText = 'College / Institution';
+      if (qualInput) qualInput.placeholder = 'e.g. BPT 1st Year, 2nd Year';
+      if (headInput) headInput.placeholder = 'e.g. Apex Institute of Physiotherapy';
+    } else if (role === 'intern') {
+      if (qual) qual.innerText = 'Internship Hospital / Center';
+      if (head) head.innerText = 'Clinical Rotation / Department';
+      if (qualInput) qualInput.placeholder = 'e.g. AIIMS Orthopedic & Neuro Department';
+      if (headInput) headInput.placeholder = 'e.g. 6-Month Compulsory Rotatory Intern';
+    } else if (role === 'clinician') {
+      if (qual) qual.innerText = 'Clinical Qualifications (e.g. BPT, MPT, MIAP)';
+      if (head) head.innerText = 'Clinic / Hospital Name & Specialty';
+      if (qualInput) qualInput.placeholder = 'e.g. MPT (Musculoskeletal), MIAP';
+      if (headInput) headInput.placeholder = 'e.g. Consultant PT at Care Hospital';
+    } else if (role === 'educator') {
+      if (qual) qual.innerText = 'Academic Credentials / Faculty Title';
+      if (head) head.innerText = 'University / Department';
+      if (qualInput) qualInput.placeholder = 'e.g. Associate Professor, MPT, PhD';
+      if (headInput) headInput.placeholder = 'e.g. Dept. of Physiotherapy, Metro University';
+    } else if (role === 'researcher') {
+      if (qual) qual.innerText = 'Research Focus / Fellowship';
+      if (head) head.innerText = 'Research Lab / Institution';
+      if (qualInput) qualInput.placeholder = 'e.g. Biomechanics & Gait Analysis Research';
+      if (headInput) headInput.placeholder = 'e.g. National Center for Health Research';
+    } else if (role === 'instructor') {
+      if (qual) qual.innerText = 'Teaching Credentials (e.g. MPT, PhD)';
+      if (head) head.innerText = 'Designation / Specialization';
+      if (qualInput) qualInput.placeholder = 'e.g. MPT (Neuro), Certified Master Trainer';
+      if (headInput) headInput.placeholder = 'e.g. Senior Lecturer & Course Author';
+    } else {
+      if (qual) qual.innerText = 'Department / Title';
+      if (head) head.innerText = 'Administrative Scope';
+      if (qualInput) qualInput.placeholder = 'e.g. Platform Operations Lead';
+      if (headInput) headInput.placeholder = 'e.g. Full Platform & System Superadmin';
+    }
+  }
+
+  function openEditUserModal(u) {
+    if (!u) return;
+    const form = document.getElementById('editUserForm');
+    if (form) {
+      form.action = '/admin/users/' + u.id + '/edit';
+    }
+    
+    document.getElementById('editUserId').value = u.id || '';
+    document.getElementById('editUserName').value = u.name || '';
+    document.getElementById('editUserEmail').value = u.email || '';
+    document.getElementById('editUserCode').value = u.user_code || '';
+    document.getElementById('editUserPhone').value = u.phone || '';
+    document.getElementById('editUserPassword').value = '';
+    document.getElementById('editInputQualification').value = u.qualification || '';
+    document.getElementById('editInputHeadline').value = u.headline || '';
+    document.getElementById('editUserBio').value = u.bio || '';
+    
+    const activeCheck = document.getElementById('editUserIsActive');
+    if (activeCheck) {
+      activeCheck.checked = (u.is_active === 1 || u.is_active === true || u.is_active === '1');
+    }
+
+    const currentRole = (u.role === 'academic_educator' || u.role === 'academic_mission') ? 'educator' : (u.role || 'student');
+    handleEditRoleChange(currentRole);
+
+    const modalEl = document.getElementById('editUserModal');
+    if (modalEl) {
+      if (modalEl.parentElement !== document.body) {
+        document.body.appendChild(modalEl);
+      }
+      if (window.bootstrap && bootstrap.Modal) {
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        bsModal.show();
+      } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+      }
+    }
+  }
+
+  function generateEditPassword() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$';
+    let pw = '';
+    pw += 'ABCDEFGHJKLMNPQRSTUVWXYZ'[(Math.random() * 24) | 0];
+    pw += 'abcdefghijkmnopqrstuvwxyz'[(Math.random() * 24) | 0];
+    pw += '23456789'[(Math.random() * 8) | 0];
+    pw += '@#$'[(Math.random() * 3) | 0];
+    for (let i = 0; i < 4; i++) {
+      pw += chars[(Math.random() * chars.length) | 0];
+    }
+    const input = document.getElementById('editUserPassword');
+    if (input) {
+      input.value = pw;
+      input.type = 'text';
+    }
+  }
+
+  function toggleEditModalPwVisibility() {
+    const input = document.getElementById('editUserPassword');
+    const eye = document.getElementById('editModalPwEye');
+    if (!input || !eye) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      eye.className = 'ri-eye-off-line';
+    } else {
+      input.type = 'password';
+      eye.className = 'ri-eye-line';
+    }
+  }
+</script>
+
+<!-- ============ ADD USER MODAL ============ -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white p-3.5" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%);">
+        <div class="d-flex align-items-center gap-2.5">
+          <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center shadow-xs" style="width: 36px; height: 36px;">
+            <i class="ri-user-add-fill fs-5"></i>
+          </div>
+          <div>
+            <h6 class="modal-title fw-bold mb-0 text-white" id="addUserModalLabel">Create New User Account</h6>
+            <span class="small text-white-50" style="font-size: 0.75rem;">Add a student, intern, clinician, educator, researcher, instructor, or admin</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/users" method="POST" id="addUserForm">
+        <div class="modal-body p-4">
+          <!-- Role Selection Cards -->
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">1. Select Account Role</label>
+            <div class="row g-2">
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card active d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleRoleChange('student')">
+                  <input type="radio" name="role" value="student" class="btn-check" id="roleStudent" checked>
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-primary bg-primary-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 1.15rem;">
+                      <i class="ri-graduation-cap-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Student</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">Undergraduate learner</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleRoleChange('intern')">
+                  <input type="radio" name="role" value="intern" class="btn-check" id="roleIntern">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-warning-emphasis bg-warning-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 1.15rem;">
+                      <i class="ri-stethoscope-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Intern</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">Clinical resident intern</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleRoleChange('clinician')">
+                  <input type="radio" name="role" value="clinician" class="btn-check" id="roleClinician">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-success bg-success-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 1.15rem;">
+                      <i class="ri-hospital-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Clinician</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">Practicing physiotherapist</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleRoleChange('educator')">
+                  <input type="radio" name="role" value="educator" class="btn-check" id="roleEducator">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-info bg-info-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 1.15rem;">
+                      <i class="ri-book-read-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Academic / Educator</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">Faculty & professor</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-4">
+                <label class="pe-role-option-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleRoleChange('researcher')">
+                  <input type="radio" name="role" value="researcher" class="btn-check" id="roleResearcher">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-teal bg-teal-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 1.15rem;">
+                      <i class="ri-microscope-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Researcher</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">Research scholar & fellow</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-4">
+                <label class="pe-role-option-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleRoleChange('instructor')">
+                  <input type="radio" name="role" value="instructor" class="btn-check" id="roleInstructor">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-indigo bg-indigo-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 1.15rem;">
+                      <i class="ri-presentation-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Instructor</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">Course author & teacher</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-12 col-md-4 col-xl-4">
+                <label class="pe-role-option-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleRoleChange('admin')">
+                  <input type="radio" name="role" value="admin" class="btn-check" id="roleAdmin">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-purple bg-purple-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 1.15rem;">
+                      <i class="ri-shield-star-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.85rem;">Administrator</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">Full system privileges</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Basic Info -->
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">2. Account Credentials & Contact</label>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Full Name <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-user-line"></i></span>
+                  <input type="text" name="name" class="form-control border-start-0 ps-0" placeholder="e.g. Dr. Aryan Sharma" required>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Email Address <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-mail-line"></i></span>
+                  <input type="email" name="email" class="form-control border-start-0 ps-0" placeholder="e.g. aryan@physioedvance.com" required>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label small fw-semibold text-dark mb-0">Password <span class="text-danger">*</span></label>
+                  <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none small text-primary fw-bold" onclick="generateRandomPassword()" style="font-size: 0.75rem;">
+                    <i class="ri-magic-line"></i> Auto Generate
+                  </button>
+                </div>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-lock-2-line"></i></span>
+                  <input type="text" name="password" id="newUserPassword" class="form-control border-start-0 border-end-0 px-2 font-monospace" placeholder="Set password" required>
+                  <button type="button" class="btn btn-outline-secondary border-start-0" onclick="toggleModalPwVisibility()" title="Toggle visibility">
+                    <i class="ri-eye-line" id="modalPwEye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Mobile / Phone (for SMS Reminders)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-phone-line"></i></span>
+                  <input type="tel" name="phone" class="form-control border-start-0 ps-0" placeholder="+91 9876543210">
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label small fw-semibold text-dark">Institutional / Custom User ID <span class="badge bg-light text-muted border ms-1 font-monospace" style="font-size:0.68rem;">Optional</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-fingerprint-line"></i></span>
+                  <input type="text" name="user_code" class="form-control border-start-0 ps-0 font-monospace" placeholder="e.g. PE-STU-0088 (Leave blank to auto-generate based on role)">
+                </div>
+                <div class="form-text text-muted" style="font-size: 0.72rem;">If left blank, system assigns an institutional ID matching the selected role format.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Role-specific Profile Fields -->
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">3. Profile & Academic Details</label>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" id="lblQualification">Degree / Year</label>
+                <input type="text" name="qualification" id="inputQualification" class="form-control" placeholder="e.g. BPT 1st Year, 2nd Year">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" id="lblHeadline">College / Institution</label>
+                <input type="text" name="headline" id="inputHeadline" class="form-control" placeholder="e.g. Apex Institute of Physiotherapy">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold text-dark">Bio / Initial Notes</label>
+                <textarea name="bio" class="form-control" rows="2" placeholder="Brief background or enrollment notes..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 justify-content-between border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-3.5" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2 hover-lift" style="background: linear-gradient(135deg, #0a5dc2 0%, #034694 100%); border: none;">
+            <i class="ri-user-add-fill fs-5"></i> Create User Account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDIT USER MODAL ============ -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white p-3.5" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+        <div class="d-flex align-items-center gap-2.5">
+          <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center shadow-xs" style="width: 36px; height: 36px;">
+            <i class="ri-edit-line fs-5"></i>
+          </div>
+          <div>
+            <h6 class="modal-title fw-bold mb-0 text-white" id="editUserModalLabel">Edit User Account & Privileges</h6>
+            <span class="small text-white-50" style="font-size: 0.75rem;">Modify credentials, role classification, institutional ID, and profile details</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="" method="POST" id="editUserForm">
+        <input type="hidden" name="id" id="editUserId">
+
+        <div class="modal-body p-4">
+          <!-- Role Selection Cards -->
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">1. Change Account Role</label>
+            <div class="row g-2">
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('student')">
+                  <input type="radio" name="role" value="student" class="btn-check" id="editRole_student">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-primary bg-primary-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-graduation-cap-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Student</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Learner member</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('intern')">
+                  <input type="radio" name="role" value="intern" class="btn-check" id="editRole_intern">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-warning-emphasis bg-warning-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-stethoscope-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Intern</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Clinical resident</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('clinician')">
+                  <input type="radio" name="role" value="clinician" class="btn-check" id="editRole_clinician">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-success bg-success-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-hospital-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Clinician</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Practitioner</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-3">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('educator')">
+                  <input type="radio" name="role" value="educator" class="btn-check" id="editRole_educator">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-info bg-info-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-book-read-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Educator</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Academic faculty</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-4">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('researcher')">
+                  <input type="radio" name="role" value="researcher" class="btn-check" id="editRole_researcher">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-teal bg-teal-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-microscope-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Researcher</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Research scholar</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-6 col-md-4 col-xl-4">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('instructor')">
+                  <input type="radio" name="role" value="instructor" class="btn-check" id="editRole_instructor">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-indigo bg-indigo-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-presentation-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Instructor</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Course author</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-12 col-md-4 col-xl-4">
+                <label class="pe-role-option-card pe-edit-role-card d-block p-2.5 rounded-3 text-center h-100 position-relative" onclick="handleEditRoleChange('admin')">
+                  <input type="radio" name="role" value="admin" class="btn-check" id="editRole_admin">
+                  <div class="pe-role-box">
+                    <div class="pe-role-icon text-purple bg-purple-subtle mx-auto mb-1.5 rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                      <i class="ri-shield-star-line"></i>
+                    </div>
+                    <div class="fw-bold text-dark mb-0.5" style="font-size: 0.82rem;">Administrator</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">Super admin</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Basic Info -->
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">2. Account Credentials & Status</label>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Full Name <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-user-line"></i></span>
+                  <input type="text" name="name" id="editUserName" class="form-control border-start-0 ps-0" placeholder="e.g. Dr. Aryan Sharma" required>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Email Address <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-mail-line"></i></span>
+                  <input type="email" name="email" id="editUserEmail" class="form-control border-start-0 ps-0" placeholder="e.g. aryan@physioedvance.com" required>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Institutional / Custom User ID</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-fingerprint-line"></i></span>
+                  <input type="text" name="user_code" id="editUserCode" class="form-control border-start-0 ps-0 font-monospace" placeholder="e.g. PE-STU-0011">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark">Mobile / Phone (for SMS Reminders)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-phone-line"></i></span>
+                  <input type="tel" name="phone" id="editUserPhone" class="form-control border-start-0 ps-0" placeholder="+91 9876543210">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label small fw-semibold text-dark mb-0">Reset Password <span class="badge bg-light text-muted border font-monospace" style="font-size:0.68rem;">Leave blank to keep unchanged</span></label>
+                  <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none small text-primary fw-bold" onclick="generateEditPassword()" style="font-size: 0.75rem;">
+                    <i class="ri-magic-line"></i> Auto Generate
+                  </button>
+                </div>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="ri-lock-2-line"></i></span>
+                  <input type="password" name="password" id="editUserPassword" class="form-control border-start-0 border-end-0 px-2 font-monospace" placeholder="Enter new password to change">
+                  <button type="button" class="btn btn-outline-secondary border-start-0" onclick="toggleEditModalPwVisibility()" title="Toggle visibility">
+                    <i class="ri-eye-line" id="editModalPwEye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-6 d-flex align-items-end">
+                <div class="p-2.5 bg-light rounded-3 border w-100 d-flex align-items-center justify-content-between">
+                  <div>
+                    <label class="form-check-label fw-bold text-dark small d-block" for="editUserIsActive">Account Active Status</label>
+                    <span class="text-muted" style="font-size:0.7rem;">Active accounts can log in to the portal</span>
+                  </div>
+                  <div class="form-check form-switch mb-0 fs-5">
+                    <input class="form-check-input" type="checkbox" role="switch" name="is_active" value="1" id="editUserIsActive" checked>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Role-specific Profile Fields -->
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-uppercase text-secondary mb-2" style="letter-spacing: 0.5px;">3. Profile & Academic Details</label>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" id="editLblQualification">Degree / Year</label>
+                <input type="text" name="qualification" id="editInputQualification" class="form-control" placeholder="e.g. BPT 1st Year, 2nd Year">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" id="editLblHeadline">College / Institution</label>
+                <input type="text" name="headline" id="editInputHeadline" class="form-control" placeholder="e.g. Apex Institute of Physiotherapy">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold text-dark">Bio / Staff Notes</label>
+                <textarea name="bio" id="editUserBio" class="form-control" rows="2" placeholder="Brief background or notes..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 justify-content-between border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-3.5" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2 hover-lift" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none;">
+            <i class="ri-save-line fs-5"></i> Save User Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

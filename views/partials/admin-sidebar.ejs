@@ -1,0 +1,93 @@
+<div class="pe-sidebar" id="peSidebar">
+  <div class="pe-sidebar-brand">
+    <a href="/" class="d-flex align-items-center gap-2 text-decoration-none">
+      <img src="/images/logo-icon.png" alt="PhysioEdvance" class="pe-logo-img" style="height:2.25rem;width:auto;">
+      <span class="pe-sidebar-brand-text">Physio<b>Edvance</b></span>
+    </a>
+  </div>
+
+  <div class="pe-sidebar-menu">
+    <% if (currentUser && currentUser.role === 'admin') { %>
+      <p class="pe-menu-label">Main</p>
+      <a href="/admin/dashboard" class="pe-menu-link <%= currentPath==='/admin/dashboard'?'active':'' %>"><i class="ri-dashboard-2-line"></i><span>Dashboard</span></a>
+
+      <p class="pe-menu-label">Manage</p>
+      <a href="/admin/categories" class="pe-menu-link <%= (currentPath==='/admin/categories' || currentPath.startsWith('/admin/categories'))?'active':'' %>"><i class="ri-folder-2-line"></i><span>Subjects</span></a>
+      <a href="/admin/learning-modules" class="pe-menu-link <%= currentPath.startsWith('/admin/learning-modules') ? 'active' : '' %>"><i class="ri-book-read-line"></i><span>Learning Modules</span></a>
+      <a href="/admin/users" class="pe-menu-link <%= currentPath==='/admin/users'?'active':'' %>"><i class="ri-team-line"></i><span>Users</span></a>
+      <a href="/admin/orders" class="pe-menu-link <%= currentPath==='/admin/orders'?'active':'' %>"><i class="ri-shopping-bag-3-line"></i><span>Orders</span></a>
+
+      <p class="pe-menu-label">Home Page</p>
+      <a href="/admin/homepage-sections" class="pe-menu-link <%= currentPath==='/admin/homepage-sections'?'active':'' %>">
+        <i class="ri-arrow-up-down-line text-warning"></i><span>Sections Position Order</span>
+      </a>
+      <a href="/admin/hero" class="pe-menu-link <%= currentPath==='/admin/hero'?'active':'' %>">
+        <i class="ri-slideshow-line"></i><span>Hero Section</span>
+      </a>
+
+      <% 
+        if (typeof adminHomepageNavSections !== 'undefined' && adminHomepageNavSections && adminHomepageNavSections.length > 0) {
+          // Filter to items that have distinct admin manage links
+          const managedKeys = new Set(['curriculum', 'learning_journey', 'vision_mission', 'founders', 'blog', 'live_sessions', 'notes', 'callback_appointment', 'cta']);
+          const dynamicItems = adminHomepageNavSections.filter(s => managedKeys.has(s.section_key) || (s.admin_link && s.admin_link !== '/admin/dashboard' && s.admin_link !== '/admin/homepage-sections' && s.admin_link !== '/admin/hero' && s.admin_link !== '/admin/courses'));
+          
+          dynamicItems.forEach(sec => {
+            const isActiveLink = currentPath === sec.admin_link || currentPath.startsWith(sec.admin_link + '/');
+      %>
+        <a href="<%= sec.admin_link %>" class="pe-menu-link <%= isActiveLink ? 'active' : '' %>">
+          <i class="<%= sec.icon || 'ri-layout-grid-line' %>"></i>
+          <span><%= sec.name %></span>
+          <% if (sec.is_active === 0) { %>
+            <span class="badge bg-secondary-subtle text-secondary rounded-pill ms-auto" style="font-size: 0.65rem;">Off</span>
+          <% } %>
+        </a>
+      <% 
+          });
+        } else { 
+      %>
+        <a href="/admin/curriculum" class="pe-menu-link <%= currentPath==='/admin/curriculum'?'active':'' %>"><i class="ri-graduation-cap-line"></i><span>Curriculum Cards</span></a>
+        <a href="/admin/learning-journey" class="pe-menu-link <%= currentPath==='/admin/learning-journey'?'active':'' %>"><i class="ri-route-line"></i><span>Learning Journey</span></a>
+        <a href="/admin/vision-mission" class="pe-menu-link <%= currentPath==='/admin/vision-mission'?'active':'' %>"><i class="ri-compass-3-line"></i><span>Vision & Mission</span></a>
+        <a href="/admin/team" class="pe-menu-link <%= currentPath==='/admin/team'?'active':'' %>"><i class="ri-user-star-line"></i><span>Expert Teachers & Team</span></a>
+        <a href="/admin/blog" class="pe-menu-link <%= currentPath==='/admin/blog'?'active':'' %>"><i class="ri-article-line"></i><span>Blog</span></a>
+        <a href="/admin/live-sessions" class="pe-menu-link <%= currentPath==='/admin/live-sessions'?'active':'' %>"><i class="ri-vidicon-line"></i><span>Live Sessions</span></a>
+        <a href="/admin/notes" class="pe-menu-link <%= currentPath==='/admin/notes'?'active':'' %>"><i class="ri-file-text-line"></i><span>Study Notes</span></a>
+        <a href="/admin/appointments" class="pe-menu-link <%= currentPath==='/admin/appointments'?'active':'' %>"><i class="ri-calendar-check-line"></i><span>Appointments</span></a>
+        <a href="/admin/cta" class="pe-menu-link <%= currentPath==='/admin/cta'?'active':'' %>"><i class="ri-megaphone-line"></i><span>Call to Action Banner</span></a>
+      <% } %>
+
+      <p class="pe-menu-label">Account</p>
+      <a href="/admin/profile" class="pe-menu-link <%= currentPath==='/admin/profile'?'active':'' %>"><i class="ri-user-settings-line"></i><span>Profile</span></a>
+      <a href="/" class="pe-menu-link"><i class="ri-global-line"></i><span>View Site</span></a>
+
+    <% } else if (currentUser && currentUser.role === 'instructor') { %>
+      <p class="pe-menu-label">Main</p>
+      <a href="/instructor/dashboard" class="pe-menu-link <%= currentPath==='/instructor/dashboard'?'active':'' %>"><i class="ri-dashboard-2-line"></i><span>Dashboard</span></a>
+
+      <p class="pe-menu-label">Teaching</p>
+      <a href="/instructor/courses" class="pe-menu-link <%= currentPath === '/instructor/courses' ? 'active' : '' %>"><i class="ri-book-2-line"></i><span>My Courses</span></a>
+      <a href="/instructor/courses/wizard" class="pe-menu-link <%= currentPath.startsWith('/instructor/courses/wizard') ? 'active' : '' %>"><i class="ri-add-circle-line"></i><span>Add Course</span></a>
+
+      <p class="pe-menu-label">Account</p>
+      <a href="/instructor/profile" class="pe-menu-link <%= currentPath==='/instructor/profile'?'active':'' %>"><i class="ri-user-settings-line"></i><span>Profile</span></a>
+      <a href="/" class="pe-menu-link"><i class="ri-global-line"></i><span>View Site</span></a>
+    <% } %>
+  </div>
+  <script>
+    (function() {
+      try {
+        var sb = document.getElementById('peSidebar');
+        if (!sb) return;
+        var saved = sessionStorage.getItem('pe_admin_sidebar_scroll');
+        if (saved !== null) {
+          sb.scrollTop = parseInt(saved, 10) || 0;
+        } else {
+          var active = sb.querySelector('.pe-menu-link.active');
+          if (active) {
+            active.scrollIntoView({ block: 'nearest' });
+          }
+        }
+      } catch(e) {}
+    })();
+  </script>
+</div>

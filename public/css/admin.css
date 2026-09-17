@@ -1,0 +1,247 @@
+/* Physico Edvance — Admin Panel (Velzon-style) */
+
+.pe-admin-body {
+  background-color: var(--pe-body-bg);
+  animation: none !important; /* Prevents opacity blinking on page transitions */
+}
+
+.pe-admin-wrapper { display: flex; min-height: 100vh; }
+
+/* ---------- Sidebar ---------- */
+.pe-sidebar {
+  width: var(--pe-sidebar-width);
+  background: linear-gradient(180deg, var(--pe-sidebar-bg) 0%, #0d1224 100%);
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+}
+.pe-sidebar-brand {
+  padding: 1.35rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.pe-sidebar-brand-text {
+  color: #fff; font-family: var(--pe-font-display); font-weight: 600; font-size: 1.1rem;
+}
+.pe-sidebar-brand-text b { font-weight: 800; }
+.pe-sidebar .pe-brand-icon { width: 2rem; height: 2rem; font-size: 1rem; }
+
+.pe-sidebar-menu { padding: 1rem 0.85rem; }
+.pe-menu-label {
+  text-transform: uppercase; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+  color: #5b6491; margin: 1.25rem 0.75rem 0.5rem;
+}
+.pe-menu-label:first-child { margin-top: 0.25rem; }
+.pe-menu-link {
+  display: flex; align-items: center; gap: 0.75rem;
+  color: var(--pe-sidebar-text); text-decoration: none;
+  padding: 0.6rem 0.85rem; border-radius: 0.5rem;
+  font-size: 0.875rem; font-weight: 600; margin-bottom: 0.15rem;
+  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+.pe-menu-link i { font-size: 1.1rem; width: 1.25rem; text-align: center; transition: transform .2s ease; }
+.pe-menu-link:hover { background-color: rgba(255,255,255,0.06); color: #fff; transform: translateX(3px); }
+.pe-menu-link:hover i { transform: scale(1.1); }
+.pe-menu-link.active {
+  background: linear-gradient(90deg, var(--pe-primary) 0%, rgba(10,93,194,.7) 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(10,93,194,.35);
+}
+
+/* ---------- Main area ---------- */
+.pe-admin-main {
+  margin-left: var(--pe-sidebar-width);
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Topbar ---------- */
+.pe-topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--pe-border);
+  padding: 0.85rem 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 1px 3px rgba(16,24,64,.04);
+}
+.pe-topbar-title { font-weight: 700; font-size: 1.05rem; color: var(--pe-heading); }
+.pe-sidebar-toggle {
+  display: none; background: none; border: none; font-size: 1.4rem; color: var(--pe-text);
+}
+
+.pe-admin-content { padding: 1.5rem; flex: 1; }
+
+.pe-page-head h4 { color: var(--pe-heading); font-weight: 800; }
+
+/* ---------- Stat / KPI cards ---------- */
+.pe-kpi-card {
+  border-radius: var(--pe-radius-lg); border: 1px solid var(--pe-border); background: #fff;
+  padding: 1.25rem 1.4rem; box-shadow: var(--pe-shadow); height: 100%;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s ease;
+}
+.pe-kpi-card:hover { transform: translateY(-4px); box-shadow: var(--pe-shadow-md); }
+.pe-kpi-card-actions { display: flex; flex-direction: column; justify-content: center; }
+.pe-kpi-icon { width: 3rem; height: 3rem; border-radius: 0.7rem; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; }
+.pe-kpi-icon-blue { background: linear-gradient(135deg, var(--pe-primary), var(--pe-info)); box-shadow: 0 6px 14px rgba(10,93,194,.25); }
+.pe-kpi-icon-green { background: linear-gradient(135deg, #16a765, #0ab39c); box-shadow: 0 6px 14px rgba(10,167,101,.25); }
+.pe-kpi-icon-info { background: linear-gradient(135deg, #299cdb, #6dd5ed); box-shadow: 0 6px 14px rgba(41,156,219,.25); }
+.pe-kpi-icon-amber { background: linear-gradient(135deg, #f7b84b, #f4a007); box-shadow: 0 6px 14px rgba(247,184,75,.3); }
+.pe-kpi-icon-red { background: linear-gradient(135deg, #f06548, #e5433b); box-shadow: 0 6px 14px rgba(240,101,72,.25); }
+.pe-kpi-value { font-family: var(--pe-font-display); font-size: 1.6rem; font-weight: 800; color: var(--pe-heading); }
+.pe-kpi-label { color: var(--pe-text-muted); font-size: 0.8rem; font-weight: 600; }
+.pe-kpi-trend { font-size: 0.78rem; font-weight: 700; }
+
+/* ---------- Generic admin surface card ---------- */
+.pe-admin-card {
+  background: #fff; border: 1px solid var(--pe-border); border-radius: var(--pe-radius-lg);
+  box-shadow: var(--pe-shadow); transition: box-shadow .25s ease, transform .25s ease;
+}
+.pe-admin-card:hover { box-shadow: var(--pe-shadow-md); }
+.pe-admin-card-header {
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--pe-border); font-weight: 700; color: var(--pe-heading);
+  background: linear-gradient(90deg, var(--pe-primary-light), transparent);
+  border-radius: var(--pe-radius-lg) var(--pe-radius-lg) 0 0;
+}
+
+.pe-badge-gradient {
+  background: linear-gradient(135deg, var(--pe-primary), var(--pe-info));
+  color: #fff; font-weight: 600; padding: 0.35em 0.85em; border-radius: var(--pe-radius-pill);
+}
+
+.pe-activity-dot {
+  width: 2.25rem; height: 2.25rem; border-radius: 50%; flex-shrink: 0;
+  background: var(--pe-primary-light); color: var(--pe-primary);
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+
+/* ---------- Tables ---------- */
+.pe-table thead th {
+  background-color: #fafbfd; color: var(--pe-text-muted);
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
+  font-weight: 700; border-bottom: 1px solid var(--pe-border); padding: 0.85rem 1rem;
+}
+.pe-table tbody td { padding: 0.85rem 1rem; vertical-align: middle; font-size: 0.875rem; border-bottom: 1px solid var(--pe-border); transition: background-color .15s ease; }
+.pe-table tbody tr:last-child td { border-bottom: none; }
+.pe-table tbody tr:hover { background-color: var(--pe-primary-light); }
+
+/* ---------- Course curriculum builder ---------- */
+.pe-builder-module { border: 1px solid var(--pe-border); border-radius: var(--pe-radius); margin-bottom: 0.85rem; transition: box-shadow .2s ease; }
+.pe-builder-module:hover { box-shadow: var(--pe-shadow); }
+.pe-builder-module-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: #fafbfd; border-bottom: 1px solid var(--pe-border); border-radius: var(--pe-radius) var(--pe-radius) 0 0; }
+.pe-builder-lesson-row { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; border-top: 1px solid var(--pe-border); font-size: 0.85rem; }
+
+/* ---------- Modal Positioning & Scrollability ---------- */
+.modal-dialog {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.modal-content {
+  max-height: calc(100vh - 3rem) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.modal-dialog-scrollable .modal-content {
+  max-height: calc(100vh - 3rem) !important;
+}
+
+.modal-dialog-scrollable form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+}
+
+.modal-dialog-scrollable .modal-body {
+  overflow-y: auto !important;
+  max-height: calc(100vh - 180px) !important;
+  flex: 1 1 auto !important;
+  padding: 1.5rem !important;
+}
+
+.modal-header {
+  flex-shrink: 0 !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.modal-footer {
+  flex-shrink: 0 !important;
+  padding: 1rem 1.5rem !important;
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+/* ---------- RESPONSIVE MOBILE & TABLET MEDIA QUERIES ---------- */
+@media (max-width: 991.98px) {
+  .pe-sidebar {
+    transform: translateX(-100%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  }
+
+  .pe-sidebar.show {
+    transform: translateX(0);
+  }
+
+  .pe-sidebar-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #0a5dc2;
+    cursor: pointer;
+  }
+
+  .pe-admin-main {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .pe-topbar {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .pe-admin-content {
+    padding: 1rem !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .pe-kpi-card {
+    padding: 1rem !important;
+  }
+  
+  .pe-kpi-value {
+    font-size: 1.35rem !important;
+  }
+
+  .pe-kpi-label {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* ---------- Modern Executive Dashboard Utility Classes ---------- */
+.hover-shadow { transition: all 0.25s ease-in-out; }
+.hover-shadow:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(10, 93, 194, 0.14) !important; }
+
+.bg-primary-subtle { background-color: rgba(10, 93, 194, 0.12) !important; color: #0a5dc2 !important; }
+.bg-success-subtle { background-color: rgba(16, 185, 129, 0.12) !important; color: #10b981 !important; }
+.bg-warning-subtle { background-color: rgba(245, 158, 11, 0.12) !important; color: #d97706 !important; }
+.bg-info-subtle { background-color: rgba(2, 132, 199, 0.12) !important; color: #0284c7 !important; }
+.bg-purple-subtle { background-color: rgba(147, 51, 234, 0.12) !important; color: #9333ea !important; }
+
+.line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+

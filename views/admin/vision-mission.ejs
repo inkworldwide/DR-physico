@@ -1,0 +1,69 @@
+<!-- ============ ADMIN VISION & MISSION MANAGEMENT ============ -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <h3 class="fw-bold text-dark mb-1"><i class="ri-compass-3-line me-2 text-primary"></i>Vision & Mission Management</h3>
+    <p class="text-muted small mb-0">Update PhysioEdvance's core Our Vision and Our Mission statements rendered dynamically across the platform.</p>
+  </div>
+  <a href="/about" target="_blank" class="btn btn-outline-primary rounded-pill px-3.5 py-2 font-weight-bold">
+    <i class="ri-eye-line me-1"></i> Preview on About Page
+  </a>
+</div>
+
+<form action="/admin/vision-mission" method="POST">
+  <div class="row g-4">
+    
+    <!-- 1. OUR VISION CARD -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border h-100">
+        <div class="d-flex align-items-center gap-3 mb-3 border-bottom pb-3">
+          <div class="rounded-3 p-2.5 bg-primary-subtle text-primary fs-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+            <i class="ri-eye-line"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">Our Vision</h5>
+            <span class="text-muted small">Long-term educational goal & vision for physiotherapy students</span>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label font-weight-bold text-dark">Vision Statement Description <span class="text-danger">*</span></label>
+          <textarea name="vision" rows="6" class="form-control rounded-3 p-3" style="line-height: 1.6;" required placeholder="Enter Our Vision statement..."><%= visionMission.vision %></textarea>
+        </div>
+        <div class="form-text text-muted small">
+          This text will be dynamically displayed in the "Our Vision" card on the Homepage and About Us page.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. OUR MISSION CARD -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border h-100">
+        <div class="d-flex align-items-center gap-3 mb-3 border-bottom pb-3">
+          <div class="rounded-3 p-2.5 bg-success-subtle text-success fs-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+            <i class="ri-flag-line"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">Our Mission</h5>
+            <span class="text-muted small">Core mission & commitment to physiotherapy education</span>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label font-weight-bold text-dark">Mission Statement Description <span class="text-danger">*</span></label>
+          <textarea name="mission" rows="6" class="form-control rounded-3 p-3" style="line-height: 1.6;" required placeholder="Enter Our Mission statement..."><%= visionMission.mission %></textarea>
+        </div>
+        <div class="form-text text-muted small">
+          This text will be dynamically displayed in the "Our Mission" card on the Homepage and About Us page.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Submit Button -->
+  <div class="mt-4 text-end">
+    <button type="submit" class="btn btn-primary rounded-pill px-5 py-3 font-weight-bold shadow-lg" style="background: #0a5dc2; border: none;">
+      <i class="ri-save-3-line me-1 fs-5"></i> Save & Update Vision & Mission
+    </button>
+  </div>
+</form>

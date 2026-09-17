@@ -1,0 +1,177 @@
+<!-- ============ EXECUTIVE HERO BANNER ============ -->
+<section class="pe-subjects-hero position-relative py-5 text-white overflow-hidden" style="background: linear-gradient(135deg, #0a5dc2 0%, #0284c7 100%);">
+  <div class="position-absolute end-0 bottom-0 opacity-10 pe-none me-4 mb-2">
+    <i class="ri-book-open-line" style="font-size: 14rem; color: #ffffff;"></i>
+  </div>
+
+  <div class="container position-relative z-2 py-3">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3.5 py-2 rounded-pill mb-3 shadow-sm" style="font-size: 0.8rem; letter-spacing: 0.05em;">
+          <i class="ri-book-2-fill me-1"></i> BPT & MPT Academic Curriculum
+        </span>
+        <h1 class="display-4 font-weight-bold text-white mb-2" style="letter-spacing: -0.02em;">
+          All Physiotherapy Subjects
+        </h1>
+        <p class="text-white-75 lead mb-0" style="font-size: 1.1rem; line-height: 1.6; max-width: 620px;">
+          Browse the complete physiotherapy curriculum — organized year by year, from 1st-year foundations to 4th-year clinical specialisations.
+        </p>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-lg rounded-4 p-3 bg-white text-dark">
+          <form action="/courses" method="GET" class="d-flex align-items-center gap-2">
+            <div class="position-relative flex-grow-1">
+              <i class="ri-search-line position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+              <input type="text" name="search" class="form-control form-control-lg bg-light border-0 ps-5" placeholder="Search subjects or courses..." style="font-size: 0.95rem;">
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-4 font-weight-bold shadow-sm" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%); border: none;">
+              Search
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MAIN SUBJECTS & TABS SECTION ============ -->
+<section class="pe-section bg-light-subtle py-5">
+  <div class="container py-2">
+
+    <!-- Sticky Single-Line Filter Nav Pills -->
+    <ul class="nav nav-pills pe-year-nav-pills justify-content-center align-items-center mb-5 gap-1.5 p-1.5 bg-white rounded-pill border shadow-sm flex-nowrap overflow-auto" id="yearFilterTabs">
+      <li class="nav-item">
+        <button class="nav-link pe-year-filter-btn active px-3.5 py-2 rounded-pill fw-bold text-nowrap" data-year="all" type="button">
+          All Years
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link pe-year-filter-btn px-3.5 py-2 rounded-pill fw-bold text-nowrap" data-year="1" type="button">
+          <span class="badge bg-primary text-white me-1">1</span> Year 1 Foundation
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link pe-year-filter-btn px-3.5 py-2 rounded-pill fw-bold text-nowrap" data-year="2" type="button">
+          <span class="badge bg-info text-white me-1">2</span> Year 2 Clinical
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link pe-year-filter-btn px-3.5 py-2 rounded-pill fw-bold text-nowrap" data-year="3" type="button">
+          <span class="badge bg-success text-white me-1">3</span> Year 3 Advanced
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link pe-year-filter-btn px-3.5 py-2 rounded-pill fw-bold text-nowrap" data-year="4" type="button">
+          <span class="badge bg-danger text-white me-1">4</span> Year 4 Specialty
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link pe-year-filter-btn px-3.5 py-2 rounded-pill fw-bold text-nowrap" data-year="other" type="button">
+          <span class="badge bg-dark text-white me-1">+</span> Other Electives
+        </button>
+      </li>
+    </ul>
+
+    <!-- Year 1 to 4 Groups -->
+    <% [1,2,3,4].forEach(y => { %>
+      <% if ((categoriesByYear[y] || []).length) { %>
+        <div class="pe-year-group mb-5" data-year-group="<%= y %>">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="badge rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 44px; height: 44px; font-size: 1.2rem; background: <%= y===1 ? '#0a5dc2' : y===2 ? '#0ea5e9' : y===3 ? '#10b981' : '#ef4444' %>;">
+              <%= y %>
+            </span>
+            <div>
+              <h4 class="fw-bold text-dark mb-0 fs-4">Year <%= y %> Subjects</h4>
+              <span class="text-muted small fw-semibold"><%= categoriesByYear[y].length %> subjects available in Year <%= y %> curriculum</span>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <% categoriesByYear[y].forEach(cat => { %>
+              <div class="col-6 col-md-4 col-lg-3">
+                <a href="/subjects/<%= cat.slug %>" class="pe-subject-box text-decoration-none d-block h-100">
+                  <div class="pe-subject-box-inner p-4 rounded-4 bg-white border h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <div class="pe-subject-icon fs-3" style="background: <%= y===1 ? 'rgba(10,93,194,0.1)' : y===2 ? 'rgba(14,165,233,0.1)' : y===3 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)' %>; color: <%= y===1 ? '#0a5dc2' : y===2 ? '#0ea5e9' : y===3 ? '#10b981' : '#ef4444' %>;">
+                        <i class="<%= cat.icon || 'ri-book-open-line' %>"></i>
+                      </div>
+                      <div class="d-flex align-items-center gap-1.5">
+                        <% if (typeof SUBJECT_ABBREVIATIONS !== 'undefined' && SUBJECT_ABBREVIATIONS[cat.name]) { %>
+                          <span class="badge bg-primary-subtle text-primary font-weight-bold px-2 py-1 rounded-pill small" style="font-size: 0.72rem;"><%= SUBJECT_ABBREVIATIONS[cat.name] %></span>
+                        <% } %>
+                        <span class="pe-subject-arrow-btn">
+                          <i class="ri-arrow-right-line"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1 fs-6"><%= cat.name %></h6>
+                    <div class="d-flex align-items-center gap-1.5 text-muted small">
+                      <i class="ri-checkbox-circle-fill text-success me-1"></i>
+                      <span><%= cat.course_count %> course<%= cat.course_count !== 1 ? 's' : '' %> available</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+    <% }) %>
+
+    <!-- Other Electives Group -->
+    <% if (otherSubjects.length) { %>
+      <div class="pe-year-group mb-5" data-year-group="other">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <span class="badge rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm bg-dark" style="width: 44px; height: 44px; font-size: 1.2rem;">
+            +
+          </span>
+          <div>
+            <h4 class="fw-bold text-dark mb-0 fs-4">Other & Elective Subjects</h4>
+            <span class="text-muted small fw-semibold"><%= otherSubjects.length %> elective subjects available</span>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <% otherSubjects.forEach(cat => { %>
+            <div class="col-6 col-md-4 col-lg-3">
+              <a href="/subjects/<%= cat.slug %>" class="pe-subject-box text-decoration-none d-block h-100">
+                <div class="pe-subject-box-inner p-4 rounded-4 bg-white border h-100">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="pe-subject-icon bg-purple-subtle text-purple fs-3" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                      <i class="<%= cat.icon || 'ri-book-open-line' %>"></i>
+                    </div>
+                    <span class="pe-subject-arrow-btn">
+                      <i class="ri-arrow-right-line"></i>
+                    </span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1 fs-6"><%= cat.name %></h6>
+                  <div class="d-flex align-items-center gap-1.5 text-muted small">
+                    <i class="ri-checkbox-circle-fill text-success me-1"></i>
+                    <span><%= cat.course_count %> course<%= cat.course_count !== 1 ? 's' : '' %> available</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.pe-year-filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.pe-year-filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const year = this.dataset.year;
+        document.querySelectorAll('.pe-year-group').forEach(g => {
+          g.style.display = (year === 'all' || g.dataset.yearGroup === year) ? '' : 'none';
+        });
+      });
+    });
+  });
+</script>

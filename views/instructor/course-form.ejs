@@ -1,0 +1,269 @@
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card p-4 mb-4">
+      <h5 class="mb-3"><%= course ? 'Edit Course' : 'Create New Course' %></h5>
+      <form action="<%= course ? '/instructor/courses/' + course.id : '/instructor/courses' %>" method="POST">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Course Title</label>
+            <input type="text" name="title" class="form-control" value="<%= course ? course.title : '' %>" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Subtitle</label>
+            <input type="text" name="subtitle" class="form-control" value="<%= course ? course.subtitle : '' %>" placeholder="One-line description shown on cards">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Full Description</label>
+            <textarea name="description" rows="4" class="form-control"><%= course ? course.description : '' %></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Subject</label>
+            <select name="category_id" id="categorySelect" class="form-select">
+              <option value="">Select subject</option>
+              <% [1,2,3,4].forEach(y => { %>
+                <optgroup label="Year <%= y %>">
+                  <% categories.filter(c => c.year === y).forEach(cat => { %>
+                    <option value="<%= cat.id %>" data-year="<%= cat.year %>" <%= course && course.category_id === cat.id ? 'selected' : '' %>><%= cat.name %></option>
+                  <% }) %>
+                </optgroup>
+              <% }) %>
+              <optgroup label="Other Subjects">
+                <% categories.filter(c => c.is_other_subject).forEach(cat => { %>
+                  <option value="<%= cat.id %>" <%= course && course.category_id === cat.id ? 'selected' : '' %>><%= cat.name %></option>
+                <% }) %>
+              </optgroup>
+            </select>
+            <div class="form-text">Program / Year is detected automatically from the subject you pick.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Program / Year</label>
+            <select name="target_exam" id="targetExamSelect" class="form-select">
+              <option value="">Select subject first</option>
+              <option value="BPT 1st Year">BPT 1st Year</option>
+              <option value="BPT 2nd Year">BPT 2nd Year</option>
+              <option value="BPT 3rd Year">BPT 3rd Year</option>
+              <option value="BPT 4th Year">BPT 4th Year</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Level</label>
+            <select name="level" class="form-select">
+              <% ['Beginner','Intermediate','Advanced'].forEach(lvl => { %>
+                <option value="<%= lvl %>" <%= course && course.level === lvl ? 'selected' : '' %>><%= lvl %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Duration (hours)</label>
+            <input type="number" step="0.5" name="duration_hours" class="form-control" value="<%= course ? course.duration_hours : '' %>">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+              <option value="draft" <%= course && course.status === 'draft' ? 'selected' : '' %>>Draft</option>
+              <option value="published" <%= course && course.status === 'published' ? 'selected' : '' %>>Published</option>
+              <option value="archived" <%= course && course.status === 'archived' ? 'selected' : '' %>>Archived</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <div class="alert alert-success d-flex align-items-center gap-2 mb-0">
+              <i class="ri-gift-line fs-4"></i>
+              <div><strong>PhysioEdvance is a 100% free platform.</strong> All courses are published free of charge — there's no pricing field to fill in.</div>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Requirements (one per line)</label>
+            <textarea name="requirements" rows="3" class="form-control"><%= course ? course.requirements : '' %></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">What students will learn (one per line)</label>
+            <textarea name="learning_outcomes" rows="3" class="form-control"><%= course ? course.learning_outcomes : '' %></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4"><%= course ? 'Save Changes' : 'Create Course & Continue' %></button>
+      </form>
+    </div>
+
+    <script>
+    (function() {
+      var categorySelect = document.getElementById('categorySelect');
+      var targetExamSelect = document.getElementById('targetExamSelect');
+      if (!categorySelect || !targetExamSelect) return;
+
+      var yearLabels = { '1': 'BPT 1st Year', '2': 'BPT 2nd Year', '3': 'BPT 3rd Year', '4': 'BPT 4th Year' };
+      var existingValue = <%- JSON.stringify(course ? (course.target_exam || '') : '') %>;
+
+      function applyYearFromSubject() {
+        var opt = categorySelect.options[categorySelect.selectedIndex];
+        var year = opt ? opt.getAttribute('data-year') : null;
+        if (year && yearLabels[year]) {
+          targetExamSelect.value = yearLabels[year];
+        }
+      }
+
+      categorySelect.addEventListener('change', applyYearFromSubject);
+
+      // On page load: prefer the course's saved value, otherwise auto-detect from the pre-selected subject.
+      if (existingValue && [...targetExamSelect.options].some(o => o.value === existingValue)) {
+        targetExamSelect.value = existingValue;
+      } else {
+        applyYearFromSubject();
+      }
+    })();
+    </script>
+
+    <% if (course) { %>
+      <!-- ===== CURRICULUM BUILDER ===== -->
+      <div class="card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Curriculum</h5>
+          <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addModuleModal"><i class="ri-add-line"></i> Add Module</button>
+        </div>
+
+        <% if (!modules || modules.length === 0) { %>
+          <p class="text-muted-pe small text-center py-3">No modules yet. Add your first module to start building the curriculum.</p>
+        <% } %>
+
+        <% (modules || []).forEach((mod, idx) => { %>
+          <div class="pe-builder-module">
+            <div class="pe-builder-module-header">
+              <span class="fw-semibold small">Module <%= idx + 1 %>: <%= mod.title %></span>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-soft-primary" type="button" data-bs-toggle="modal" data-bs-target="#addLessonModal<%= mod.id %>"><i class="ri-add-line"></i> Lesson</button>
+                <form action="/instructor/courses/<%= course.id %>/modules/<%= mod.id %>/delete" method="POST" onsubmit="return confirm('Delete this module and all its lessons?')">
+                  <button class="btn btn-sm btn-outline-danger"><i class="ri-delete-bin-line"></i></button>
+                </form>
+              </div>
+            </div>
+            <% mod.lessons.forEach(lesson => { %>
+              <div class="pe-builder-lesson-row">
+                <span>
+                  <i class="<%= lesson.type === 'quiz' ? 'ri-questionnaire-line text-warning' : lesson.type === 'article' ? 'ri-file-text-line text-info' : 'ri-play-circle-line text-primary-pe' %> me-2"></i>
+                  <%= lesson.title %>
+                  <span class="text-muted-pe">(<%= lesson.duration_minutes %>m)</span>
+                  <% if (lesson.is_preview) { %><span class="badge badge-soft-success ms-2">Preview</span><% } %>
+                </span>
+                <form action="/instructor/courses/<%= course.id %>/lessons/<%= lesson.id %>/delete" method="POST" onsubmit="return confirm('Delete this lesson?')">
+                  <button class="btn btn-sm btn-link text-danger p-0"><i class="ri-close-line"></i></button>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+
+          <!-- Add Lesson Modal -->
+          <div class="modal fade" id="addLessonModal<%= mod.id %>" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form action="/instructor/courses/<%= course.id %>/modules/<%= mod.id %>/lessons" method="POST" enctype="multipart/form-data">
+                  <div class="modal-header"><h6 class="modal-title">Add Lesson to "<%= mod.title %>"</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                  <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Lesson Title</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="mb-3">
+                      <label class="form-label">Type</label>
+                      <select name="type" class="form-select">
+                        <option value="video">Video</option>
+                        <option value="article">Article / Notes</option>
+                        <option value="quiz">Quiz</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Upload Video File <span class="text-muted fw-normal">(mp4/webm, max 200MB — plays on-site)</span></label>
+                      <input type="file" name="video_file" class="form-control" accept="video/mp4,video/webm,video/ogg">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label text-muted">Or paste an external URL <span class="fw-normal">(YouTube embed link — ignored if a file is uploaded above)</span></label>
+                      <input type="text" name="video_url" class="form-control" placeholder="https://www.youtube.com/embed/...">
+                    </div>
+                    <div class="mb-3"><label class="form-label">Article Content (for article type)</label><textarea name="content" rows="3" class="form-control"></textarea></div>
+                    <div class="mb-3">
+                      <label class="form-label">Link to Quiz (for quiz type)</label>
+                      <select name="quiz_id" class="form-select">
+                        <option value="">None</option>
+                        <% (quizzes || []).forEach(q => { %><option value="<%= q.id %>"><%= q.title %></option><% }) %>
+                      </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label">Duration (minutes)</label><input type="number" name="duration_minutes" class="form-control" value="10"></div>
+                    <div class="form-check"><input type="checkbox" name="is_preview" class="form-check-input"><label class="form-check-label small">Allow free preview (non-enrolled students can watch)</label></div>
+                  </div>
+                  <div class="modal-footer"><button type="submit" class="btn btn-primary">Add Lesson</button></div>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- ===== QUIZZES ===== -->
+      <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Quizzes</h5>
+          <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addQuizModal"><i class="ri-add-line"></i> Add Quiz</button>
+        </div>
+        <% if (!quizzes || quizzes.length === 0) { %>
+          <p class="text-muted-pe small text-center py-3">No quizzes yet.</p>
+        <% } %>
+        <% (quizzes || []).forEach(q => { %>
+          <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+            <div>
+              <div class="fw-semibold small"><%= q.title %></div>
+              <div class="text-muted-pe" style="font-size:0.78rem;">Pass mark: <%= q.pass_percentage %>% &middot; Time limit: <%= q.time_limit_minutes %>m</div>
+            </div>
+            <a href="/instructor/courses/<%= course.id %>/quizzes/<%= q.id %>" class="btn btn-sm btn-soft-primary">Manage Questions</a>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Add Module Modal -->
+      <div class="modal fade" id="addModuleModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form action="/instructor/courses/<%= course.id %>/modules" method="POST">
+              <div class="modal-header"><h6 class="modal-title">Add Module</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+              <div class="modal-body"><label class="form-label">Module Title</label><input type="text" name="title" class="form-control" placeholder="e.g. Upper Limb Anatomy" required></div>
+              <div class="modal-footer"><button type="submit" class="btn btn-primary">Add Module</button></div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Quiz Modal -->
+      <div class="modal fade" id="addQuizModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form action="/instructor/courses/<%= course.id %>/quizzes" method="POST">
+              <div class="modal-header"><h6 class="modal-title">Add Quiz</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+              <div class="modal-body">
+                <div class="mb-3"><label class="form-label">Quiz Title</label><input type="text" name="title" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Description</label><textarea name="description" rows="2" class="form-control"></textarea></div>
+                <div class="row g-3">
+                  <div class="col-6"><label class="form-label">Time Limit (min)</label><input type="number" name="time_limit_minutes" class="form-control" value="20"></div>
+                  <div class="col-6"><label class="form-label">Pass %</label><input type="number" name="pass_percentage" class="form-control" value="60"></div>
+                </div>
+              </div>
+              <div class="modal-footer"><button type="submit" class="btn btn-primary">Create Quiz</button></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card p-4">
+      <h6 class="mb-3">Tips</h6>
+      <ul class="small text-muted-pe d-flex flex-column gap-2 mb-0">
+        <li>Save the course first, then add modules and lessons below.</li>
+        <li>Mark at least one lesson as "free preview" so prospective students can sample your teaching.</li>
+        <li>Create quizzes first, then link them to a lesson of type "Quiz".</li>
+        <li>Set status to "Published" when ready to make the course publicly visible.</li>
+      </ul>
+    </div>
+
+    <% if (course) { %>
+      <div class="card p-4 mt-4">
+        <h6 class="mb-3">Attendance</h6>
+        <a href="/instructor/courses/<%= course.id %>/attendance" class="btn btn-outline-primary w-100"><i class="ri-fingerprint-line me-1"></i> View Face-Verified Attendance</a>
+      </div>
+    <% } %>
+  </div>
+</div>

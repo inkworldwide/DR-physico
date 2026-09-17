@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 480" width="600" height="480">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eef1fa"/>
+      <stop offset="100%" stop-color="#fdf3ef"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#405189"/>
+      <stop offset="100%" stop-color="#6c7fc9"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="480" rx="24" fill="url(#bgGrad)"/>
+
+  <!-- Laptop / screen -->
+  <rect x="120" y="120" width="360" height="230" rx="14" fill="#ffffff" stroke="#e2e6f1" stroke-width="2"/>
+  <rect x="140" y="142" width="320" height="150" rx="8" fill="url(#cardGrad)"/>
+
+  <!-- Play button -->
+  <circle cx="300" cy="217" r="32" fill="#ffffff" opacity="0.92"/>
+  <path d="M291 200 L291 234 L319 217 Z" fill="#405189"/>
+
+  <!-- Progress lines -->
+  <rect x="140" y="305" width="220" height="10" rx="5" fill="#eaecf1"/>
+  <rect x="140" y="305" width="150" height="10" rx="5" fill="#0ab39c"/>
+  <rect x="140" y="325" width="160" height="8" rx="4" fill="#eaecf1"/>
+
+  <!-- Laptop base -->
+  <rect x="95" y="350" width="410" height="16" rx="8" fill="#344053"/>
+
+  <!-- Stethoscope icon floating -->
+  <circle cx="500" cy="120" r="46" fill="#ffffff" stroke="#eaecf1" stroke-width="2"/>
+  <path d="M484 105 v14 a16 16 0 0 0 32 0 v-14" fill="none" stroke="#f06548" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="484" cy="103" r="4" fill="#f06548"/>
+  <circle cx="516" cy="103" r="4" fill="#f06548"/>
+  <circle cx="500" cy="136" r="6" fill="#f06548"/>
+
+  <!-- Book icon floating -->
+  <circle cx="90" cy="250" r="40" fill="#ffffff" stroke="#eaecf1" stroke-width="2"/>
+  <path d="M72 238 h36 v28 h-36 z" fill="none" stroke="#405189" stroke-width="4"/>
+  <line x1="90" y1="238" x2="90" y2="266" stroke="#405189" stroke-width="4"/>
+
+  <!-- Sparkle accents -->
+  <circle cx="540" cy="320" r="5" fill="#f7b84b"/>
+  <circle cx="70" cy="120" r="4" fill="#0ab39c"/>
+  <circle cx="320" cy="60" r="4" fill="#f06548"/>
+</svg>

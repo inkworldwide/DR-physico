@@ -1,0 +1,155 @@
+<% if (!zoomConfigured) { %>
+  <div class="alert alert-warning border-0 shadow-sm rounded-4 mb-4 p-3 d-flex align-items-center gap-3">
+    <i class="ri-error-warning-fill text-warning fs-3"></i>
+    <div>
+      <h6 class="fw-bold mb-1">Zoom Connection Pending</h6>
+      <span class="small">
+        You can still schedule session listings (topic + schedule). Real Zoom join links will generate automatically when you add <code>ZOOM_ACCOUNT_ID</code>, <code>ZOOM_CLIENT_ID</code>, and <code>ZOOM_CLIENT_SECRET</code> to <code>.env</code>.
+      </span>
+    </div>
+  </div>
+<% } %>
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <h3 class="fw-bold text-dark mb-1"><i class="ri-video-chat-line text-primary me-2"></i>Live Sessions & Workshops</h3>
+    <p class="text-muted small mb-0">Schedule live classes, webinars, interactive discussions, and workshops for BPT students.</p>
+  </div>
+  <button type="button" class="btn btn-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addLiveSessionModal">
+    <i class="ri-add-circle-fill me-1"></i> Create Live Session
+  </button>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="table-responsive">
+    <table class="table pe-table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Session Title</th>
+          <th>Type</th>
+          <th>Date & Time</th>
+          <th>Zoom Integration</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (sessions.length === 0) { %>
+          <tr><td colspan="6" class="text-center text-muted py-4">No live sessions scheduled yet.</td></tr>
+        <% } %>
+        <% sessions.forEach(s => { %>
+          <tr>
+            <td class="fw-bold text-dark fs-6"><%= s.title %></td>
+            <td><span class="badge bg-info-subtle text-info font-weight-bold px-3 py-1 rounded-pill text-capitalize"><%= s.session_type.replace('_',' ') %></span></td>
+            <td><span class="text-muted small fw-semibold"><i class="ri-calendar-event-line me-1 text-primary"></i><%= new Date(s.scheduled_at).toLocaleString() %></span></td>
+            <td>
+              <% if (s.zoom_join_url) { %>
+                <a href="<%= s.zoom_join_url %>" target="_blank" class="badge bg-success-subtle text-success text-decoration-none px-3 py-1 rounded-pill font-weight-bold">
+                  <i class="ri-video-fill me-1"></i> Zoom Ready &#x2197;
+                </a>
+              <% } else { %>
+                <span class="badge bg-light text-muted px-3 py-1 rounded-pill border">Not generated</span>
+              <% } %>
+            </td>
+            <td><span class="badge bg-primary-subtle text-primary font-weight-bold px-3 py-1 rounded-pill text-capitalize"><%= s.status %></span></td>
+            <td class="text-end">
+              <div class="d-flex align-items-center justify-content-end gap-2">
+                <form action="/admin/live-sessions/<%= s.id %>/notify" method="POST" class="d-inline" onsubmit="return confirm('Send SMS reminder to all registrants?')">
+                  <button class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Notify registrants via SMS">
+                    <i class="ri-sms-line me-1"></i> Notify SMS
+                  </button>
+                </form>
+                <form action="/admin/live-sessions/<%= s.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this session?')">
+                  <button class="btn btn-sm btn-outline-danger rounded-circle p-2" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;" title="Delete Session">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ CREATE LIVE SESSION MODAL POP-UP ============ -->
+<div class="modal fade" id="addLiveSessionModal" tabindex="-1" aria-labelledby="addLiveSessionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; max-height: 90vh;">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title font-weight-bold text-white d-flex align-items-center gap-2" id="addLiveSessionModalLabel">
+          <i class="ri-add-circle-fill text-warning fs-4"></i> Schedule New Live Session
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/live-sessions" method="POST" class="d-flex flex-column h-100">
+        <div class="modal-body p-4" style="overflow-y: auto;">
+          <div class="mb-3">
+            <label class="form-label font-weight-bold">Session Title</label>
+            <input type="text" name="title" class="form-control form-control-lg" placeholder="e.g. Clinical Examination of Shoulder Joint" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Session Type</label>
+              <select name="session_type" class="form-select form-select-lg">
+                <option value="live_class" selected>Live Class</option>
+                <option value="discussion">Live Discussion</option>
+                <option value="workshop">Workshop</option>
+                <option value="webinar">Webinar</option>
+                <option value="podcast">Podcast</option>
+                <option value="panel_discussion">Panel Discussion</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold">Subject (Optional)</label>
+              <select name="category_id" class="form-select form-select-lg">
+                <option value="" selected>None / General Session</option>
+                <% categories.forEach(c => { %>
+                  <option value="<%= c.id %>"><%= c.name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-7">
+              <label class="form-label font-weight-bold">Scheduled Date & Time</label>
+              <input type="datetime-local" name="scheduled_at" class="form-control form-control-lg" required>
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label font-weight-bold">Duration (minutes)</label>
+              <input type="number" name="duration_minutes" class="form-control form-control-lg" value="60" min="15" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold">Session Description</label>
+            <textarea name="description" rows="3" class="form-control" placeholder="Brief outline of what will be taught in this session..."></textarea>
+          </div>
+
+          <div class="form-check form-switch p-3 bg-light rounded-3 border mb-2">
+            <input class="form-check-input ms-0 me-2" type="checkbox" name="create_zoom" value="1" id="createZoomModal" <%= zoomConfigured ? '' : 'disabled' %>>
+            <label class="form-check-label font-weight-bold text-dark" for="createZoomModal">
+              <i class="ri-video-fill text-primary me-1"></i> Automatically Create Real Zoom Meeting Link
+              <% if (!zoomConfigured) { %>
+                <span class="text-muted small ms-1">(Connect Zoom API keys in .env first)</span>
+              <% } %>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm py-2">
+            <i class="ri-check-line me-1"></i> Create Session
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
