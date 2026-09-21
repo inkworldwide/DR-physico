@@ -25,6 +25,9 @@ router.get('/learning-modules', publicController.learningModules);
 router.get('/learning-modules/:slug', publicController.learningModuleDetail);
 router.get('/learning-modules/:slug/:type', publicController.learningModuleDetail);
 router.get('/live-discussion', publicController.liveDiscussion);
+router.post('/live-discussion/reply', publicController.addDiscussionReply);
+router.post('/live-discussion/create', publicController.createDiscussion);
+router.post('/live-discussion/:id/upvote', publicController.upvoteDiscussion);
 
 router.get('/live-sessions', publicController.liveSessions);
 router.post('/live-sessions/:id/register', requireAuth, publicController.registerForSession);

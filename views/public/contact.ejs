@@ -83,130 +83,85 @@
         </div>
       </div>
 
-      <!-- Right Column: Executive Contact Form -->
+      <!-- Right Column: Executive Form Card -->
       <div class="col-lg-7">
-        <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white h-100" style="box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08) !important;">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white" style="box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08) !important;">
           <!-- Top Accent Gradient Line -->
           <div style="height: 5px; background: linear-gradient(90deg, #0a5dc2 0%, #38bdf8 100%);"></div>
 
-          <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between">
-            <div>
-              <div class="d-flex align-items-center justify-content-between mb-4">
-                <div>
-                  <h3 class="fw-bold text-dark mb-1">Send Us a Message</h3>
-                  <p class="text-muted small mb-0">Fill in the fields below and we'll connect with you shortly.</p>
-                </div>
-                <span class="badge bg-light text-secondary border rounded-pill px-3 py-2 small">
-                  <i class="ri-lock-2-line me-1 text-primary"></i> 100% Confidential
-                </span>
+          <div class="card-body p-4 p-md-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <div>
+                <h4 class="fw-bold text-dark mb-1">Leave Your Details</h4>
+                <p class="text-muted small mb-0">Fill out the quick form — we'll handle the rest.</p>
+              </div>
+              <span class="badge bg-light text-secondary rounded-pill px-3 py-2 border small">
+                <i class="ri-lock-2-line me-1 text-primary"></i> 100% Confidential
+              </span>
+            </div>
+
+            <form action="/contact" method="POST">
+              <div class="mb-3">
+                <label class="form-label fw-bold text-dark small">
+                  <i class="ri-user-line text-primary me-1"></i> Full Name
+                </label>
+                <input type="text" name="name" class="form-control form-control-lg bg-light-subtle border-light-subtle" placeholder="e.g. Dr. Rahul Sharma" required>
               </div>
 
-              <form action="/contact" method="POST">
-                <div class="row g-3 mb-3">
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold text-dark small">
-                      <i class="ri-user-3-line text-primary me-1"></i> Full Name
-                    </label>
-                    <input type="text" name="name" class="form-control form-control-lg bg-light-subtle border-light-subtle" placeholder="e.g. Dr. Rahul Sharma" required>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold text-dark small">
-                      <i class="ri-mail-line text-primary me-1"></i> Email Address
-                    </label>
-                    <input type="email" name="email" class="form-control form-control-lg bg-light-subtle border-light-subtle" placeholder="name@example.com" required>
-                  </div>
-                </div>
-
-                <!-- Dynamic Interest Category & Services / Year/Courses Switcher -->
-                <div class="row g-3 mb-3">
-                  <!-- Left Field: Category Type Selector -->
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold text-dark small">
-                      <i class="ri-apps-line text-primary me-1"></i> Interest Category
-                    </label>
-                    <select id="contactInterestCategorySelect" class="form-select form-select-lg bg-light-subtle border-light-subtle" style="font-size: 0.95rem;" onchange="updateContactDropdownOptions()">
-                      <option value="services" selected>🏥 Clinical Services</option>
-                      <option value="courses">🎓 Year / Academic Courses</option>
-                    </select>
-                  </div>
-
-                  <!-- Right Field: Dynamic Option Dropdown -->
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold text-dark small" id="contactDynamicDropdownLabel">
-                      <i class="ri-heart-pulse-line text-primary me-1"></i> Select Clinical Service
-                    </label>
-                    <select name="subject" id="contactDynamicOptionSelect" class="form-select form-select-lg bg-light-subtle border-light-subtle" style="font-size: 0.95rem;">
-                      <!-- Dynamically populated via JS -->
-                    </select>
-                  </div>
-                </div>
-
-                <!-- Dynamic Option Switcher Script -->
-                <script>
-                  const contactClinicalServicesOptions = [
-                    { value: "Post-Surgery Physiotherapy", text: "Post-Surgery Physiotherapy" },
-                    { value: "Orthopedic & Joint Rehabilitation", text: "Orthopedic & Joint Rehabilitation" },
-                    { value: "Neurological Rehabilitation (Stroke / TBI)", text: "Neurological Rehabilitation (Stroke / TBI)" },
-                    { value: "Sports Injury & Athletic Conditioning", text: "Sports Injury & Athletic Conditioning" },
-                    { value: "Cardiorespiratory ICU & Pulmonary Therapy", text: "Cardiorespiratory ICU & Pulmonary Therapy" },
-                    { value: "Pediatric & Geriatric Physical Therapy", text: "Pediatric & Geriatric Physical Therapy" },
-                    { value: "Clinical Internship & Practical Guidance", text: "Clinical Internship & Practical Guidance" },
-                    { value: "General Physiotherapy Consultation", text: "General Physiotherapy Consultation" }
-                  ];
-
-                  const contactAcademicCoursesOptions = [
-                    { value: "Year 1 (Foundation & Human Osteology)", text: "Year 1 (Foundation & Human Osteology)" },
-                    { value: "Year 2 (Pathology & Biomechanics)", text: "Year 2 (Pathology & Biomechanics)" },
-                    { value: "Year 3 (Medicine, Surgery & Ortho)", text: "Year 3 (Medicine, Surgery & Ortho)" },
-                    { value: "Year 4 (Neurology, Sports & Rehab)", text: "Year 4 (Neurology, Sports & Rehab)" },
-                    { value: "MPT Master Specialty Courses", text: "MPT Master Specialty Courses" },
-                    { value: "Research & Biostatistics Desk", text: "Research & Biostatistics Desk" }
-                  ];
-
-                  function updateContactDropdownOptions() {
-                    const categorySelect = document.getElementById('contactInterestCategorySelect');
-                    const targetSelect = document.getElementById('contactDynamicOptionSelect');
-                    const label = document.getElementById('contactDynamicDropdownLabel');
-
-                    if (!categorySelect || !targetSelect || !label) return;
-
-                    const selectedCategory = categorySelect.value;
-                    targetSelect.innerHTML = '';
-
-                    if (selectedCategory === 'services') {
-                      label.innerHTML = '<i class="ri-heart-pulse-line text-primary me-1"></i> Select Clinical Service';
-                      contactClinicalServicesOptions.forEach(opt => {
-                        const el = document.createElement('option');
-                        el.value = opt.value;
-                        el.textContent = opt.text;
-                        targetSelect.appendChild(el);
-                      });
-                    } else {
-                      label.innerHTML = '<i class="ri-graduation-cap-line text-primary me-1"></i> Select Year / Academic Course';
-                      contactAcademicCoursesOptions.forEach(opt => {
-                        const el = document.createElement('option');
-                        el.value = opt.value;
-                        el.textContent = opt.text;
-                        targetSelect.appendChild(el);
-                      });
-                    }
-                  }
-
-                  document.addEventListener('DOMContentLoaded', updateContactDropdownOptions);
-                </script>
-
-                <div class="mb-4">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
                   <label class="form-label fw-bold text-dark small">
-                    <i class="ri-message-3-line text-primary me-1"></i> Your Message
+                    <i class="ri-phone-line text-primary me-1"></i> Phone Number
                   </label>
-                  <textarea name="message" rows="4" class="form-control bg-light-subtle border-light-subtle" placeholder="How can our team help you today? Please provide details..." required></textarea>
+                  <input type="tel" name="phone" class="form-control form-control-lg bg-light-subtle border-light-subtle" placeholder="+91 9XXXXXXXXX" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold text-dark small">
+                    <i class="ri-mail-line text-primary me-1"></i> Email Address <span class="text-muted fw-normal">(Optional)</span>
+                  </label>
+                  <input type="email" name="email" class="form-control form-control-lg bg-light-subtle border-light-subtle" placeholder="name@example.com">
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold text-dark small">
+                    <i class="ri-book-open-line text-primary me-1"></i> Academic Year / Program Interest
+                  </label>
+                  <select name="service_type" class="form-select form-select-lg bg-light-subtle border-light-subtle" style="font-size: 0.95rem;">
+                    <option value="BPT 1st Year (Foundation & Osteology)">BPT 1st Year (Foundation & Osteology)</option>
+                    <option value="BPT 2nd Year (Pathology & Biomechanics)">BPT 2nd Year (Pathology & Biomechanics)</option>
+                    <option value="BPT 3rd Year (Medicine, Surgery & Ortho)">BPT 3rd Year (Medicine, Surgery & Ortho)</option>
+                    <option value="BPT 4th Year (Neurology, Sports & Rehab)">BPT 4th Year (Neurology, Sports & Rehab)</option>
+                    <option value="Live Classes & Interactive Workshops">Live Classes & Interactive Workshops</option>
+                    <option value="General Academic Inquiry">General Academic Inquiry</option>
+                  </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%); border: none;">
-                  <i class="ri-send-plane-fill me-1"></i> Send Message Now
-                </button>
-              </form>
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold text-dark small">
+                    <i class="ri-chat-1-line text-primary me-1"></i> Request Type
+                  </label>
+                  <select name="request_type" class="form-select form-select-lg bg-light-subtle border-light-subtle" style="font-size: 0.95rem;">
+                    <option value="Request a Call Back" selected>Request a Call Back</option>
+                    <option value="Book Academic Guidance Session">Book Academic Guidance Session</option>
+                    <option value="Library & Notes Access Help">Library & Notes Access Help</option>
+                    <option value="General Support Inquiry">General Support Inquiry</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label fw-bold text-dark small">
+                  <i class="ri-chat-3-line text-primary me-1"></i> Message <span class="text-muted fw-normal">(Optional)</span>
+                </label>
+                <textarea name="message" rows="3" class="form-control bg-light-subtle border-light-subtle" placeholder="Write any specific query or question..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm" style="background: linear-gradient(135deg, #0a5dc2 0%, #0369a1 100%); border: none;">
+                <i class="ri-send-plane-fill me-2"></i> Submit Request
+              </button>
+            </form>
           </div>
         </div>
       </div>

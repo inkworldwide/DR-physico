@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'student' CHECK(role IN ('student', 'intern', 'clinician', 'educator', 'researcher', 'instructor', 'admin')),
+    plain_password TEXT,
+    user_code TEXT,
+    role TEXT NOT NULL DEFAULT 'student' CHECK(role IN ('superadmin', 'admin', 'instructor', 'student', 'intern', 'clinician', 'educator', 'researcher', 'user')),
     avatar TEXT DEFAULT '/images/users/default-avatar.png',
     face_descriptor TEXT DEFAULT NULL,  -- JSON array of 128 floats from face-api.js
     phone TEXT,
@@ -399,6 +401,68 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 -- ========================================
+-- PERMISSIONS (Master Registry of System Permissions)
+-- ========================================
+CREATE TABLE IF NOT EXISTS permissions (
+    id SERIAL PRIMARY KEY,
+    permission_key TEXT UNIQUE NOT NULL, -- e.g. 'COURSE:CREATE', 'BLOG:DELETE'
+    resource TEXT NOT NULL,              -- e.g. 'COURSE', 'BLOG', 'LIVE_CLASS', 'SUBJECT', 'CASE_DISCUSSION', 'USER'
+    action TEXT NOT NULL,                -- e.g. 'VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN'
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- USER PERMISSIONS (Explicit permissions assigned to Admin/Instructor)
+-- ========================================
+CREATE TABLE IF NOT EXISTS user_permissions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    permission_key TEXT NOT NULL,
+    granted_by INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, permission_key),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (granted_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ========================================
+-- CONTENT ACCESS (Granular user assignment for Private / Public content)
+-- ========================================
+CREATE TABLE IF NOT EXISTS content_access (
+    id SERIAL PRIMARY KEY,
+    content_type TEXT NOT NULL,           -- 'course', 'blog', 'live_session', 'subject', 'case_discussion', 'learning_module', 'note'
+    content_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    permission_level TEXT DEFAULT 'view' CHECK(permission_level IN ('view', 'edit', 'admin')),
+    assigned_by INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(content_type, content_id, user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (assigned_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ========================================
+-- AUDIT LOGS (Administrative action trail)
+-- ========================================
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id SERIAL PRIMARY KEY,
+    actor_id INTEGER,
+    actor_name TEXT,
+    actor_email TEXT,
+    actor_role TEXT,
+    action TEXT NOT NULL,                 -- e.g. 'ADMIN_CREATED', 'PERMISSIONS_UPDATED', 'COURSE_DELETED'
+    resource TEXT NOT NULL,               -- e.g. 'USER', 'COURSE', 'BLOG', 'PERMISSIONS'
+    resource_id TEXT,
+    details TEXT,
+    ip_address TEXT,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ========================================
 -- INDEXES for performance
 -- ========================================
 CREATE INDEX IF NOT EXISTS idx_courses_instructor ON courses(instructor_id);
@@ -425,3 +489,8 @@ CREATE INDEX IF NOT EXISTS idx_live_sessions_category ON live_sessions(category_
 CREATE INDEX IF NOT EXISTS idx_live_sessions_status ON live_sessions(status);
 CREATE INDEX IF NOT EXISTS idx_live_registrations_session ON live_session_registrations(session_id);
 CREATE INDEX IF NOT EXISTS idx_categories_year ON categories(year);
+CREATE INDEX IF NOT EXISTS idx_user_perms_user ON user_permissions(user_id);
+CREATE INDEX IF NOT EXISTS idx_content_access_target ON content_access(content_type, content_id);
+CREATE INDEX IF NOT EXISTS idx_content_access_user ON content_access(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_actor ON audit_logs(actor_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at DESC);

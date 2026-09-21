@@ -107,6 +107,27 @@
           <span class="text-muted small d-block mt-1">URL fallback path if no file is uploaded.</span>
         </div>
 
+        <!-- 3. VISIBILITY & ACCESS -->
+        <div class="col-12">
+          <label class="form-label font-weight-semibold text-dark">
+            <i class="ri-shield-user-line text-primary me-1"></i> Course Visibility
+          </label>
+          <div class="d-flex gap-4 p-3 bg-light rounded-3 border">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="visibility" id="visPublic" value="public" <%= (!course || course.visibility !== 'private') ? 'checked' : '' %>>
+              <label class="form-check-label fw-semibold text-slate-800" for="visPublic">
+                <i class="ri-earth-line text-success me-1"></i> Public (Visible to all students & visitors)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="visibility" id="visPrivate" value="private" <%= (course && course.visibility === 'private') ? 'checked' : '' %>>
+              <label class="form-check-label fw-semibold text-slate-800" for="visPrivate">
+                <i class="ri-lock-line text-warning me-1"></i> Private (Visible only to creator, Super Admin & assigned users)
+              </label>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 

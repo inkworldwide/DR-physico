@@ -45,11 +45,11 @@ class LearningModule {
     `).get(id);
   }
 
-  static async create({ category_id, course_id, question_type, title, question, options_json, correct_option, explanation, difficulty, topic, marks, model_answer, document_url }) {
+  static async create({ category_id, course_id, question_type, title, question, options_json, correct_option, explanation, difficulty, topic, marks, model_answer, document_url, visibility = 'public', created_by = null }) {
     const res = await db.prepare(`
       INSERT INTO learning_module_questions
-        (category_id, course_id, question_type, title, question, options_json, correct_option, explanation, difficulty, topic, marks, model_answer, document_url)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (category_id, course_id, question_type, title, question, options_json, correct_option, explanation, difficulty, topic, marks, model_answer, document_url, visibility, created_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING id
     `).run(
       category_id,
@@ -64,7 +64,9 @@ class LearningModule {
       topic || null,
       marks ? parseInt(marks, 10) : (question_type === 'mcq' ? 1 : question_type === 'small_qa' ? 5 : 15),
       model_answer || null,
-      document_url || null
+      document_url || null,
+      visibility === 'private' ? 'private' : 'public',
+      created_by || null
     );
     return res.lastInsertRowid || res.id;
   }
@@ -79,7 +81,7 @@ class LearningModule {
     return insertedIds;
   }
 
-  static async update(id, { category_id, course_id, question_type, title, question, options_json, correct_option, explanation, difficulty, topic, marks, model_answer, document_url }) {
+  static async update(id, { category_id, course_id, question_type, title, question, options_json, correct_option, explanation, difficulty, topic, marks, model_answer, document_url, visibility }) {
     await db.prepare(`
       UPDATE learning_module_questions
       SET category_id = ?,
@@ -95,6 +97,7 @@ class LearningModule {
           marks = ?,
           model_answer = ?,
           document_url = COALESCE(?, document_url),
+          visibility = COALESCE(?, visibility),
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
@@ -111,6 +114,7 @@ class LearningModule {
       marks ? parseInt(marks, 10) : (question_type === 'mcq' ? 1 : question_type === 'small_qa' ? 5 : 15),
       model_answer || null,
       document_url || null,
+      visibility ? (visibility === 'private' ? 'private' : 'public') : null,
       id
     );
   }

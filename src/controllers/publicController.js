@@ -6,6 +6,7 @@ const { PHYSIOTHERAPY_SPECIALTIES, THERAPY_TYPES, slugify, SUBJECT_ABBREVIATIONS
 const subjectInteractiveData = require('../data/subjectInteractiveData');
 const { getSubjectLearningData, learningModulesData } = require('../data/learningModulesData');
 const LearningModule = require('../models/LearningModule');
+const LiveDiscussion = require('../models/LiveDiscussion');
 const courseSystemData = require('../data/courseSystemData');
 const videoService = require('../services/videoService');
 
@@ -454,8 +455,25 @@ exports.contact = (req, res) => {
   res.render('public/contact', { title: 'Contact Us' });
 };
 
-exports.submitContact = (req, res) => {
-  req.flash('success', "Thanks for reaching out! Our team will get back to you within 24 hours.");
+exports.submitContact = async (req, res) => {
+  try {
+    const { name, phone, email, message, request_type, service_type } = req.body;
+    let fullMessage = message || '';
+    const metaNotes = [];
+    if (service_type) metaNotes.push(`Program: ${service_type}`);
+    if (metaNotes.length > 0) {
+      fullMessage = `[${metaNotes.join(' | ')}] ${fullMessage}`.trim();
+    }
+
+    await db.prepare(`
+      INSERT INTO appointment_requests (name, phone, email, preferred_date, message, request_type)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(name, phone || 'Not Provided', email || null, null, fullMessage || null, request_type || 'contact');
+
+    req.flash('success', "Thanks! We've received your request and will contact you shortly.");
+  } catch (err) {
+    req.flash('error', "Could not submit your request. Please try again or reach out on WhatsApp.");
+  }
   res.redirect('/contact');
 };
 
@@ -589,11 +607,87 @@ exports.learningModuleDetail = async (req, res) => {
 };
 
 exports.liveDiscussion = async (req, res) => {
-  const upcoming = await LiveSessions.upcoming();
-  res.render('public/live-discussion', {
-    title: 'Case Discussion — PhysioEdvance',
-    upcoming
+  const { category, q } = req.query;
+  const discussions = await LiveDiscussion.all({
+    category: category || 'all',
+    search: q || null,
+    activeOnly: true
   });
+  const headerSettings = await SiteSettings.getLiveDiscussionSettings();
+  res.render('public/live-discussion', {
+    title: `${headerSettings.title || 'Live Discussion'} — PhysioEdvance`,
+    discussions,
+    selectedCategory: category || 'all',
+    headerSettings
+  });
+};
+
+exports.addDiscussionReply = async (req, res) => {
+  try {
+    const { discussion_id, author_name, author_role, content } = req.body;
+    const user = req.session ? req.session.user : null;
+    const author = user ? user.name : (author_name || 'Anonymous Peer');
+    const role = user ? (user.role === 'admin' || user.role === 'superadmin' ? 'Faculty Moderator' : (user.role === 'instructor' ? 'Mentor / Instructor' : 'Student Member')) : (author_role || 'Physiotherapy Student');
+    const isMentor = user && (user.role === 'admin' || user.role === 'superadmin' || user.role === 'instructor') ? 1 : 0;
+
+    await LiveDiscussion.addReply(discussion_id, {
+      userId: user ? user.id : null,
+      authorName: author,
+      authorRole: role,
+      content: (content || '').trim(),
+      isMentor
+    });
+
+    req.flash('success', 'Your clinical reply was posted to the discussion.');
+  } catch (err) {
+    console.error('Error posting reply:', err);
+    req.flash('error', 'Failed to post reply.');
+  }
+  res.redirect('/live-discussion');
+};
+
+exports.createDiscussion = async (req, res) => {
+  try {
+    const { category, tag_label, title, summary, questions, takeaway, author_name, author_role } = req.body;
+    const user = req.session ? req.session.user : null;
+    const author = user ? user.name : (author_name || 'Community Clinician');
+    const role = user ? (user.role === 'admin' || user.role === 'superadmin' ? 'Faculty Lead' : (user.role === 'instructor' ? 'Course Instructor' : 'Physio Student / Intern')) : (author_role || 'Physiotherapy Scholar');
+
+    await LiveDiscussion.create({
+      category: category || 'orthopedics',
+      tag_label: tag_label || 'Clinical Case Round',
+      title: (title || '').trim(),
+      summary: (summary || '').trim(),
+      questions: (questions || '').trim(),
+      takeaway: takeaway ? takeaway.trim() : null,
+      author_name: author,
+      author_role: role,
+      author_id: user ? user.id : null,
+      is_active: 1,
+      is_pinned: 0
+    });
+
+    req.flash('success', 'Your discussion topic has been published successfully!');
+  } catch (err) {
+    console.error('Error starting discussion:', err);
+    req.flash('error', 'Failed to publish discussion topic.');
+  }
+  res.redirect('/live-discussion');
+};
+
+exports.upvoteDiscussion = async (req, res) => {
+  try {
+    const upvotes = await LiveDiscussion.upvote(req.params.id);
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
+      return res.json({ success: true, upvotes });
+    }
+  } catch (err) {
+    console.error('Error upvoting discussion:', err);
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+  res.redirect('/live-discussion');
 };
 
 exports.privacyPolicy = async (req, res) => {

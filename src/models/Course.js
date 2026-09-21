@@ -126,13 +126,15 @@ const Course = {
     // regardless of what an instructor enters in the form.
     data = { ...data, price: 0, discount_price: null };
     const slug = slugify(data.title || 'course') + '-' + Date.now().toString().slice(-5);
+    const visibility = data.visibility === 'private' ? 'private' : 'public';
+    const createdBy = data.created_by || data.instructor_id || null;
     const info = await db.prepare(`
       INSERT INTO courses (
         title, slug, subtitle, description, thumbnail, category_id, instructor_id,
         level, language, price, discount_price, duration_hours, target_exam, status,
-        requirements, learning_outcomes, course_type
+        requirements, learning_outcomes, course_type, visibility, created_by
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       ) RETURNING id
     `).run(
       data.title || 'Untitled Course',
@@ -151,7 +153,9 @@ const Course = {
       data.status || 'draft',
       data.requirements || '',
       data.learning_outcomes || '',
-      data.course_type || 'video_hybrid'
+      data.course_type || 'video_hybrid',
+      visibility,
+      createdBy
     );
     return this.findById(info.lastInsertRowid);
   },
@@ -159,6 +163,7 @@ const Course = {
   async update(id, data) {
     // Free platform: price changes from the instructor form are ignored.
     data = { ...data, price: 0, discount_price: null };
+    const visibility = data.visibility ? (data.visibility === 'private' ? 'private' : 'public') : undefined;
     await db.prepare(`
       UPDATE courses SET
         title=?, subtitle=?, description=?,
@@ -168,12 +173,14 @@ const Course = {
         learning_outcomes=?,
         course_type = COALESCE(?, course_type),
         thumbnail = COALESCE(?, thumbnail),
+        visibility = COALESCE(?, visibility),
         updated_at = CURRENT_TIMESTAMP
       WHERE id=?
     `).run(
       data.title, data.subtitle, data.description, data.category_id, data.level, data.language,
       data.price, data.discount_price, data.duration_hours, data.target_exam, data.status,
-      data.requirements, data.learning_outcomes, data.course_type || 'video_hybrid', data.thumbnail, id
+      data.requirements, data.learning_outcomes, data.course_type || 'video_hybrid', data.thumbnail,
+      visibility, id
     );
     return this.findById(id);
   },

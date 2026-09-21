@@ -2,6 +2,7 @@ const Course = require('../models/Course');
 const User = require('../models/User');
 const db = require('../db/connection');
 const { Notes, Team, Blog, LiveSessions, HeroFeature, ClinicalSpecialty, SiteSettings, CurriculumYearCard, LearningJourneyCard, HomepageSection } = require('../models/Content');
+const PermissionService = require('../services/permissionService');
 
 exports.dashboard = async (req, res) => {
   try {
@@ -1778,5 +1779,497 @@ exports.updateCta = async (req, res) => {
   res.redirect('/admin/cta');
 };
 
+// ==========================================
+// SUPER ADMIN & RBAC MANAGEMENT CONTROLLERS
+// ==========================================
 
+/**
+ * List all Admin accounts with their assigned permissions summary
+ */
+exports.adminsIndex = async (req, res) => {
+  try {
+    const admins = await User.allAdmins();
+    const superAdmins = await User.allSuperAdmins();
+    const allAdminsList = [...superAdmins, ...admins];
+
+    // Preload permissions for each admin
+    const adminsWithPerms = await Promise.all(allAdminsList.map(async (adm) => {
+      const perms = await PermissionService.getUserPermissions(adm.id);
+      return {
+        ...adm,
+        user_code: User.formatCode(adm),
+        permissions: Array.from(perms),
+        permissionsCount: perms.size
+      };
+    }));
+
+    res.render('admin/admins', {
+      title: 'Admin Management',
+      layout: 'layouts/admin',
+      admins: adminsWithPerms,
+      currentPath: '/admin/admins'
+    });
+  } catch (err) {
+    console.error('Error fetching admins list:', err);
+    req.flash('error', `Failed to load admins: ${err.message}`);
+    res.redirect('/admin/dashboard');
+  }
+};
+
+/**
+ * Render create new Admin form with permission checkboxes
+ */
+exports.newAdminView = async (req, res) => {
+  try {
+    const resourceGroups = await PermissionService.getAllPermissions();
+    res.render('admin/admin-new', {
+      title: 'Create New Admin',
+      layout: 'layouts/admin',
+      resourceGroups,
+      currentPath: '/admin/admins'
+    });
+  } catch (err) {
+    req.flash('error', `Error loading form: ${err.message}`);
+    res.redirect('/admin/admins');
+  }
+};
+
+/**
+ * Super Admin creates a new Admin account and assigns initial permissions
+ */
+exports.createAdmin = async (req, res) => {
+  try {
+    const { name, email, password, phone, headline, qualification, permissions } = req.body;
+
+    if (!name || !email || !password) {
+      req.flash('error', 'Name, Email, and Password are required.');
+      return res.redirect('/admin/admins/new');
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const existing = await User.findByEmail(cleanEmail);
+    if (existing && existing.email.toLowerCase() === cleanEmail) {
+      req.flash('error', 'A user with this email address already exists.');
+      return res.redirect('/admin/admins/new');
+    }
+
+    const newAdmin = await User.create({
+      name: name.trim(),
+      email: cleanEmail,
+      password: password.trim(),
+      role: 'admin',
+      phone: phone ? phone.trim() : null,
+      headline: headline ? headline.trim() : 'Administrative Staff',
+      qualification: qualification ? qualification.trim() : null
+    });
+
+    const permsArray = Array.isArray(permissions) ? permissions : (permissions ? [permissions] : []);
+    await PermissionService.setUserPermissions(newAdmin.id, permsArray, req.session.user.id);
+
+    await PermissionService.logAudit({
+      actorId: req.session.user.id,
+      action: 'ADMIN_CREATED',
+      resource: 'USER',
+      resourceId: String(newAdmin.id),
+      details: { name: newAdmin.name, email: newAdmin.email, role: 'admin', permissions: permsArray },
+      req
+    });
+
+    req.flash('success', `Admin "${newAdmin.name}" created successfully with ${permsArray.length} permissions.`);
+    res.redirect('/admin/admins');
+  } catch (err) {
+    console.error('Error creating admin:', err);
+    req.flash('error', `Failed to create admin: ${err.message}`);
+    res.redirect('/admin/admins/new');
+  }
+};
+
+/**
+ * View and edit permissions matrix for a specific Admin
+ */
+exports.adminPermissionsView = async (req, res) => {
+  try {
+    const targetAdmin = await User.findById(req.params.id);
+    if (!targetAdmin) {
+      req.flash('error', 'Admin user not found.');
+      return res.redirect('/admin/admins');
+    }
+
+    const resourceGroups = await PermissionService.getAllPermissions();
+    const userPerms = await PermissionService.getUserPermissions(targetAdmin.id);
+
+    res.render('admin/admin-permissions', {
+      title: `Manage Permissions: ${targetAdmin.name}`,
+      layout: 'layouts/admin',
+      targetAdmin: {
+        ...targetAdmin,
+        user_code: User.formatCode(targetAdmin)
+      },
+      resourceGroups,
+      userPermissions: userPerms,
+      currentPath: '/admin/admins'
+    });
+  } catch (err) {
+    console.error('Error loading admin permissions view:', err);
+    req.flash('error', `Failed to load permissions: ${err.message}`);
+    res.redirect('/admin/admins');
+  }
+};
+
+/**
+ * Super Admin updates permissions for a specific Admin
+ */
+exports.updateAdminPermissions = async (req, res) => {
+  try {
+    const targetAdmin = await User.findById(req.params.id);
+    if (!targetAdmin) {
+      req.flash('error', 'Admin user not found.');
+      return res.redirect('/admin/admins');
+    }
+
+    if (targetAdmin.role === 'superadmin' && targetAdmin.id !== req.session.user.id) {
+      req.flash('error', 'Super Admin master permissions cannot be modified.');
+      return res.redirect('/admin/admins');
+    }
+
+    const perms = req.body.permissions;
+    const permsArray = Array.isArray(perms) ? perms : (perms ? [perms] : []);
+
+    await PermissionService.setUserPermissions(targetAdmin.id, permsArray, req.session.user.id);
+
+    await PermissionService.logAudit({
+      actorId: req.session.user.id,
+      action: 'ADMIN_PERMISSIONS_UPDATED',
+      resource: 'USER_PERMISSIONS',
+      resourceId: String(targetAdmin.id),
+      details: { targetAdmin: targetAdmin.email, updatedPermissionsCount: permsArray.length, permissions: permsArray },
+      req
+    });
+
+    req.flash('success', `Permissions updated successfully for ${targetAdmin.name} (${permsArray.length} active permissions).`);
+    res.redirect(`/admin/admins/${targetAdmin.id}/permissions`);
+  } catch (err) {
+    console.error('Error updating admin permissions:', err);
+    req.flash('error', `Failed to update permissions: ${err.message}`);
+    res.redirect('/admin/admins');
+  }
+};
+
+/**
+ * Toggle Admin account active/disabled state
+ */
+exports.toggleAdminStatus = async (req, res) => {
+  try {
+    const targetAdmin = await User.findById(req.params.id);
+    if (!targetAdmin) {
+      req.flash('error', 'Admin not found.');
+      return res.redirect('/admin/admins');
+    }
+
+    if (targetAdmin.role === 'superadmin') {
+      req.flash('error', 'Super Admin account cannot be deactivated.');
+      return res.redirect('/admin/admins');
+    }
+
+    const newStatus = (targetAdmin.is_active === 0 || targetAdmin.is_active === false) ? 1 : 0;
+    await User.setActive(targetAdmin.id, newStatus);
+
+    await PermissionService.logAudit({
+      actorId: req.session.user.id,
+      action: newStatus === 1 ? 'ADMIN_ACTIVATED' : 'ADMIN_DEACTIVATED',
+      resource: 'USER',
+      resourceId: String(targetAdmin.id),
+      details: { email: targetAdmin.email, newStatus },
+      req
+    });
+
+    req.flash('success', `Admin "${targetAdmin.name}" is now ${newStatus === 1 ? 'Active' : 'Disabled'}.`);
+    res.redirect('/admin/admins');
+  } catch (err) {
+    console.error('Error toggling admin status:', err);
+    req.flash('error', `Failed to toggle status: ${err.message}`);
+    res.redirect('/admin/admins');
+  }
+};
+
+/**
+ * List all Instructors with their permissions summary
+ */
+exports.instructorsIndex = async (req, res) => {
+  try {
+    const instructors = await User.allInstructors();
+    const instructorsWithPerms = await Promise.all(instructors.map(async (ins) => {
+      const perms = await PermissionService.getUserPermissions(ins.id);
+      return {
+        ...ins,
+        user_code: User.formatCode(ins),
+        permissions: Array.from(perms),
+        permissionsCount: perms.size
+      };
+    }));
+
+    res.render('admin/instructors', {
+      title: 'Instructor Management & Permissions',
+      layout: 'layouts/admin',
+      instructors: instructorsWithPerms,
+      currentPath: '/admin/instructors'
+    });
+  } catch (err) {
+    console.error('Error loading instructors:', err);
+    req.flash('error', `Failed to load instructors: ${err.message}`);
+    res.redirect('/admin/dashboard');
+  }
+};
+
+/**
+ * View & edit permissions for an instructor
+ */
+exports.instructorPermissionsView = async (req, res) => {
+  try {
+    const instructor = await User.findById(req.params.id);
+    if (!instructor) {
+      req.flash('error', 'Instructor not found.');
+      return res.redirect('/admin/instructors');
+    }
+
+    const resourceGroups = await PermissionService.getAllPermissions();
+    const userPerms = await PermissionService.getUserPermissions(instructor.id);
+
+    res.render('admin/instructor-permissions', {
+      title: `Instructor Permissions: ${instructor.name}`,
+      layout: 'layouts/admin',
+      instructor: {
+        ...instructor,
+        user_code: User.formatCode(instructor)
+      },
+      resourceGroups,
+      userPermissions: userPerms,
+      currentPath: '/admin/instructors'
+    });
+  } catch (err) {
+    console.error('Error loading instructor permissions view:', err);
+    req.flash('error', `Failed to load permissions: ${err.message}`);
+    res.redirect('/admin/instructors');
+  }
+};
+
+/**
+ * Super Admin updates instructor permissions
+ */
+exports.updateInstructorPermissions = async (req, res) => {
+  try {
+    const instructor = await User.findById(req.params.id);
+    if (!instructor) {
+      req.flash('error', 'Instructor not found.');
+      return res.redirect('/admin/instructors');
+    }
+
+    const perms = req.body.permissions;
+    const permsArray = Array.isArray(perms) ? perms : (perms ? [perms] : []);
+
+    await PermissionService.setUserPermissions(instructor.id, permsArray, req.session.user.id);
+
+    await PermissionService.logAudit({
+      actorId: req.session.user.id,
+      action: 'INSTRUCTOR_PERMISSIONS_UPDATED',
+      resource: 'USER_PERMISSIONS',
+      resourceId: String(instructor.id),
+      details: { instructor: instructor.email, permissionsCount: permsArray.length, permissions: permsArray },
+      req
+    });
+
+    req.flash('success', `Permissions updated successfully for ${instructor.name}.`);
+    res.redirect(`/admin/instructors/${instructor.id}/permissions`);
+  } catch (err) {
+    console.error('Error updating instructor permissions:', err);
+    req.flash('error', `Failed to update permissions: ${err.message}`);
+    res.redirect('/admin/instructors');
+  }
+};
+
+/**
+ * View system Audit Logs
+ */
+exports.auditLogsIndex = async (req, res) => {
+  try {
+    const { resource, action, page = 1 } = req.query;
+    const limit = 50;
+    const offset = (Math.max(1, parseInt(page, 10)) - 1) * limit;
+
+    const logs = await PermissionService.getAuditLogs({
+      limit,
+      offset,
+      resource: resource || null,
+      action: action || null
+    });
+
+    const totalCountRow = await db.prepare(`SELECT COUNT(*) as c FROM audit_logs`).get();
+    const totalLogs = Number(totalCountRow ? totalCountRow.c : 0);
+
+    res.render('admin/audit-logs', {
+      title: 'Security & Audit Logs',
+      layout: 'layouts/admin',
+      logs,
+      totalLogs,
+      currentPage: parseInt(page, 10) || 1,
+      totalPages: Math.ceil(totalLogs / limit) || 1,
+      selectedResource: resource || '',
+      selectedAction: action || '',
+      currentPath: '/admin/audit-logs'
+    });
+  } catch (err) {
+    console.error('Error fetching audit logs:', err);
+    req.flash('error', `Failed to load audit logs: ${err.message}`);
+    res.redirect('/admin/dashboard');
+  }
+};
+
+/**
+ * Assign / update explicit content access for users on private content items
+ */
+exports.assignContentAccess = async (req, res) => {
+  try {
+    const { content_type, content_id, user_ids, permission_level, redirect_url } = req.body;
+    if (!content_type || !content_id) {
+      return res.status(400).json({ success: false, message: 'Content type and ID are required.' });
+    }
+
+    const userIdsArray = Array.isArray(user_ids) ? user_ids : (user_ids ? [user_ids] : []);
+    const userAssignments = userIdsArray.map(uid => ({
+      userId: parseInt(uid, 10),
+      permissionLevel: permission_level || 'view'
+    }));
+
+    await PermissionService.assignContentAccess(content_type, parseInt(content_id, 10), userAssignments, req.session.user.id);
+
+    if (req.xhr || req.headers.accept?.includes('json')) {
+      return res.json({ success: true, message: 'Content access updated successfully.' });
+    }
+
+    req.flash('success', 'Content access assignments updated successfully.');
+    res.redirect(redirect_url || '/admin/dashboard');
+  } catch (err) {
+    console.error('Error assigning content access:', err);
+    if (req.xhr || req.headers.accept?.includes('json')) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+    req.flash('error', `Failed to assign content access: ${err.message}`);
+    res.redirect('/admin/dashboard');
+  }
+};
+
+// ==========================================
+// LIVE DISCUSSION FORUM CONTROLLERS
+// ==========================================
+const LiveDiscussion = require('../models/LiveDiscussion');
+
+exports.liveDiscussionsIndex = async (req, res) => {
+  try {
+    const discussions = await LiveDiscussion.all();
+    const headerSettings = await SiteSettings.getLiveDiscussionSettings();
+    res.render('admin/live-discussions', {
+      title: 'Live Discussions & Clinical Case Rounds',
+      layout: 'layouts/admin',
+      discussions,
+      headerSettings,
+      currentPath: '/admin/live-discussions'
+    });
+  } catch (err) {
+    console.error('Error loading live discussions:', err);
+    req.flash('error', `Failed to load discussions: ${err.message}`);
+    res.redirect('/admin/dashboard');
+  }
+};
+
+exports.updateLiveDiscussionSettings = async (req, res) => {
+  try {
+    const { badge, sub_badge, title, subtitle } = req.body;
+    await SiteSettings.updateLiveDiscussionSettings({
+      badge: badge ? badge.trim() : '',
+      sub_badge: sub_badge ? sub_badge.trim() : '',
+      title: title ? title.trim() : '',
+      subtitle: subtitle ? subtitle.trim() : ''
+    });
+    req.flash('success', 'Live discussion header banner updated successfully.');
+  } catch (err) {
+    console.error('Error updating live discussion settings:', err);
+    req.flash('error', `Failed to update banner: ${err.message}`);
+  }
+  res.redirect('/admin/live-discussions');
+};
+
+exports.createLiveDiscussion = async (req, res) => {
+  try {
+    const { category, tag_label, title, summary, questions, takeaway, author_name, author_role } = req.body;
+    await LiveDiscussion.create({
+      category: category || 'orthopedics',
+      tag_label: tag_label || 'Clinical Case Round',
+      title: title.trim(),
+      summary: summary.trim(),
+      questions: questions.trim(),
+      takeaway: takeaway ? takeaway.trim() : null,
+      author_name: author_name ? author_name.trim() : req.session.user.name,
+      author_role: author_role ? author_role.trim() : 'Faculty / Clinician',
+      author_id: req.session.user.id
+    });
+
+    req.flash('success', 'Discussion topic created successfully.');
+  } catch (err) {
+    console.error('Error creating live discussion:', err);
+    req.flash('error', `Failed to create discussion: ${err.message}`);
+  }
+  res.redirect('/admin/live-discussions');
+};
+
+exports.updateLiveDiscussion = async (req, res) => {
+  try {
+    const { category, tag_label, title, summary, questions, takeaway, author_name, author_role } = req.body;
+    await LiveDiscussion.update(req.params.id, {
+      category,
+      tag_label,
+      title: title.trim(),
+      summary: summary.trim(),
+      questions: questions.trim(),
+      takeaway: takeaway ? takeaway.trim() : null,
+      author_name: author_name ? author_name.trim() : null,
+      author_role: author_role ? author_role.trim() : null
+    });
+
+    req.flash('success', 'Discussion topic updated successfully.');
+  } catch (err) {
+    console.error('Error updating live discussion:', err);
+    req.flash('error', `Failed to update discussion: ${err.message}`);
+  }
+  res.redirect('/admin/live-discussions');
+};
+
+exports.toggleLiveDiscussionActive = async (req, res) => {
+  try {
+    const newStatus = await LiveDiscussion.toggleActive(req.params.id);
+    req.flash('success', `Discussion is now ${newStatus === 1 ? 'Active & Visible' : 'Hidden'}.`);
+  } catch (err) {
+    req.flash('error', `Failed to toggle status: ${err.message}`);
+  }
+  res.redirect('/admin/live-discussions');
+};
+
+exports.toggleLiveDiscussionPin = async (req, res) => {
+  try {
+    const newStatus = await LiveDiscussion.togglePinned(req.params.id);
+    req.flash('success', `Discussion is now ${newStatus === 1 ? 'Pinned to Top' : 'Unpinned'}.`);
+  } catch (err) {
+    req.flash('error', `Failed to pin/unpin topic: ${err.message}`);
+  }
+  res.redirect('/admin/live-discussions');
+};
+
+exports.deleteLiveDiscussion = async (req, res) => {
+  try {
+    await LiveDiscussion.delete(req.params.id);
+    req.flash('success', 'Discussion topic deleted successfully.');
+  } catch (err) {
+    req.flash('error', `Failed to delete discussion: ${err.message}`);
+  }
+  res.redirect('/admin/live-discussions');
+};
 

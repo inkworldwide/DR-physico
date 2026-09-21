@@ -111,8 +111,14 @@ const User = {
     await db.prepare(`UPDATE users SET email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(newEmail, id);
     return this.findById(id);
   },
+  async allAdmins() {
+    return db.prepare(`SELECT * FROM users WHERE role = 'admin' AND COALESCE(is_deleted, 0) = 0 ORDER BY created_at DESC`).all();
+  },
+  async allSuperAdmins() {
+    return db.prepare(`SELECT * FROM users WHERE role = 'superadmin' AND COALESCE(is_deleted, 0) = 0 ORDER BY created_at DESC`).all();
+  },
   async allInstructors() {
-    return db.prepare(`SELECT * FROM users WHERE role = 'instructor' ORDER BY name`).all();
+    return db.prepare(`SELECT * FROM users WHERE role = 'instructor' AND COALESCE(is_deleted, 0) = 0 ORDER BY name`).all();
   },
   async allStudents() {
     return db.prepare(`SELECT * FROM users WHERE role = 'student' ORDER BY created_at DESC`).all();
@@ -156,6 +162,12 @@ const User = {
     } catch (e) {}
     try {
       await db.prepare(`DELETE FROM reviews WHERE user_id = ?`).run(id);
+    } catch (e) {}
+    try {
+      await db.prepare(`DELETE FROM user_permissions WHERE user_id = ?`).run(id);
+    } catch (e) {}
+    try {
+      await db.prepare(`DELETE FROM content_access WHERE user_id = ?`).run(id);
     } catch (e) {}
     await db.prepare(`DELETE FROM users WHERE id = ?`).run(id);
   }

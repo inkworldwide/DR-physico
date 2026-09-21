@@ -174,15 +174,17 @@ const Blog = {
   },
   async create(data) {
     const slug = data.title.toString().toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-') + '-' + Date.now().toString().slice(-5);
+    const visibility = data.visibility === 'private' ? 'private' : 'public';
+    const createdBy = data.created_by || data.author_id || null;
     const merged = {
       cover_image: '/images/blog/default-cover.jpg',
       published_at: data.status === 'published' ? new Date().toISOString() : null,
-      ...data, slug
+      ...data, slug, visibility, created_by: createdBy
     };
     const info = await db.prepare(`
-      INSERT INTO blog_posts (title, slug, excerpt, content, cover_image, post_type, author_id, status, published_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id
-    `).run(merged.title, merged.slug, merged.excerpt, merged.content, merged.cover_image, merged.post_type, merged.author_id, merged.status, merged.published_at);
+      INSERT INTO blog_posts (title, slug, excerpt, content, cover_image, post_type, author_id, status, published_at, visibility, created_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id
+    `).run(merged.title, merged.slug, merged.excerpt, merged.content, merged.cover_image, merged.post_type, merged.author_id, merged.status, merged.published_at, merged.visibility, merged.created_by);
     return db.prepare(`SELECT * FROM blog_posts WHERE id = ?`).get(info.lastInsertRowid);
   },
   async delete(id) {
@@ -225,12 +227,15 @@ const LiveSessions = {
     return db.prepare(`SELECT ls.*, u.name as host_name FROM live_sessions ls LEFT JOIN users u ON ls.host_id = u.id ORDER BY ls.scheduled_at DESC`).all();
   },
   async create(data) {
-    const merged = { status: 'scheduled', zoom_meeting_id: null, zoom_join_url: null, zoom_start_url: null, ...data };
+    const visibility = data.visibility === 'private' ? 'private' : 'public';
+    const createdBy = data.created_by || data.host_id || null;
+    const merged = { status: 'scheduled', zoom_meeting_id: null, zoom_join_url: null, zoom_start_url: null, visibility, created_by: createdBy, ...data };
     const info = await db.prepare(`
-      INSERT INTO live_sessions (title, description, session_type, category_id, host_id, scheduled_at, duration_minutes, zoom_meeting_id, zoom_join_url, zoom_start_url, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id
+      INSERT INTO live_sessions (title, description, session_type, category_id, host_id, scheduled_at, duration_minutes, zoom_meeting_id, zoom_join_url, zoom_start_url, status, visibility, created_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id
     `).run(merged.title, merged.description, merged.session_type, merged.category_id, merged.host_id, merged.scheduled_at,
-      merged.duration_minutes, merged.zoom_meeting_id, merged.zoom_join_url, merged.zoom_start_url, merged.status);
+      merged.duration_minutes, merged.zoom_meeting_id, merged.zoom_join_url, merged.zoom_start_url, merged.status,
+      merged.visibility, merged.created_by);
     return this.findById(info.lastInsertRowid);
   },
   async attachZoomMeeting(id, { zoomMeetingId, joinUrl, startUrl }) {
@@ -437,6 +442,19 @@ const SiteSettings = {
   async updateVisionMission(vision, mission) {
     await this.set('our_vision', vision);
     await this.set('our_mission', mission);
+  },
+  async getLiveDiscussionSettings() {
+    const badge = await this.get('live_discussion_badge', 'Interactive Student & Expert Community');
+    const sub_badge = await this.get('live_discussion_sub_badge', 'Live Clinical Rounds');
+    const title = await this.get('live_discussion_title', 'Live Discussion');
+    const subtitle = await this.get('live_discussion_subtitle', 'Engage in real-time academic discussions, clinical case rounds, differential diagnoses, and evidence-based physiotherapy reasoning with verified mentors and peers.');
+    return { badge, sub_badge, title, subtitle };
+  },
+  async updateLiveDiscussionSettings({ badge, sub_badge, title, subtitle }) {
+    if (badge !== undefined) await this.set('live_discussion_badge', badge);
+    if (sub_badge !== undefined) await this.set('live_discussion_sub_badge', sub_badge);
+    if (title !== undefined) await this.set('live_discussion_title', title);
+    if (subtitle !== undefined) await this.set('live_discussion_subtitle', subtitle);
   },
   async isGroupEnabled(groupName, defaultVal = 1) {
     const key = `team_group_enabled_${groupName}`;

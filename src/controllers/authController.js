@@ -29,16 +29,22 @@ exports.login = async (req, res) => {
     return res.redirect('/auth/login');
   }
 
-  // Admin accounts bypass face verification for direct superadmin dashboard access
-  if (user.role === 'admin') {
+  // Admin & Super Admin accounts bypass face verification for direct dashboard access
+  if (user.role === 'admin' || user.role === 'superadmin') {
+    const PermissionService = require('../services/permissionService');
+    const perms = await PermissionService.getUserPermissions(user.id);
     req.session.user = {
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
-      avatar: user.avatar
+      avatar: user.avatar,
+      phone: user.phone,
+      user_code: User.formatCode(user),
+      is_active: user.is_active,
+      permissions: Array.from(perms)
     };
-    req.flash('success', `Welcome back, Superadmin ${user.name.split(' ')[0]}!`);
+    req.flash('success', `Welcome back, ${user.role === 'superadmin' ? 'Super Admin' : 'Admin'} ${user.name.split(' ')[0]}!`);
     return res.redirect(redirect && redirect.startsWith('/') ? redirect : '/admin/dashboard');
   }
 

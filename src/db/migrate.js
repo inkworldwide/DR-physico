@@ -181,17 +181,167 @@ async function migrate() {
       console.warn('Clinical specialties seed notice:', e.message);
     }
 
-    // Always ensure Superadmin exists with known password
+    // ============ RBAC & CONTENT VISIBILITY MIGRATIONS ============
+    try {
+      // 1. Update users table role constraint to support superadmin
+      try {
+        await db.pool.query("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+        await db.pool.query("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK(role IN ('superadmin', 'admin', 'instructor', 'student', 'intern', 'clinician', 'educator', 'researcher', 'user'))");
+      } catch (e) { /* constraint update notice */ }
+
+      // 2. Add visibility and ownership columns to content tables
+      const addColumnQueries = [
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS plain_password TEXT",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS user_code TEXT",
+        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS visibility TEXT DEFAULT 'public'",
+        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS created_by INTEGER REFERENCES users(id) ON DELETE SET NULL",
+        "ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS visibility TEXT DEFAULT 'public'",
+        "ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS created_by INTEGER REFERENCES users(id) ON DELETE SET NULL",
+        "ALTER TABLE live_sessions ADD COLUMN IF NOT EXISTS visibility TEXT DEFAULT 'public'",
+        "ALTER TABLE live_sessions ADD COLUMN IF NOT EXISTS created_by INTEGER REFERENCES users(id) ON DELETE SET NULL",
+        "ALTER TABLE categories ADD COLUMN IF NOT EXISTS visibility TEXT DEFAULT 'public'",
+        "ALTER TABLE categories ADD COLUMN IF NOT EXISTS created_by INTEGER REFERENCES users(id) ON DELETE SET NULL",
+        "ALTER TABLE notes ADD COLUMN IF NOT EXISTS visibility TEXT DEFAULT 'public'",
+        "ALTER TABLE learning_module_questions ADD COLUMN IF NOT EXISTS visibility TEXT DEFAULT 'public'",
+        "ALTER TABLE learning_module_questions ADD COLUMN IF NOT EXISTS created_by INTEGER REFERENCES users(id) ON DELETE SET NULL"
+      ];
+
+      for (const q of addColumnQueries) {
+        try {
+          await db.pool.query(q);
+        } catch (e) { /* ignore if already present */ }
+      }
+
+      // 3. Create RBAC tables
+      await db.pool.query(`
+        CREATE TABLE IF NOT EXISTS permissions (
+          id SERIAL PRIMARY KEY,
+          permission_key TEXT UNIQUE NOT NULL,
+          resource TEXT NOT NULL,
+          action TEXT NOT NULL,
+          name TEXT NOT NULL,
+          description TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS user_permissions (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          permission_key TEXT NOT NULL,
+          granted_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, permission_key)
+        );
+
+        CREATE TABLE IF NOT EXISTS content_access (
+          id SERIAL PRIMARY KEY,
+          content_type TEXT NOT NULL,
+          content_id INTEGER NOT NULL,
+          user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          permission_level TEXT DEFAULT 'view' CHECK(permission_level IN ('view', 'edit', 'admin')),
+          assigned_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(content_type, content_id, user_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS audit_logs (
+          id SERIAL PRIMARY KEY,
+          actor_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+          actor_name TEXT,
+          actor_email TEXT,
+          actor_role TEXT,
+          action TEXT NOT NULL,
+          resource TEXT NOT NULL,
+          resource_id TEXT,
+          details TEXT,
+          ip_address TEXT,
+          user_agent TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      // 4. Seed Standard Permissions Registry
+      const standardPermissions = [
+        // COURSE
+        { key: 'COURSE:VIEW', resource: 'COURSE', action: 'VIEW', name: 'View Courses', description: 'View course catalog and details' },
+        { key: 'COURSE:CREATE', resource: 'COURSE', action: 'CREATE', name: 'Create Course', description: 'Create new course curriculum & lessons' },
+        { key: 'COURSE:EDIT', resource: 'COURSE', action: 'EDIT', name: 'Edit Course', description: 'Modify course structure, modules and videos' },
+        { key: 'COURSE:DELETE', resource: 'COURSE', action: 'DELETE', name: 'Delete Course', description: 'Remove or archive courses' },
+        { key: 'COURSE:PUBLISH', resource: 'COURSE', action: 'PUBLISH', name: 'Publish Course', description: 'Publish or unpublish courses for public viewing' },
+        { key: 'COURSE:ASSIGN', resource: 'COURSE', action: 'ASSIGN', name: 'Assign Course', description: 'Assign course access to admins/instructors' },
+
+        // BLOG
+        { key: 'BLOG:VIEW', resource: 'BLOG', action: 'VIEW', name: 'View Blogs', description: 'View published and draft blog posts' },
+        { key: 'BLOG:CREATE', resource: 'BLOG', action: 'CREATE', name: 'Create Blog', description: 'Write and draft new blog articles' },
+        { key: 'BLOG:EDIT', resource: 'BLOG', action: 'EDIT', name: 'Edit Blog', description: 'Edit existing blog articles and metadata' },
+        { key: 'BLOG:DELETE', resource: 'BLOG', action: 'DELETE', name: 'Delete Blog', description: 'Delete blog posts' },
+        { key: 'BLOG:PUBLISH', resource: 'BLOG', action: 'PUBLISH', name: 'Publish Blog', description: 'Publish blogs to the live site' },
+        { key: 'BLOG:ASSIGN', resource: 'BLOG', action: 'ASSIGN', name: 'Assign Blog', description: 'Assign blog edit permissions' },
+
+        // LIVE_CLASS
+        { key: 'LIVE_CLASS:VIEW', resource: 'LIVE_CLASS', action: 'VIEW', name: 'View Live Classes', description: 'View live classes and webinars' },
+        { key: 'LIVE_CLASS:CREATE', resource: 'LIVE_CLASS', action: 'CREATE', name: 'Create Live Class', description: 'Create and schedule new live Zoom sessions' },
+        { key: 'LIVE_CLASS:EDIT', resource: 'LIVE_CLASS', action: 'EDIT', name: 'Edit Live Class', description: 'Edit scheduled live class topics and times' },
+        { key: 'LIVE_CLASS:DELETE', resource: 'LIVE_CLASS', action: 'DELETE', name: 'Delete Live Class', description: 'Cancel or remove live sessions' },
+        { key: 'LIVE_CLASS:PUBLISH', resource: 'LIVE_CLASS', action: 'PUBLISH', name: 'Publish Live Class', description: 'Publish live classes for student registrations' },
+        { key: 'LIVE_CLASS:ASSIGN', resource: 'LIVE_CLASS', action: 'ASSIGN', name: 'Assign Live Class', description: 'Assign hosts and instructors to live sessions' },
+
+        // SUBJECT
+        { key: 'SUBJECT:VIEW', resource: 'SUBJECT', action: 'VIEW', name: 'View Subjects', description: 'View curriculum subjects and categories' },
+        { key: 'SUBJECT:CREATE', resource: 'SUBJECT', action: 'CREATE', name: 'Create Subject', description: 'Add new subjects and categories' },
+        { key: 'SUBJECT:EDIT', resource: 'SUBJECT', action: 'EDIT', name: 'Edit Subject', description: 'Modify subject names, slugs, and years' },
+        { key: 'SUBJECT:DELETE', resource: 'SUBJECT', action: 'DELETE', name: 'Delete Subject', description: 'Delete curriculum subjects' },
+        { key: 'SUBJECT:ASSIGN', resource: 'SUBJECT', action: 'ASSIGN', name: 'Assign Subject', description: 'Assign subject management to faculty' },
+
+        // CASE_DISCUSSION
+        { key: 'CASE_DISCUSSION:VIEW', resource: 'CASE_DISCUSSION', action: 'VIEW', name: 'View Case Discussions', description: 'View clinical case discussions & question modules' },
+        { key: 'CASE_DISCUSSION:CREATE', resource: 'CASE_DISCUSSION', action: 'CREATE', name: 'Create Case Discussion', description: 'Add new clinical cases, MCQs and SAQs' },
+        { key: 'CASE_DISCUSSION:EDIT', resource: 'CASE_DISCUSSION', action: 'EDIT', name: 'Edit Case Discussion', description: 'Edit clinical cases and model answers' },
+        { key: 'CASE_DISCUSSION:DELETE', resource: 'CASE_DISCUSSION', action: 'DELETE', name: 'Delete Case Discussion', description: 'Remove case discussions and question banks' },
+        { key: 'CASE_DISCUSSION:PUBLISH', resource: 'CASE_DISCUSSION', action: 'PUBLISH', name: 'Publish Case Discussion', description: 'Publish cases to student portal' },
+        { key: 'CASE_DISCUSSION:ASSIGN', resource: 'CASE_DISCUSSION', action: 'ASSIGN', name: 'Assign Case Discussion', description: 'Assign case discussion moderation' },
+
+        // USER
+        { key: 'USER:VIEW', resource: 'USER', action: 'VIEW', name: 'View Users', description: 'View registered users and learner accounts' },
+        { key: 'USER:CREATE', resource: 'USER', action: 'CREATE', name: 'Create User', description: 'Create student and faculty accounts' },
+        { key: 'USER:EDIT', resource: 'USER', action: 'EDIT', name: 'Edit User', description: 'Edit user profiles and details' },
+        { key: 'USER:DELETE', resource: 'USER', action: 'DELETE', name: 'Delete User', description: 'Delete or deactivate user accounts' },
+        { key: 'USER:TOGGLE_STATUS', resource: 'USER', action: 'TOGGLE_STATUS', name: 'Toggle User Status', description: 'Activate or suspend user accounts' },
+
+        // AUDIT_LOG
+        { key: 'AUDIT_LOG:VIEW', resource: 'AUDIT_LOG', action: 'VIEW', name: 'View Audit Logs', description: 'Inspect administrative audit log records' },
+
+        // SETTINGS
+        { key: 'SETTINGS:VIEW', resource: 'SETTINGS', action: 'VIEW', name: 'View Settings', description: 'View homepage and system configurations' },
+        { key: 'SETTINGS:EDIT', resource: 'SETTINGS', action: 'EDIT', name: 'Edit Settings', description: 'Edit homepage sections, CTA, hero, and vision' }
+      ];
+
+      for (const p of standardPermissions) {
+        try {
+          await db.pool.query(
+            `INSERT INTO permissions (permission_key, resource, action, name, description)
+             VALUES ($1, $2, $3, $4, $5)
+             ON CONFLICT (permission_key) DO UPDATE SET name = $4, description = $5`,
+            [p.key, p.resource, p.action, p.name, p.description]
+          );
+        } catch (e) { /* ignore */ }
+      }
+
+    } catch (e) {
+      console.warn('RBAC migration notice:', e.message);
+    }
+
+    // Always ensure Superadmin exists with known password & superadmin role
     try {
       const bcrypt = require('bcryptjs');
       const inkHash = bcrypt.hashSync('ink@123', 8);
       const inkUser = await db.prepare("SELECT * FROM users WHERE LOWER(email) = 'ink@physioadvance.com' OR LOWER(email) = 'admin@physioedvance.com' OR id = 1").get();
       if (inkUser) {
-        await db.prepare("UPDATE users SET email = ?, password = ?, role = 'admin', is_active = 1 WHERE id = ?").run('ink@physioadvance.com', inkHash, inkUser.id);
-        console.log('Superadmin synced: ink@physioadvance.com / ink@123');
+        await db.prepare("UPDATE users SET email = ?, password = ?, role = 'superadmin', is_active = 1 WHERE id = ?").run('ink@physioadvance.com', inkHash, inkUser.id);
+        console.log('Superadmin synced: ink@physioadvance.com / ink@123 (role: superadmin)');
       } else {
-        await db.prepare("INSERT INTO users (name, email, password, role, is_active, email_verified) VALUES ('Super Admin', 'ink@physioadvance.com', ?, 'admin', 1, 1)").run(inkHash);
-        console.log('Superadmin created: ink@physioadvance.com / ink@123');
+        await db.prepare("INSERT INTO users (name, email, password, role, is_active, email_verified) VALUES ('Super Admin', 'ink@physioadvance.com', ?, 'superadmin', 1, 1)").run(inkHash);
+        console.log('Superadmin created: ink@physioadvance.com / ink@123 (role: superadmin)');
       }
     } catch (e) {
       console.warn('Superadmin sync notice:', e.message);

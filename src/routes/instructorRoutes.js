@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const instructorController = require('../controllers/instructorController');
-const { requireAuth, requireRole } = require('../middleware/auth');
+const { requireAuth, requireRole, requirePermission } = require('../middleware/auth');
 
 router.use(requireAuth, requireRole('instructor', 'admin'));
 
@@ -28,14 +28,14 @@ function handleDocFileUpload(req, res, next) {
   });
 }
 
-router.get('/courses', instructorController.courseList);
-router.get('/courses/wizard', instructorController.courseWizardView);
-router.get('/courses/doc-studio', instructorController.courseDocStudioView);
-router.post('/courses/wizard/save', handleCourseWizardUpload, instructorController.saveCourseWizard);
-router.post('/courses/wizard/parse-document', handleDocFileUpload, instructorController.parseCourseDocument);
-router.post('/courses/:id/delete', instructorController.deleteCourse);
-router.post('/courses/:id/publish', instructorController.togglePublishCourse);
-router.post('/notes/:id/delete', instructorController.deleteNote);
+router.get('/courses', requirePermission('COURSE', 'VIEW'), instructorController.courseList);
+router.get('/courses/wizard', requirePermission('COURSE', 'CREATE'), instructorController.courseWizardView);
+router.get('/courses/doc-studio', requirePermission('COURSE', 'CREATE'), instructorController.courseDocStudioView);
+router.post('/courses/wizard/save', requirePermission('COURSE', 'CREATE'), handleCourseWizardUpload, instructorController.saveCourseWizard);
+router.post('/courses/wizard/parse-document', requirePermission('COURSE', 'CREATE'), handleDocFileUpload, instructorController.parseCourseDocument);
+router.post('/courses/:id/delete', requirePermission('COURSE', 'DELETE'), instructorController.deleteCourse);
+router.post('/courses/:id/publish', requirePermission('COURSE', 'PUBLISH'), instructorController.togglePublishCourse);
+router.post('/notes/:id/delete', requirePermission('COURSE', 'DELETE'), instructorController.deleteNote);
 
 function handleLessonVideoUpload(req, res, next) {
   uploadLessonVideo.single('video_file')(req, res, (err) => {
@@ -49,13 +49,14 @@ function handleLessonVideoUpload(req, res, next) {
   });
 }
 
-router.post('/courses/:courseId/modules/:moduleId/lessons', handleLessonVideoUpload, instructorController.addLesson);
-router.post('/courses/:courseId/lessons/:lessonId/delete', instructorController.deleteLesson);
+router.post('/courses/:courseId/modules/:moduleId/lessons', requirePermission('COURSE', 'EDIT'), handleLessonVideoUpload, instructorController.addLesson);
+router.post('/courses/:courseId/lessons/:lessonId/delete', requirePermission('COURSE', 'EDIT'), instructorController.deleteLesson);
 
-router.post('/courses/:courseId/quizzes', instructorController.addQuiz);
-router.get('/courses/:courseId/quizzes/:quizId', instructorController.quizDetail);
-router.post('/courses/:courseId/quizzes/:quizId/questions', instructorController.addQuestion);
-router.post('/courses/:courseId/quizzes/:quizId/questions/:questionId/delete', instructorController.deleteQuestion);
-router.post('/courses/:courseId/quizzes/:quizId/delete', instructorController.deleteQuiz);
+router.post('/courses/:courseId/quizzes', requirePermission('COURSE', 'EDIT'), instructorController.addQuiz);
+router.get('/courses/:courseId/quizzes/:quizId', requirePermission('COURSE', 'VIEW'), instructorController.quizDetail);
+router.post('/courses/:courseId/quizzes/:quizId/questions', requirePermission('COURSE', 'EDIT'), instructorController.addQuestion);
+router.post('/courses/:courseId/quizzes/:quizId/questions/:questionId/delete', requirePermission('COURSE', 'EDIT'), instructorController.deleteQuestion);
+router.post('/courses/:courseId/quizzes/:quizId/delete', requirePermission('COURSE', 'EDIT'), instructorController.deleteQuiz);
 
 module.exports = router;
+

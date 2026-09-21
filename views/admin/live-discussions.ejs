@@ -1,0 +1,422 @@
+<div class="pe-page-header mb-4">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="badge bg-primary-subtle text-primary px-2.5 py-1 rounded-pill fw-semibold" style="font-size: 0.75rem;">
+          <i class="ri-question-answer-line me-1"></i>Clinical Case Rounds & Forum
+        </span>
+      </div>
+      <h1 class="h3 fw-bold text-slate-900 mb-1">Live Discussion & Clinical Case Rounds</h1>
+      <p class="text-muted small mb-0">Create, edit, pin, and moderate clinical discussion topics, case dilemmas, and student replies.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/live-discussion" target="_blank" class="btn btn-outline-primary rounded-pill px-3 py-2 text-sm fw-medium">
+        <i class="ri-external-link-line me-1.5"></i>View Live Forum
+      </a>
+      <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-2 text-sm fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#editLiveDiscussionBannerModal">
+        <i class="ri-paint-brush-line me-1.5"></i>Edit Banner Header
+      </button>
+      <button type="button" class="btn btn-primary rounded-pill px-3.5 py-2 text-sm fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#createDiscussionAdminModal">
+        <i class="ri-add-circle-fill me-1.5"></i>Create New Topic
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- KPI Stats Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-medium">Total Discussions</div>
+          <div class="h3 fw-bold text-slate-900 mt-1 mb-0"><%= discussions.length %></div>
+        </div>
+        <div class="w-12 h-12 rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
+          <i class="ri-chat-voice-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-medium">Active Topics</div>
+          <div class="h3 fw-bold text-success mt-1 mb-0"><%= discussions.filter(d => d.is_active === 1).length %></div>
+        </div>
+        <div class="w-12 h-12 rounded-3 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
+          <i class="ri-checkbox-circle-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-medium">Pinned Cases</div>
+          <div class="h3 fw-bold text-warning-emphasis mt-1 mb-0"><%= discussions.filter(d => d.is_pinned === 1).length %></div>
+        </div>
+        <div class="w-12 h-12 rounded-3 bg-warning-subtle text-warning-emphasis d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
+          <i class="ri-pushpin-2-fill"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-muted small fw-medium">Total Community Replies</div>
+          <div class="h3 fw-bold text-info mt-1 mb-0"><%= discussions.reduce((acc, d) => acc + (d.replies_count || 0), 0) %></div>
+        </div>
+        <div class="w-12 h-12 rounded-3 bg-info-subtle text-info d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
+          <i class="ri-discuss-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Directory Table Card -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+  <div class="card-header bg-transparent border-0 px-4 pt-4 pb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <h5 class="fw-bold text-slate-900 mb-0">Discussion Topics Directory</h5>
+    <div class="d-flex gap-2">
+      <input type="text" id="adminDisSearch" class="form-control form-control-sm rounded-pill px-3" placeholder="Filter topics by title or keyword..." style="max-width: 260px;" oninput="filterAdminDiscussions()">
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle mb-0" id="adminDisTable">
+      <thead class="bg-light text-muted small text-uppercase">
+        <tr>
+          <th class="ps-4 py-3">Topic / Case Title</th>
+          <th class="py-3">Specialty</th>
+          <th class="py-3">Author</th>
+          <th class="py-3 text-center">Replies</th>
+          <th class="py-3 text-center">Upvotes</th>
+          <th class="py-3">Status</th>
+          <th class="text-end pe-4 py-3">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!discussions || discussions.length === 0) { %>
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="ri-chat-voice-line fs-2 mb-2 d-block text-slate-300"></i>
+              No live discussions found. Create the first topic above!
+            </td>
+          </tr>
+        <% } else { %>
+          <% discussions.forEach(dis => { 
+               const catClass = dis.category === 'orthopedics' ? 'bg-primary-subtle text-primary border-primary-subtle' :
+                                dis.category === 'neurology' ? 'bg-danger-subtle text-danger border-danger-subtle' :
+                                dis.category === 'cardiopulmonary' ? 'bg-success-subtle text-success border-success-subtle' :
+                                dis.category === 'sports' ? 'bg-warning-subtle text-warning-emphasis border-warning-subtle' :
+                                'bg-purple-subtle text-purple border-purple-subtle';
+          %>
+            <tr class="hover-bg-light admin-dis-row" data-search="<%= (dis.title + ' ' + dis.category + ' ' + dis.author_name).toLowerCase() %>">
+              <td class="ps-4 py-3">
+                <div class="d-flex align-items-start gap-2">
+                  <% if (dis.is_pinned === 1) { %>
+                    <span class="text-warning mt-0.5" title="Pinned Topic"><i class="ri-pushpin-2-fill"></i></span>
+                  <% } %>
+                  <div>
+                    <div class="fw-semibold text-slate-900 text-sm mb-0.5"><%= dis.title %></div>
+                    <div class="text-muted text-xs text-truncate" style="max-width: 420px;"><%= dis.summary %></div>
+                    <span class="badge bg-light text-secondary border mt-1 text-xs"><%= dis.tag_label || 'Clinical Case' %></span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge <%= catClass %> border px-2.5 py-1 rounded-pill text-xs fw-semibold text-capitalize">
+                  <%= dis.category.replace(/_/g, ' ') %>
+                </span>
+              </td>
+              <td>
+                <div class="fw-semibold text-slate-900 text-xs"><%= dis.author_name %></div>
+                <div class="text-muted text-xs"><%= dis.author_role || 'Faculty' %></div>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-0.5 text-xs fw-semibold">
+                  <%= dis.replies_count || 0 %>
+                </span>
+              </td>
+              <td class="text-center">
+                <span class="text-muted text-xs fw-medium">
+                  <i class="ri-thumb-up-line text-primary me-0.5"></i><%= dis.upvotes || 0 %>
+                </span>
+              </td>
+              <td>
+                <% if (dis.is_active === 1) { %>
+                  <span class="badge bg-success-subtle text-success px-2.5 py-1 rounded-pill text-xs fw-medium">Active</span>
+                <% } else { %>
+                  <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill text-xs fw-medium">Hidden</span>
+                <% } %>
+              </td>
+              <td class="text-end pe-4">
+                <div class="d-flex align-items-center justify-content-end gap-1.5">
+                  <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 text-xs fw-medium" 
+                          onclick='openEditDiscussionModal(<%= JSON.stringify(dis).replace(/'/g, "&#39;") %>)'>
+                    <i class="ri-edit-line me-1"></i>Edit
+                  </button>
+
+                  <form action="/admin/live-discussions/<%= dis.id %>/toggle-pin" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="<%= dis.is_pinned === 1 ? 'Unpin' : 'Pin to Top' %>">
+                      <i class="<%= dis.is_pinned === 1 ? 'ri-pushpin-fill text-warning' : 'ri-pushpin-line' %> text-xs"></i>
+                    </button>
+                  </form>
+
+                  <form action="/admin/live-discussions/<%= dis.id %>/toggle-active" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="<%= dis.is_active === 1 ? 'Hide' : 'Activate' %>">
+                      <i class="<%= dis.is_active === 1 ? 'ri-eye-line text-success' : 'ri-eye-off-line text-danger' %> text-xs"></i>
+                    </button>
+                  </form>
+
+                  <form action="/admin/live-discussions/<%= dis.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete this discussion topic?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Delete Topic">
+                      <i class="ri-delete-bin-line text-xs"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ CREATE NEW DISCUSSION MODAL ============ -->
+<div class="modal fade" id="createDiscussionAdminModal" tabindex="-1" aria-labelledby="createDiscussionAdminModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title font-weight-bold text-white d-flex align-items-center gap-2" id="createDiscussionAdminModalLabel">
+          <i class="ri-chat-new-fill text-warning fs-4"></i> Create New Discussion Topic
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/live-discussions" method="POST">
+        <div class="modal-body p-4">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Specialty Category <span class="text-danger">*</span></label>
+              <select name="category" class="form-select rounded-3" required>
+                <option value="orthopedics" selected>Orthopedics & MSK</option>
+                <option value="neurology">Neurology & Neuro-Rehab</option>
+                <option value="cardiopulmonary">Cardiopulmonary & ICU</option>
+                <option value="sports">Sports Physiotherapy</option>
+                <option value="pediatrics">Pediatric Physiotherapy</option>
+                <option value="electrotherapy">Electrotherapy & Modalities</option>
+                <option value="exam_prep">Exam Viva, SAQ & LAQ</option>
+                <option value="research">Evidence-Based Practice</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Discussion Tag / Type</label>
+              <select name="tag_label" class="form-select rounded-3">
+                <option value="Clinical Case Round" selected>Clinical Case Round</option>
+                <option value="Mentor Clinical Pearl">Mentor Clinical Pearl</option>
+                <option value="Differential Diagnosis">Differential Diagnosis</option>
+                <option value="Treatment Protocol">Treatment Protocol</option>
+                <option value="University Exam High-Yield">University Exam High-Yield</option>
+                <option value="ICU Protocols">ICU Protocols</option>
+                <option value="Return-to-Play Criteria">Return-to-Play Criteria</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Topic Title / Clinical Headline <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control rounded-3" placeholder="e.g. 28yo Athlete with 10° Extensor Lag Post-ACL Reconstruction" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Case Summary / Patient Presentation <span class="text-danger">*</span></label>
+            <textarea name="summary" rows="3" class="form-control rounded-3" placeholder="Detailed presentation, history, symptoms, and examination findings..." required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Core Discussion Dilemmas / Questions <span class="text-danger">*</span></label>
+            <textarea name="questions" rows="3" class="form-control rounded-3" placeholder="List 2-3 key questions or clinical points for student and peer discussion..." required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Mentor Literature Takeaway / Consensus (Optional)</label>
+            <textarea name="takeaway" rows="3" class="form-control rounded-3" placeholder="Standard textbook or evidence-based clinical consensus answer..."></textarea>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Author Name</label>
+              <input type="text" name="author_name" class="form-control rounded-3" value="<%= currentUser ? currentUser.name : 'Faculty Member' %>">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Author Role / Title</label>
+              <input type="text" name="author_role" class="form-control rounded-3" value="Faculty / Senior Clinician">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4.5 font-weight-bold shadow-sm py-2">
+            <i class="ri-check-line me-1"></i> Save & Publish Topic
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDIT DISCUSSION MODAL ============ -->
+<div class="modal fade" id="editDiscussionAdminModal" tabindex="-1" aria-labelledby="editDiscussionAdminModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title font-weight-bold text-white d-flex align-items-center gap-2" id="editDiscussionAdminModalLabel">
+          <i class="ri-edit-2-fill text-warning fs-4"></i> Edit Discussion Topic
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form id="editDiscussionForm" method="POST">
+        <div class="modal-body p-4">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Specialty Category</label>
+              <select name="category" id="editDisCategory" class="form-select rounded-3" required>
+                <option value="orthopedics">Orthopedics & MSK</option>
+                <option value="neurology">Neurology & Neuro-Rehab</option>
+                <option value="cardiopulmonary">Cardiopulmonary & ICU</option>
+                <option value="sports">Sports Physiotherapy</option>
+                <option value="pediatrics">Pediatric Physiotherapy</option>
+                <option value="electrotherapy">Electrotherapy & Modalities</option>
+                <option value="exam_prep">Exam Viva, SAQ & LAQ</option>
+                <option value="research">Evidence-Based Practice</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Discussion Tag / Type</label>
+              <input type="text" name="tag_label" id="editDisTag" class="form-control rounded-3" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Topic Title</label>
+            <input type="text" name="title" id="editDisTitle" class="form-control rounded-3" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Case Summary / Patient Presentation</label>
+            <textarea name="summary" id="editDisSummary" rows="3" class="form-control rounded-3" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Core Discussion Dilemmas / Questions</label>
+            <textarea name="questions" id="editDisQuestions" rows="3" class="form-control rounded-3" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Mentor Literature Takeaway</label>
+            <textarea name="takeaway" id="editDisTakeaway" rows="3" class="form-control rounded-3"></textarea>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Author Name</label>
+              <input type="text" name="author_name" id="editDisAuthor" class="form-control rounded-3">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Author Role / Title</label>
+              <input type="text" name="author_role" id="editDisRole" class="form-control rounded-3">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4.5 font-weight-bold shadow-sm py-2">
+            <i class="ri-save-line me-1"></i> Update Topic
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDIT LIVE DISCUSSION PAGE BANNER MODAL ============ -->
+<div class="modal fade" id="editLiveDiscussionBannerModal" tabindex="-1" aria-labelledby="editLiveDiscussionBannerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+      <div class="modal-header bg-primary text-white p-4">
+        <h5 class="modal-title font-weight-bold text-white d-flex align-items-center gap-2" id="editLiveDiscussionBannerModalLabel">
+          <i class="ri-paint-brush-fill text-warning fs-4"></i> Edit Live Discussion Header & Banner
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/admin/live-discussions/settings" method="POST">
+        <div class="modal-body p-4">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Top Yellow Tag / Pill</label>
+              <input type="text" name="badge" class="form-control rounded-3" value="<%= (typeof headerSettings !== 'undefined' && headerSettings && headerSettings.badge) ? headerSettings.badge : 'Interactive Student & Expert Community' %>" placeholder="e.g. Interactive Student & Expert Community">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-bold small text-slate-800">Secondary Status Tag</label>
+              <input type="text" name="sub_badge" class="form-control rounded-3" value="<%= (typeof headerSettings !== 'undefined' && headerSettings && headerSettings.sub_badge) ? headerSettings.sub_badge : 'Live Clinical Rounds' %>" placeholder="e.g. Live Clinical Rounds">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Main Heading / Page Title <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control rounded-3" value="<%= (typeof headerSettings !== 'undefined' && headerSettings && headerSettings.title) ? headerSettings.title : 'Live Discussion' %>" placeholder="e.g. Live Discussion" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Subtitle / Clinical Mission Description <span class="text-danger">*</span></label>
+            <textarea name="subtitle" rows="3" class="form-control rounded-3" placeholder="Engage in real-time academic discussions, clinical case rounds..." required><%= (typeof headerSettings !== 'undefined' && headerSettings && headerSettings.subtitle) ? headerSettings.subtitle : 'Engage in real-time academic discussions, clinical case rounds, differential diagnoses, and evidence-based physiotherapy reasoning with verified mentors and peers.' %></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top justify-content-between">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4.5 font-weight-bold shadow-sm py-2">
+            <i class="ri-save-line me-1"></i> Save Banner Settings
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function filterAdminDiscussions() {
+    const q = (document.getElementById('adminDisSearch').value || '').toLowerCase().trim();
+    document.querySelectorAll('.admin-dis-row').forEach(row => {
+      const text = row.getAttribute('data-search') || '';
+      row.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+  }
+
+  function openEditDiscussionModal(dis) {
+    document.getElementById('editDiscussionForm').action = '/admin/live-discussions/' + dis.id + '/update';
+    document.getElementById('editDisCategory').value = dis.category;
+    document.getElementById('editDisTag').value = dis.tag_label || 'Clinical Case Round';
+    document.getElementById('editDisTitle').value = dis.title;
+    document.getElementById('editDisSummary').value = dis.summary;
+    document.getElementById('editDisQuestions').value = dis.questions;
+    document.getElementById('editDisTakeaway').value = dis.takeaway || '';
+    document.getElementById('editDisAuthor').value = dis.author_name;
+    document.getElementById('editDisRole').value = dis.author_role || 'Faculty';
+
+    const modal = new bootstrap.Modal(document.getElementById('editDiscussionAdminModal'));
+    modal.show();
+  }
+</script>

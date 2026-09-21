@@ -1,0 +1,162 @@
+<div class="pe-page-header mb-4">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill fw-semibold" style="font-size: 0.75rem;">
+          <i class="ri-shield-keyhole-line me-1"></i>Super Admin Exclusive
+        </span>
+      </div>
+      <h1 class="h3 fw-bold text-slate-900 mb-1">Security & Audit Logs</h1>
+      <p class="text-muted small mb-0">Complete chronological audit trail of all administrative events, permission changes, and security attempts.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/admin/admins" class="btn btn-outline-secondary rounded-pill px-3 py-2 text-sm fw-medium">
+        <i class="ri-admin-line me-1.5"></i>Admins Directory
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="card border-0 shadow-sm rounded-4 bg-white p-3 mb-4">
+  <form method="GET" action="/admin/audit-logs" class="row g-2 align-items-center">
+    <div class="col-md-4">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-light border-end-0"><i class="ri-search-line text-muted"></i></span>
+        <input type="text" name="action" class="form-control border-start-0" placeholder="Filter by action (e.g. PERMISSIONS, CREATE)..." value="<%= selectedAction %>">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <select name="resource" class="form-select form-select-sm">
+        <option value="">All Resources</option>
+        <option value="COURSE" <%= selectedResource === 'COURSE' ? 'selected' : '' %>>COURSE</option>
+        <option value="BLOG" <%= selectedResource === 'BLOG' ? 'selected' : '' %>>BLOG</option>
+        <option value="LIVE_CLASS" <%= selectedResource === 'LIVE_CLASS' ? 'selected' : '' %>>LIVE_CLASS</option>
+        <option value="SUBJECT" <%= selectedResource === 'SUBJECT' ? 'selected' : '' %>>SUBJECT</option>
+        <option value="CASE_DISCUSSION" <%= selectedResource === 'CASE_DISCUSSION' ? 'selected' : '' %>>CASE_DISCUSSION</option>
+        <option value="USER" <%= selectedResource === 'USER' ? 'selected' : '' %>>USER</option>
+        <option value="USER_PERMISSIONS" <%= selectedResource === 'USER_PERMISSIONS' ? 'selected' : '' %>>USER_PERMISSIONS</option>
+        <option value="SETTINGS" <%= selectedResource === 'SETTINGS' ? 'selected' : '' %>>SETTINGS</option>
+      </select>
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 fw-medium">
+        <i class="ri-filter-3-line me-1"></i>Apply Filters
+      </button>
+      <% if (selectedResource || selectedAction) { %>
+        <a href="/admin/audit-logs" class="btn btn-sm btn-light rounded-pill px-3 text-muted">Clear</a>
+      <% } %>
+    </div>
+  </form>
+</div>
+
+<!-- Audit Trail Table -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+  <div class="card-header bg-transparent border-0 px-4 pt-4 pb-3 d-flex align-items-center justify-content-between">
+    <h5 class="fw-bold text-slate-900 mb-0">Activity Trail</h5>
+    <span class="badge bg-secondary-subtle text-secondary px-3 py-1.5 rounded-pill fw-medium">
+      Total Events: <%= totalLogs %>
+    </span>
+  </div>
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="bg-light text-muted small text-uppercase">
+        <tr>
+          <th class="ps-4 py-3">Timestamp</th>
+          <th class="py-3">Actor</th>
+          <th class="py-3">Action</th>
+          <th class="py-3">Resource</th>
+          <th class="py-3">IP & Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!logs || logs.length === 0) { %>
+          <tr>
+            <td colspan="5" class="text-center py-5 text-muted">
+              <i class="ri-shield-check-line fs-2 mb-2 d-block text-slate-300"></i>
+              No audit logs recorded for the selected filter.
+            </td>
+          </tr>
+        <% } else { %>
+          <% logs.forEach((log, index) => { %>
+            <tr class="hover-bg-light">
+              <td class="ps-4 py-3 text-nowrap text-muted text-xs">
+                <div class="fw-medium text-slate-800">
+                  <%= new Date(log.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                </div>
+                <div><%= new Date(log.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) %></div>
+              </td>
+              <td>
+                <div class="fw-semibold text-slate-900 text-sm"><%= log.actor_name || 'System' %></div>
+                <% if (log.actor_email) { %>
+                  <div class="text-muted text-xs"><%= log.actor_email %></div>
+                <% } %>
+                <% if (log.actor_role) { %>
+                  <span class="badge bg-light text-secondary border mt-0.5 text-xs"><%= log.actor_role %></span>
+                <% } %>
+              </td>
+              <td>
+                <% if (log.action.includes('UNAUTHORIZED')) { %>
+                  <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill fw-medium">
+                    <i class="ri-error-warning-line me-1"></i><%= log.action %>
+                  </span>
+                <% } else if (log.action.includes('CREATED') || log.action.includes('ACTIVATED')) { %>
+                  <span class="badge bg-success-subtle text-success px-2.5 py-1 rounded-pill fw-medium">
+                    <i class="ri-add-circle-line me-1"></i><%= log.action %>
+                  </span>
+                <% } else if (log.action.includes('UPDATED')) { %>
+                  <span class="badge bg-primary-subtle text-primary px-2.5 py-1 rounded-pill fw-medium">
+                    <i class="ri-refresh-line me-1"></i><%= log.action %>
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1 rounded-pill fw-medium">
+                    <%= log.action %>
+                  </span>
+                <% } %>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border px-2 py-1 rounded-pill text-xs fw-semibold">
+                  <%= log.resource %>
+                </span>
+                <% if (log.resource_id) { %>
+                  <div class="text-muted text-xs mt-0.5">ID: <%= log.resource_id %></div>
+                <% } %>
+              </td>
+              <td>
+                <div class="text-muted text-xs mb-1">
+                  <i class="ri-global-line me-1"></i><%= log.ip_address || 'Internal' %>
+                </div>
+                <% if (log.details) { %>
+                  <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2 py-0.5 text-xs" data-bs-toggle="collapse" data-bs-target="#log-detail-<%= index %>">
+                    View Payload <i class="ri-arrow-down-s-line"></i>
+                  </button>
+                  <div class="collapse mt-2" id="log-detail-<%= index %>">
+                    <pre class="bg-light p-2 rounded-3 text-xs mb-0 text-slate-800" style="max-height: 120px; overflow-y: auto;"><%= log.details %></pre>
+                  </div>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if (totalPages > 1) { %>
+    <div class="card-footer bg-transparent border-0 px-4 py-3 d-flex align-items-center justify-content-between">
+      <div class="text-muted small">Page <%= currentPage %> of <%= totalPages %></div>
+      <div class="d-flex gap-1">
+        <% if (currentPage > 1) { %>
+          <a href="/admin/audit-logs?page=<%= currentPage - 1 %>&resource=<%= selectedResource %>&action=<%= selectedAction %>" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            Previous
+          </a>
+        <% } %>
+        <% if (currentPage < totalPages) { %>
+          <a href="/admin/audit-logs?page=<%= currentPage + 1 %>&resource=<%= selectedResource %>&action=<%= selectedAction %>" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            Next
+          </a>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+</div>

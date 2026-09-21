@@ -132,6 +132,24 @@
             <textarea name="description" rows="3" class="form-control" placeholder="Brief outline of what will be taught in this session..."></textarea>
           </div>
 
+          <div class="mb-3">
+            <label class="form-label font-weight-bold">Content Visibility</label>
+            <div class="d-flex gap-4 p-2.5 bg-light rounded-3 border">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="visibility" id="lsVisPublic" value="public" checked>
+                <label class="form-check-label fw-semibold text-slate-800" for="lsVisPublic">
+                  <i class="ri-earth-line text-success me-1"></i> Public
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="visibility" id="lsVisPrivate" value="private">
+                <label class="form-check-label fw-semibold text-slate-800" for="lsVisPrivate">
+                  <i class="ri-lock-line text-warning me-1"></i> Private
+                </label>
+              </div>
+            </div>
+          </div>
+
           <div class="form-check form-switch p-3 bg-light rounded-3 border mb-2">
             <input class="form-check-input ms-0 me-2" type="checkbox" name="create_zoom" value="1" id="createZoomModal" <%= zoomConfigured ? '' : 'disabled' %>>
             <label class="form-check-label font-weight-bold text-dark" for="createZoomModal">
