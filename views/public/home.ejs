@@ -1,11 +1,11 @@
 <!-- ============ HERO BANNER — Ultra-Modern Premium Style ============ -->
 <section class="pe-promo-banner">
   <div class="container position-relative z-2">
-    <div class="row align-items-center g-4 pt-1 pb-3 pt-lg-2 pb-lg-3">
+    <div class="row align-items-center g-3 g-lg-4 pt-1 pb-2 pt-lg-2 pb-lg-3">
       <!-- Left Column: Headline, 5 Key Offerings, CTAs, Search -->
       <div class="col-lg-6">
         <div class="pe-hero-content-box">
-          <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3.5 py-2 rounded-pill mb-3 shadow-sm d-inline-flex align-items-center" style="font-size: 0.8rem; letter-spacing: 0.05em; background-color: #f59e0b !important;">
+          <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3.5 py-2 rounded-pill mb-2.5 shadow-sm d-inline-flex align-items-center pe-hero-badge-pill" style="font-size: 0.8rem; letter-spacing: 0.05em; background-color: #f59e0b !important;">
             <i class="<%= (typeof heroSettings !== 'undefined' && heroSettings.badgeIcon) ? heroSettings.badgeIcon : 'ri-heart-pulse-fill' %> me-1"></i> <%= (typeof heroSettings !== 'undefined' && heroSettings.badgeText) ? heroSettings.badgeText : '#1 Platform for BPT Students & Physios' %>
           </span>
           <h1 class="pe-hero-title">
@@ -15,22 +15,22 @@
             <%- (typeof heroSettings !== 'undefined' && heroSettings.subtext) ? heroSettings.subtext : 'Master your BPT degree with expert-led <strong>Seminars</strong>, HD <strong>Recorded Videos</strong>, interactive <strong>Workshops</strong>, real-time <strong>Live Classes</strong>, and 100% <strong>Free Courses</strong>.' %>
           </p>
 
-          <!-- CTAs (Fixed & Unaltered) -->
-          <div class="d-flex gap-3 flex-wrap align-items-center mb-4">
-            <a href="/subjects" class="btn btn-primary btn-lg pe-btn-glow px-4">
-              <i class="ri-compass-3-line me-1"></i> Explore Subjects
+          <!-- CTAs (Side-by-side & Responsive on all screens) -->
+          <div class="pe-hero-cta-group mb-3 mb-md-4">
+            <a href="/subjects" class="btn btn-primary pe-btn-glow pe-hero-btn">
+              <i class="ri-compass-3-line me-1.5"></i> <span>Explore Subjects</span>
             </a>
-            <a href="/live-sessions" class="btn btn-outline-light btn-lg px-4">
-              <i class="ri-calendar-event-line me-1"></i> Join Live Sessions
+            <a href="/live-sessions" class="btn btn-outline-light pe-hero-btn">
+              <i class="ri-calendar-event-line me-1.5"></i> <span>Join Live Sessions</span>
             </a>
           </div>
 
           <!-- Search bar (Fixed & Unaltered) -->
           <form action="/courses" method="GET" class="pe-promo-search">
-            <i class="ri-search-line me-2 text-primary" style="font-size: 1.2rem;"></i>
+            <i class="ri-search-line me-2 text-primary search-icon" style="font-size: 1.15rem;"></i>
             <input type="text" name="search" placeholder="Search Seminars, Workshops, Anatomy, Neuro...">
             <button type="submit">
-              Search <i class="ri-arrow-right-line ms-1"></i>
+              <span>Search</span> <i class="ri-arrow-right-line ms-1"></i>
             </button>
           </form>
         </div>
