@@ -656,7 +656,7 @@
 
                   <div class="p-3 bg-dark rounded-4 border border-secondary shadow-lg position-relative d-flex align-items-center justify-content-center" style="min-height: 480px; background: #0b192c !important;">
                     <% if (note.file_url && (note.file_url.endsWith('.html') || note.file_url.endsWith('.htm') || note.file_url.endsWith('.zip'))) { %>
-                      <iframe src="<%= note.file_url %>" title="<%= note.title %>" style="width: 100%; height: 65vh; border: none;" allowfullscreen></iframe>
+                      <iframe src="<%= note.file_url %>" title="<%= note.title %>" style="width: 100%; height: 65vh; border: none;" allowfullscreen onload="checkIframeNotLogin(this)"></iframe>
                     <% } else { %>
                       <!-- ROYAL 3D CANVAS SIMULATOR WITH REAL-TIME ROTATABLE MODEL INTERFACING -->
                       <div class="w-100 py-2 text-center text-white position-relative">
@@ -902,8 +902,26 @@
                 </div>
 
               <% } else if (note.file_url) { %>
-                <% if (ext === 'pdf') { %>
-                  <iframe src="<%= note.file_url %>#view=FitH&toolbar=0&navpanes=0&scrollbar=1" title="<%= note.title %>" style="width: 100%; height: 85vh; border: none; background: #ffffff;" allowfullscreen></iframe>
+                <% 
+                  const isAuthOrLoginUrl = (note.file_url || '').includes('/auth/') || (note.file_url || '').includes('/login') || (note.file_url || '').startsWith('/student/') || (note.file_url || '').startsWith('/admin/');
+                %>
+                <% if (isAuthOrLoginUrl) { %>
+                  <div class="p-5 text-center bg-white rounded-4 border my-3">
+                    <div class="py-4">
+                      <div class="bg-warning-subtle text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 76px; height: 76px;">
+                        <i class="ri-file-lock-line display-5"></i>
+                      </div>
+                      <h4 class="fw-bold text-dark mb-2">Attachment Access Restricted</h4>
+                      <p class="text-secondary small mb-3 mx-auto leading-relaxed" style="max-width: 520px;">
+                        This study note attachment is restricted to registered users or requires account authorization. Please log in to your student account to access this material.
+                      </p>
+                      <a href="/auth/login" class="btn btn-primary rounded-pill px-4 py-2 font-weight-bold shadow-sm" style="background: #0a5dc2; border: none;">
+                        <i class="ri-user-shared-line me-1"></i> Log In to Access Note
+                      </a>
+                    </div>
+                  </div>
+                <% } else if (ext === 'pdf') { %>
+                  <iframe src="<%= note.file_url %>#view=FitH&toolbar=0&navpanes=0&scrollbar=1" title="<%= note.title %>" style="width: 100%; height: 85vh; border: none; background: #ffffff;" allowfullscreen onload="checkIframeNotLogin(this)"></iframe>
                 <% } else { %>
                   <!-- DOCX / DOC / TXT / PPT IN-PAGE DOCUMENT VIEWER & DOWNLOAD TOOLBAR -->
                   <div class="p-4 p-md-5 bg-white font-sans text-dark">
@@ -935,6 +953,42 @@
 
         <script>
           let currentNotesFilterType = 'all';
+
+          function checkIframeNotLogin(iframe) {
+            if (!iframe) return;
+            try {
+              const iframeDoc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+              if (iframeDoc) {
+                const text = (iframeDoc.body ? iframeDoc.body.innerHTML : '') + (iframeDoc.title || '');
+                if (text.includes('Login to PhysioEdvance') || text.includes('Two-step verification required') || iframeDoc.querySelector('form[action*="/auth/login"]')) {
+                  console.warn('Iframe redirected to login page. Hiding iframe.');
+                  iframe.style.display = 'none';
+                  const parent = iframe.parentElement;
+                  if (parent && !parent.querySelector('.iframe-login-fallback')) {
+                    const fallback = document.createElement('div');
+                    fallback.className = 'iframe-login-fallback p-5 text-center bg-white rounded-4 border my-3';
+                    fallback.innerHTML = `
+                      <div class="py-4">
+                        <div class="bg-warning-subtle text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 76px; height: 76px;">
+                          <i class="ri-file-lock-line display-5"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-2">Document Access Restricted</h4>
+                        <p class="text-secondary small mb-3 mx-auto leading-relaxed" style="max-width: 520px;">
+                          This study note attachment is restricted or requires login authentication to view. Please log in to your student account to open this file.
+                        </p>
+                        <a href="/auth/login" class="btn btn-primary rounded-pill px-4 py-2 font-weight-bold shadow-sm" style="background: #0a5dc2; border: none;">
+                          <i class="ri-user-shared-line me-1"></i> Log In to Access Document
+                        </a>
+                      </div>
+                    `;
+                    parent.appendChild(fallback);
+                  }
+                }
+              }
+            } catch (e) {
+              // Cross-origin iframe or browser security restriction
+            }
+          }
 
           function switchActiveNote(targetIdx, btnEl) {
             // Show target card and hide others

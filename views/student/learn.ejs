@@ -110,7 +110,7 @@
                 </a>
               </div>
               <div class="card-body p-0 bg-dark position-relative" style="min-height: 600px;">
-                <iframe src="<%= extractedPdfUrl %>" width="100%" height="620px" style="border: none; min-height: 600px; width: 100%; background: #ffffff;" title="PDF Study Reader"></iframe>
+                <iframe src="<%= extractedPdfUrl %>" width="100%" height="620px" style="border: none; min-height: 600px; width: 100%; background: #ffffff;" title="PDF Study Reader" onload="if(typeof checkIframeNotLogin === 'function') checkIframeNotLogin(this)"></iframe>
               </div>
             </div>
           <% } %>

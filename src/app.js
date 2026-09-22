@@ -96,6 +96,10 @@ const authLimiter = rateLimit({
 });
 app.use('/auth/login', authLimiter);
 app.use('/auth/register', authLimiter);
+app.use('/auth', (req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
 
 app.use(refreshUser);
 app.use(attachUser);
