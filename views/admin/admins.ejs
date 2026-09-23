@@ -7,7 +7,7 @@
         </span>
       </div>
       <h1 class="h3 fw-bold text-slate-900 mb-1">Admin Management</h1>
-      <p class="text-muted small mb-0">Manage active, disabled, and soft-deleted administrator accounts with 13-module permission controls.</p>
+      <p class="text-muted small mb-0">Create administrative users, delegate granular permissions, and monitor administrator accounts.</p>
     </div>
     <div class="d-flex gap-2">
       <a href="/admin/audit-logs" class="btn btn-outline-secondary rounded-pill px-3 py-2 text-sm fw-medium">
@@ -20,19 +20,12 @@
   </div>
 </div>
 
-<%
-  const activeAdmins = (admins || []).filter(a => a.is_active !== 0 && a.is_active !== false);
-  const disabledAdmins = (admins || []).filter(a => a.is_active === 0 || a.is_active === false);
-  const deletedAdminsList = (locals.deletedAdmins || []);
-%>
-
-<!-- Summary Stat Cards -->
 <div class="row g-3 mb-4">
   <div class="col-sm-6 col-xl-3">
     <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
       <div class="d-flex align-items-center justify-content-between">
         <div>
-          <div class="text-muted small fw-medium">Total Registered Admins</div>
+          <div class="text-muted small fw-medium">Total Administrators</div>
           <div class="h3 fw-bold text-slate-900 mt-1 mb-0"><%= admins.length %></div>
         </div>
         <div class="w-12 h-12 rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
@@ -45,8 +38,8 @@
     <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
       <div class="d-flex align-items-center justify-content-between">
         <div>
-          <div class="text-muted small fw-medium">Active Admins</div>
-          <div class="h3 fw-bold text-success mt-1 mb-0"><%= activeAdmins.length %></div>
+          <div class="text-muted small fw-medium">Active Accounts</div>
+          <div class="h3 fw-bold text-success mt-1 mb-0"><%= admins.filter(a => a.is_active !== 0 && a.is_active !== false).length %></div>
         </div>
         <div class="w-12 h-12 rounded-3 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
           <i class="ri-checkbox-circle-line"></i>
@@ -58,10 +51,10 @@
     <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
       <div class="d-flex align-items-center justify-content-between">
         <div>
-          <div class="text-muted small fw-medium">Disabled Admins</div>
-          <div class="h3 fw-bold text-warning-emphasis mt-1 mb-0"><%= disabledAdmins.length %></div>
+          <div class="text-muted small fw-medium">Disabled Accounts</div>
+          <div class="h3 fw-bold text-danger mt-1 mb-0"><%= admins.filter(a => a.is_active === 0 || a.is_active === false).length %></div>
         </div>
-        <div class="w-12 h-12 rounded-3 bg-warning-subtle text-warning-emphasis d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
+        <div class="w-12 h-12 rounded-3 bg-danger-subtle text-danger d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
           <i class="ri-forbid-2-line"></i>
         </div>
       </div>
@@ -71,289 +64,122 @@
     <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
       <div class="d-flex align-items-center justify-content-between">
         <div>
-          <div class="text-muted small fw-medium">Deleted Administrators</div>
-          <div class="h3 fw-bold text-danger mt-1 mb-0"><%= deletedAdminsList.length %></div>
+          <div class="text-muted small fw-medium">Super Administrators</div>
+          <div class="h3 fw-bold text-warning-emphasis mt-1 mb-0"><%= admins.filter(a => a.role === 'superadmin').length %></div>
         </div>
-        <div class="w-12 h-12 rounded-3 bg-danger-subtle text-danger d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
-          <i class="ri-delete-bin-line"></i>
+        <div class="w-12 h-12 rounded-3 bg-warning-subtle text-warning-emphasis d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.35rem;">
+          <i class="ri-vip-crown-line"></i>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ========================================== -->
-<!-- SEPARATE VIEWS / TABS: ACTIVE, DISABLED, DELETED -->
-<!-- ========================================== -->
 <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
-  <div class="card-header bg-transparent border-bottom px-4 pt-3 pb-0">
-    <ul class="nav nav-tabs card-header-tabs border-0" id="adminTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active fw-bold text-xs rounded-top-3 px-4 py-3" id="active-tab" data-bs-toggle="tab" data-bs-target="#active-admins" type="button" role="tab" aria-controls="active-admins" aria-selected="true">
-          <i class="ri-checkbox-circle-line me-1.5 text-success"></i> Active Admins (<%= activeAdmins.length %>)
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link fw-bold text-xs rounded-top-3 px-4 py-3 text-warning-emphasis" id="disabled-tab" data-bs-toggle="tab" data-bs-target="#disabled-admins" type="button" role="tab" aria-controls="disabled-admins" aria-selected="false">
-          <i class="ri-pause-circle-line me-1.5 text-warning"></i> Disabled Admins (<%= disabledAdmins.length %>)
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link fw-bold text-xs rounded-top-3 px-4 py-3 text-danger" id="deleted-tab" data-bs-toggle="tab" data-bs-target="#deleted-admins" type="button" role="tab" aria-controls="deleted-admins" aria-selected="false">
-          <i class="ri-delete-bin-line me-1.5 text-danger"></i> Soft-Deleted Admins (<%= deletedAdminsList.length %>)
-        </button>
-      </li>
-    </ul>
+  <div class="card-header bg-transparent border-0 px-4 pt-4 pb-3">
+    <h5 class="fw-bold text-slate-900 mb-0">Administrator Directory</h5>
   </div>
-
-  <div class="tab-content" id="adminTabsContent">
-    
-    <!-- ==================== TAB A: ACTIVE ADMINS ==================== -->
-    <div class="tab-pane fade show active p-0" id="active-admins" role="tabpanel" aria-labelledby="active-tab">
-      <div class="table-responsive">
-        <table class="table align-middle mb-0">
-          <thead class="bg-light text-muted small text-uppercase">
-            <tr>
-              <th class="ps-4 py-3">Administrator</th>
-              <th class="py-3">Role</th>
-              <th class="py-3">Module Permissions</th>
-              <th class="py-3">Status</th>
-              <th class="py-3">Created</th>
-              <th class="text-end pe-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (activeAdmins.length === 0) { %>
-              <tr>
-                <td colspan="6" class="text-center py-5 text-muted">
-                  <i class="ri-user-search-line fs-2 mb-2 d-block text-slate-300"></i>
-                  No active administrator accounts found.
-                </td>
-              </tr>
-            <% } else { %>
-              <% activeAdmins.forEach(admin => { %>
-                <tr class="hover-bg-light">
-                  <td class="ps-4 py-3">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="avatar rounded-circle bg-light border text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <% if (admin.avatar) { %>
-                          <img src="<%= admin.avatar %>" alt="<%= admin.name %>" class="rounded-circle w-100 h-100 object-fit-cover">
-                        <% } else { %>
-                          <%= admin.name.charAt(0).toUpperCase() %>
-                        <% } %>
-                      </div>
-                      <div>
-                        <div class="fw-semibold text-slate-900"><%= admin.name %></div>
-                        <div class="small text-muted"><%= admin.email %></div>
-                        <span class="badge bg-light text-secondary border mt-1" style="font-size: 0.7rem;"><%= admin.user_code %></span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <% if (admin.role === 'superadmin') { %>
-                      <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1 rounded-pill">
-                        <i class="ri-vip-crown-fill me-1"></i>SUPER ADMIN
-                      </span>
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="bg-light text-muted small text-uppercase">
+        <tr>
+          <th class="ps-4 py-3">Administrator</th>
+          <th class="py-3">Role</th>
+          <th class="py-3">Permissions Status</th>
+          <th class="py-3">Status</th>
+          <th class="py-3">Created</th>
+          <th class="text-end pe-4 py-3">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!admins || admins.length === 0) { %>
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted">
+              <i class="ri-user-search-line fs-2 mb-2 d-block text-slate-300"></i>
+              No administrators found.
+            </td>
+          </tr>
+        <% } else { %>
+          <% admins.forEach(admin => { %>
+            <tr class="hover-bg-light">
+              <td class="ps-4 py-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar rounded-circle bg-light border text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <% if (admin.avatar) { %>
+                      <img src="<%= admin.avatar %>" alt="<%= admin.name %>" class="rounded-circle w-100 h-100 object-fit-cover">
                     <% } else { %>
-                      <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill">
-                        <i class="ri-admin-line me-1"></i>ADMIN
-                      </span>
+                      <%= admin.name.charAt(0).toUpperCase() %>
                     <% } %>
-                  </td>
-                  <td>
-                    <% if (admin.role === 'superadmin') { %>
-                      <span class="text-success small fw-semibold">
-                        <i class="ri-shield-star-line me-1"></i>Full Super Admin Access (13 Modules)
-                      </span>
-                    <% } else { %>
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1 rounded-pill fw-medium">
-                          <%= admin.permissionsCount || 0 %> Granted
-                        </span>
-                        <a href="/admin/admins/<%= admin.id %>/permissions" class="btn btn-sm btn-link text-primary p-0 small fw-semibold">
-                          Edit Permissions <i class="ri-arrow-right-s-line"></i>
-                        </a>
-                      </div>
-                    <% } %>
-                  </td>
-                  <td>
-                    <span class="badge bg-success-subtle text-success px-2.5 py-1 rounded-pill">
-                      <i class="ri-check-line me-1"></i>Active
+                  </div>
+                  <div>
+                    <div class="fw-semibold text-slate-900"><%= admin.name %></div>
+                    <div class="small text-muted"><%= admin.email %></div>
+                    <span class="badge bg-light text-secondary border mt-1" style="font-size: 0.7rem;"><%= admin.user_code %></span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <% if (admin.role === 'superadmin') { %>
+                  <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1 rounded-pill">
+                    <i class="ri-vip-crown-fill me-1"></i>Super Admin
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill">
+                    <i class="ri-admin-line me-1"></i>Admin
+                  </span>
+                <% } %>
+              </td>
+              <td>
+                <% if (admin.role === 'superadmin') { %>
+                  <span class="text-success small fw-semibold">
+                    <i class="ri-checkbox-circle-fill me-1"></i>Full Master Access (All Resources)
+                  </span>
+                <% } else { %>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-secondary-subtle text-secondary px-2 py-0.5 rounded-pill fw-medium">
+                      <%= admin.permissionsCount || 0 %> Permissions Granted
                     </span>
-                  </td>
-                  <td class="text-muted small">
-                    <%= new Date(admin.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
-                  </td>
-                  <td class="text-end pe-4">
-                    <div class="d-flex align-items-center justify-content-end gap-1.5 flex-wrap">
-                      <% if (admin.role !== 'superadmin' && admin.id !== 1) { %>
-                        <a href="/admin/admins/<%= admin.id %>/permissions" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 text-xs fw-medium" title="Manage Permissions">
-                          <i class="ri-key-2-line me-1"></i>Permissions
-                        </a>
-                        <form action="/admin/admins/<%= admin.id %>/toggle-status" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to disable administrator account <%= admin.name %>?');">
-                          <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill px-2.5 py-1 text-xs fw-medium">
-                            <i class="ri-pause-line me-1"></i>Disable
-                          </button>
-                        </form>
-                        <form action="/admin/admins/<%= admin.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to soft-delete administrator <%= admin.name %>?');">
-                          <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1 text-xs fw-medium">
-                            <i class="ri-delete-bin-line me-1"></i>Delete
-                          </button>
-                        </form>
-                      <% } else { %>
-                        <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill text-xs">Super Admin Protected</span>
-                      <% } %>
-                    </div>
-                  </td>
-                </tr>
-              <% }) %>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ==================== TAB B: DISABLED ADMINS ==================== -->
-    <div class="tab-pane fade p-0" id="disabled-admins" role="tabpanel" aria-labelledby="disabled-tab">
-      <div class="table-responsive">
-        <table class="table align-middle mb-0">
-          <thead class="bg-light text-muted small text-uppercase">
-            <tr>
-              <th class="ps-4 py-3">Administrator</th>
-              <th class="py-3">Role</th>
-              <th class="py-3">Status</th>
-              <th class="py-3">Created</th>
-              <th class="text-end pe-4 py-3">Actions</th>
+                    <a href="/admin/admins/<%= admin.id %>/permissions" class="btn btn-sm btn-link text-primary p-0 small fw-semibold">
+                      Configure <i class="ri-arrow-right-s-line"></i>
+                    </a>
+                  </div>
+                <% } %>
+              </td>
+              <td>
+                <% if (admin.is_active === 0 || admin.is_active === false) { %>
+                  <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill">
+                    <i class="ri-close-circle-line me-1"></i>Disabled
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-success-subtle text-success px-2.5 py-1 rounded-pill">
+                    <i class="ri-check-line me-1"></i>Active
+                  </span>
+                <% } %>
+              </td>
+              <td class="text-muted small">
+                <%= new Date(admin.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+              </td>
+              <td class="text-end pe-4">
+                <div class="d-flex align-items-center justify-content-end gap-1.5">
+                  <% if (admin.role !== 'superadmin') { %>
+                    <a href="/admin/admins/<%= admin.id %>/permissions" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 text-xs fw-medium" title="Configure Permissions">
+                      <i class="ri-key-2-line me-1"></i>Permissions
+                    </a>
+                    <form action="/admin/admins/<%= admin.id %>/toggle-status" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to <%= admin.is_active === 0 || admin.is_active === false ? 'activate' : 'disable' %> this admin account?');">
+                      <button type="submit" class="btn btn-sm <%= admin.is_active === 0 || admin.is_active === false ? 'btn-outline-success' : 'btn-outline-danger' %> rounded-pill px-2.5 py-1 text-xs fw-medium">
+                        <i class="<%= admin.is_active === 0 || admin.is_active === false ? 'ri-play-line' : 'ri-pause-line' %> me-1"></i>
+                        <%= admin.is_active === 0 || admin.is_active === false ? 'Enable' : 'Disable' %>
+                      </button>
+                    </form>
+                  <% } else { %>
+                    <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill text-xs">Master Authority</span>
+                  <% } %>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            <% if (disabledAdmins.length === 0) { %>
-              <tr>
-                <td colspan="5" class="text-center py-5 text-muted">
-                  <i class="ri-checkbox-circle-line fs-2 mb-2 d-block text-slate-300"></i>
-                  No disabled administrator accounts.
-                </td>
-              </tr>
-            <% } else { %>
-              <% disabledAdmins.forEach(admin => { %>
-                <tr class="hover-bg-light">
-                  <td class="ps-4 py-3">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="avatar rounded-circle bg-light border text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <% if (admin.avatar) { %>
-                          <img src="<%= admin.avatar %>" alt="<%= admin.name %>" class="rounded-circle w-100 h-100 object-fit-cover">
-                        <% } else { %>
-                          <%= admin.name.charAt(0).toUpperCase() %>
-                        <% } %>
-                      </div>
-                      <div>
-                        <div class="fw-semibold text-slate-900"><%= admin.name %></div>
-                        <div class="small text-muted"><%= admin.email %></div>
-                        <span class="badge bg-light text-secondary border mt-1" style="font-size: 0.7rem;"><%= admin.user_code %></span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="badge bg-secondary-subtle text-secondary border px-2.5 py-1 rounded-pill">Admin</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill">
-                      <i class="ri-close-circle-line me-1"></i>Disabled (No Access)
-                    </span>
-                  </td>
-                  <td class="text-muted small">
-                    <%= new Date(admin.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
-                  </td>
-                  <td class="text-end pe-4">
-                    <div class="d-flex align-items-center justify-content-end gap-1.5 flex-wrap">
-                      <form action="/admin/admins/<%= admin.id %>/toggle-status" method="POST" class="d-inline" onsubmit="return confirm('Enable administrator account <%= admin.name %>?');">
-                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-1 text-xs fw-medium">
-                          <i class="ri-play-line me-1"></i>Enable Account
-                        </button>
-                      </form>
-                      <form action="/admin/admins/<%= admin.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Move administrator <%= admin.name %> to Soft-Deleted Administrators?');">
-                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1 text-xs fw-medium">
-                          <i class="ri-delete-bin-line me-1"></i>Delete
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              <% }) %>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ==================== TAB C: SOFT-DELETED ADMINS ==================== -->
-    <div class="tab-pane fade p-0" id="deleted-admins" role="tabpanel" aria-labelledby="deleted-tab">
-      <div class="table-responsive">
-        <table class="table align-middle mb-0">
-          <thead class="bg-light text-muted small text-uppercase">
-            <tr>
-              <th class="ps-4 py-3">Administrator</th>
-              <th class="py-3">Original Role</th>
-              <th class="py-3">Deletion Status</th>
-              <th class="py-3">Deleted Date</th>
-              <th class="text-end pe-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (deletedAdminsList.length === 0) { %>
-              <tr>
-                <td colspan="5" class="text-center py-5 text-muted">
-                  <i class="ri-delete-bin-5-line fs-2 mb-2 d-block text-slate-300"></i>
-                  Trash is empty. No soft-deleted administrator accounts.
-                </td>
-              </tr>
-            <% } else { %>
-              <% deletedAdminsList.forEach(admin => { %>
-                <tr class="hover-bg-light">
-                  <td class="ps-4 py-3">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="avatar rounded-circle bg-light border text-muted fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <%= admin.name.charAt(0).toUpperCase() %>
-                      </div>
-                      <div>
-                        <div class="fw-semibold text-slate-900"><%= admin.name %></div>
-                        <div class="small text-muted"><%= admin.email %></div>
-                        <span class="badge bg-light text-secondary border mt-1" style="font-size: 0.7rem;"><%= admin.user_code %></span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1 rounded-pill"><%= admin.role %></span>
-                  </td>
-                  <td>
-                    <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill">
-                      <i class="ri-delete-bin-line me-1"></i>Soft-Deleted
-                    </span>
-                  </td>
-                  <td class="text-muted small">
-                    <%= admin.updated_at ? new Date(admin.updated_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Unknown' %>
-                  </td>
-                  <td class="text-end pe-4">
-                    <div class="d-flex align-items-center justify-content-end gap-1.5 flex-wrap">
-                      <form action="/admin/admins/<%= admin.id %>/restore" method="POST" class="d-inline" onsubmit="return confirm('Restore administrator account <%= admin.name %>?');">
-                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-1 text-xs fw-medium">
-                          <i class="ri-history-line me-1"></i>Restore Account
-                        </button>
-                      </form>
-                      <form action="/admin/admins/<%= admin.id %>/permanent-delete" method="POST" class="d-inline" onsubmit="return confirm('PERMANENT DELETION WARNING: Are you sure you want to permanently destroy administrator <%= admin.name %>? This action cannot be undone.');">
-                        <button type="submit" class="btn btn-sm btn-danger rounded-pill px-2.5 py-1 text-xs fw-medium">
-                          <i class="ri-delete-bin-7-line me-1"></i>Purge Permanently
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              <% }) %>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
   </div>
 </div>

@@ -2,7 +2,7 @@ const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const db = require('../db/connection');
 const { Team, Blog, LiveSessions, HeroFeature, ClinicalSpecialty, SiteSettings, CurriculumYearCard, LearningJourneyCard, HomepageSection } = require('../models/Content');
-const { PHYSIOTHERAPY_SPECIALTIES, THERAPY_TYPES, slugify, SUBJECT_ABBREVIATIONS, YEAR_SUBJECTS, OTHER_SUBJECTS } = require('../config/subjectTaxonomy');
+const { PHYSIOTHERAPY_SPECIALTIES, THERAPY_TYPES, slugify, SUBJECT_ABBREVIATIONS, YEAR_SUBJECTS } = require('../config/subjectTaxonomy');
 const subjectInteractiveData = require('../data/subjectInteractiveData');
 const { getSubjectLearningData, learningModulesData } = require('../data/learningModulesData');
 const LearningModule = require('../models/LearningModule');
@@ -607,10 +607,9 @@ exports.learningModuleDetail = async (req, res) => {
 };
 
 exports.liveDiscussion = async (req, res) => {
-  const { category, year, q, topic } = req.query;
-  const categories = await db.prepare("SELECT * FROM categories WHERE COALESCE(is_deleted, 0) = 0 ORDER BY CASE WHEN year > 0 THEN year ELSE 99 END ASC, name ASC").all();
+  const { category, q } = req.query;
   const discussions = await LiveDiscussion.all({
-    category: 'all',
+    category: category || 'all',
     search: q || null,
     activeOnly: true
   });
@@ -618,117 +617,33 @@ exports.liveDiscussion = async (req, res) => {
   res.render('public/live-discussion', {
     title: `${headerSettings.title || 'Live Discussion'} — PhysioEdvance`,
     discussions,
-    categories: categories || [],
     selectedCategory: category || 'all',
-    selectedYear: year || 'all',
-    selectedTopic: topic || 'all',
-    headerSettings,
-    YEAR_SUBJECTS,
-    OTHER_SUBJECTS
+    headerSettings
   });
-};
-
-exports.viewSingleDiscussion = async (req, res) => {
-  try {
-    const disId = parseInt(req.params.id, 10);
-    if (isNaN(disId)) {
-      return res.status(404).render('public/404', { title: 'Discussion Not Found' });
-    }
-
-    const discussion = await LiveDiscussion.findById(disId);
-    if (!discussion) {
-      return res.status(404).render('public/404', { title: 'Discussion Not Found' });
-    }
-
-    const categories = await db.prepare("SELECT * FROM categories WHERE COALESCE(is_deleted, 0) = 0 ORDER BY CASE WHEN year > 0 THEN year ELSE 99 END ASC, name ASC").all();
-    const headerSettings = await SiteSettings.getLiveDiscussionSettings();
-
-    const categoryMeta = (categories || []).find(c => c.slug === discussion.category) || null;
-
-    res.render('public/discussion-single', {
-      title: `${discussion.title} — Live Discussion | PhysioEdvance`,
-      discussion,
-      categoryMeta,
-      categories: categories || [],
-      headerSettings,
-      YEAR_SUBJECTS,
-      OTHER_SUBJECTS
-    });
-  } catch (err) {
-    console.error('Error rendering single discussion card:', err);
-    res.status(500).render('public/500', { error: err.message });
-  }
 };
 
 exports.addDiscussionReply = async (req, res) => {
   try {
-    const { discussion_id, parent_id, author_name, author_role, content } = req.body;
+    const { discussion_id, author_name, author_role, content } = req.body;
     const user = req.session ? req.session.user : null;
-
-    if (!content || !content.trim()) {
-      if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
-        return res.status(400).json({ success: false, message: 'Reply content cannot be empty.' });
-      }
-      req.flash('error', 'Reply content cannot be empty.');
-      return res.redirect('/live-discussion');
-    }
-
     const author = user ? user.name : (author_name || 'Anonymous Peer');
     const role = user ? (user.role === 'admin' || user.role === 'superadmin' ? 'Faculty Moderator' : (user.role === 'instructor' ? 'Mentor / Instructor' : 'Student Member')) : (author_role || 'Physiotherapy Student');
     const isMentor = user && (user.role === 'admin' || user.role === 'superadmin' || user.role === 'instructor') ? 1 : 0;
 
-    const newReply = await LiveDiscussion.addReply(discussion_id, {
+    await LiveDiscussion.addReply(discussion_id, {
       userId: user ? user.id : null,
       authorName: author,
       authorRole: role,
-      content: content.trim(),
-      isMentor,
-      parentId: parent_id ? parseInt(parent_id, 10) : null
+      content: (content || '').trim(),
+      isMentor
     });
-
-    const disc = await LiveDiscussion.findById(discussion_id);
-
-    if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
-      return res.json({
-        success: true,
-        reply: newReply,
-        totalRepliesCount: disc ? (disc.replies_count || 0) : 0,
-        message: 'Your reply has been posted!'
-      });
-    }
 
     req.flash('success', 'Your clinical reply was posted to the discussion.');
   } catch (err) {
     console.error('Error posting reply:', err);
-    if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
-      return res.status(500).json({ success: false, message: err.message || 'Failed to post reply.' });
-    }
     req.flash('error', 'Failed to post reply.');
   }
   res.redirect('/live-discussion');
-};
-
-exports.voteReply = async (req, res) => {
-  try {
-    const { action, previousState } = req.body;
-    const result = await LiveDiscussion.voteReply(req.params.id, { action, previousState });
-    return res.json({ success: true, ...result });
-  } catch (err) {
-    console.error('Error voting reply:', err);
-    return res.status(500).json({ success: false, message: 'Failed to vote reply.' });
-  }
-};
-
-exports.upvoteReply = async (req, res) => {
-  try {
-    const action = req.body && req.body.action ? req.body.action : 'like';
-    const previousState = req.body && req.body.previousState ? req.body.previousState : 'none';
-    const result = await LiveDiscussion.voteReply(req.params.id, { action, previousState });
-    return res.json({ success: true, upvotes: result.upvotes, downvotes: result.downvotes });
-  } catch (err) {
-    console.error('Error upvoting reply:', err);
-    return res.status(500).json({ success: false, message: 'Failed to upvote reply.' });
-  }
 };
 
 exports.createDiscussion = async (req, res) => {
@@ -760,24 +675,11 @@ exports.createDiscussion = async (req, res) => {
   res.redirect('/live-discussion');
 };
 
-exports.voteDiscussion = async (req, res) => {
-  try {
-    const { action, previousState } = req.body;
-    const result = await LiveDiscussion.vote(req.params.id, { action, previousState });
-    return res.json({ success: true, ...result });
-  } catch (err) {
-    console.error('Error voting discussion:', err);
-    return res.status(500).json({ success: false, error: err.message });
-  }
-};
-
 exports.upvoteDiscussion = async (req, res) => {
   try {
-    const action = req.body && req.body.action ? req.body.action : 'like';
-    const previousState = req.body && req.body.previousState ? req.body.previousState : 'none';
-    const result = await LiveDiscussion.vote(req.params.id, { action, previousState });
+    const upvotes = await LiveDiscussion.upvote(req.params.id);
     if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
-      return res.json({ success: true, upvotes: result.upvotes, downvotes: result.downvotes });
+      return res.json({ success: true, upvotes });
     }
   } catch (err) {
     console.error('Error upvoting discussion:', err);

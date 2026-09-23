@@ -2,7 +2,7 @@ const User = require('../models/User');
 const PermissionService = require('../services/permissionService');
 
 async function attachUser(req, res, next) {
-  const user = req.session ? req.session.user : null;
+  const user = req.session.user || null;
   res.locals.currentUser = user;
   res.locals.currentPath = req.path;
   res.locals.isSuperAdmin = user && user.role === 'superadmin';
@@ -14,11 +14,6 @@ async function attachUser(req, res, next) {
     return PermissionService.hasPermissionSync(user, resource, action);
   };
 
-  // Module level permission helper: hasModulePermission('MODULE_BLOG')
-  res.locals.hasModulePermission = (moduleKey) => {
-    return PermissionService.hasModulePermissionSync(user, moduleKey);
-  };
-
   next();
 }
 
@@ -27,12 +22,12 @@ function requireAuth(req, res, next) {
     req.flash('error', 'Please log in to continue.');
     return res.redirect('/auth/login?redirect=' + encodeURIComponent(req.originalUrl));
   }
-  // Check if account is active or soft-deleted
-  if (req.session.user.is_active === 0 || req.session.user.is_active === false || req.session.user.is_deleted === 1) {
+  // Check if account is active
+  if (req.session.user.is_active === 0 || req.session.user.is_active === false) {
     req.session.destroy(() => {});
     return res.status(403).render('public/404', {
       title: 'Account Disabled',
-      message: 'Your administrative access has been disabled or removed. Please contact the Super Admin.'
+      message: 'Your administrative access has been disabled. Please contact the Super Admin.'
     });
   }
   next();
@@ -102,6 +97,8 @@ function requireSuperAdmin(req, res, next) {
 
 /**
  * Enforce granular resource-action permission
+ * @param {string} resource - e.g. 'COURSE', 'BLOG', 'LIVE_CLASS'
+ * @param {string} action - e.g. 'CREATE', 'EDIT', 'DELETE', 'PUBLISH'
  */
 function requirePermission(resource, action) {
   return async (req, res, next) => {
@@ -142,52 +139,11 @@ function requirePermission(resource, action) {
   };
 }
 
-/**
- * Enforce module-level permission for one of the 13 explicit modules
- */
-function requireModulePermission(moduleKey) {
-  return async (req, res, next) => {
-    if (!req.session.user) {
-      req.flash('error', 'Please log in to continue.');
-      return res.redirect('/auth/login');
-    }
-
-    const user = req.session.user;
-
-    if (user.role === 'superadmin') {
-      return next();
-    }
-
-    const isPermitted = PermissionService.hasModulePermissionSync(user, moduleKey);
-    if (!isPermitted) {
-      await PermissionService.logAudit({
-        actorId: user.id,
-        action: 'UNAUTHORIZED_MODULE_ACCESS_ATTEMPT',
-        resource: moduleKey,
-        details: JSON.stringify({ path: req.originalUrl, method: req.method }),
-        req
-      });
-
-      if (req.xhr || req.headers.accept?.includes('json')) {
-        return res.status(403).json({
-          success: false,
-          message: "You don't have permission to access this module."
-        });
-      }
-
-      req.flash('error', "Access Denied. You don't have permission to access this section.");
-      return res.redirect(user.role === 'instructor' ? '/instructor/dashboard' : '/admin/dashboard');
-    }
-
-    next();
-  };
-}
-
 // Refresh session user from DB and sync their permissions
 async function refreshUser(req, res, next) {
   if (req.session.user) {
     const fresh = await User.findById(req.session.user.id);
-    if (fresh && fresh.is_active !== 0 && fresh.is_deleted !== 1) {
+    if (fresh && fresh.is_active !== 0) {
       const perms = await PermissionService.getUserPermissions(fresh.id);
       req.session.user = {
         id: fresh.id,
@@ -198,7 +154,6 @@ async function refreshUser(req, res, next) {
         phone: fresh.phone,
         user_code: fresh.user_code,
         is_active: fresh.is_active,
-        is_deleted: fresh.is_deleted,
         permissions: Array.from(perms)
       };
     } else {
@@ -215,6 +170,5 @@ module.exports = {
   requireRole,
   requireSuperAdmin,
   requirePermission,
-  requireModulePermission,
   refreshUser
 };
