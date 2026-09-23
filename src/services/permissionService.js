@@ -1,59 +1,38 @@
 const db = require('../db/connection');
 
+// 13 Explicit Application Modules requested for RBAC
+const MODULE_PERMISSIONS = [
+  { key: 'MODULE_DASHBOARD', name: 'Dashboard', icon: 'ri-dashboard-line', description: 'Access main overview dashboard' },
+  { key: 'MODULE_HOME', name: 'Home', icon: 'ri-home-4-line', description: 'Access and configure home section content' },
+  { key: 'MODULE_SUBJECTS', name: 'Subjects', icon: 'ri-book-open-line', description: 'Access curriculum subjects and categories' },
+  { key: 'MODULE_LEARNING_MODULE', name: 'Learning Module', icon: 'ri-file-list-3-line', description: 'Access clinical cases and learning questions' },
+  { key: 'MODULE_LIVE_DISCUSSION', name: 'Live Discussion', icon: 'ri-discuss-line', description: 'Access clinical topic discussions' },
+  { key: 'MODULE_LIVE_CLASSES', name: 'Live Classes', icon: 'ri-video-chat-line', description: 'Access live webinar sessions' },
+  { key: 'MODULE_TEAM', name: 'Team', icon: 'ri-team-line', description: 'Access team and faculty profiles' },
+  { key: 'MODULE_BLOG', name: 'Blog', icon: 'ri-article-line', description: 'Access blog management and articles' },
+  { key: 'MODULE_ABOUT', name: 'About', icon: 'ri-information-line', description: 'Access platform about information' },
+  { key: 'MODULE_CONTACT', name: 'Contact', icon: 'ri-contacts-line', description: 'Access contact inquiries and appointments' },
+  { key: 'MODULE_ADMIN_MANAGEMENT', name: 'Admin Management', icon: 'ri-user-settings-line', description: 'Manage active, disabled, and deleted admins' },
+  { key: 'MODULE_INSTRUCTOR_PERMISSIONS', name: 'Instructor Permissions', icon: 'ri-shield-user-line', description: 'Manage instructor accounts and permissions' },
+  { key: 'MODULE_AUDIT_LOGS', name: 'Audit Logs', icon: 'ri-shield-check-line', description: 'Access administrative audit trail logs' },
+  { key: 'MODULE_COURSES', name: 'Courses & Course Uploads', icon: 'ri-book-2-line', description: 'Allow instructor/admin to create, upload & add courses based on subject topics' }
+];
+
 // Standard Resource Categories & Definitions
 const RESOURCE_GROUPS = [
-  {
-    resource: 'COURSE',
-    label: 'Courses & Curriculum Modules',
-    icon: 'ri-book-2-line',
-    actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN']
-  },
-  {
-    resource: 'BLOG',
-    label: 'Blog Posts & Articles',
-    icon: 'ri-article-line',
-    actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN']
-  },
-  {
-    resource: 'LIVE_CLASS',
-    label: 'Live Classes & Webinars',
-    icon: 'ri-vidicon-line',
-    actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN']
-  },
-  {
-    resource: 'SUBJECT',
-    label: 'Subjects & Curriculum Categories',
-    icon: 'ri-folder-2-line',
-    actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'ASSIGN']
-  },
-  {
-    resource: 'CASE_DISCUSSION',
-    label: 'Case Discussions & Question Bank',
-    icon: 'ri-question-answer-line',
-    actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN']
-  },
-  {
-    resource: 'USER',
-    label: 'User & Learner Management',
-    icon: 'ri-team-line',
-    actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'TOGGLE_STATUS']
-  },
-  {
-    resource: 'AUDIT_LOG',
-    label: 'Audit Trail Logs',
-    icon: 'ri-shield-check-line',
-    actions: ['VIEW']
-  },
-  {
-    resource: 'SETTINGS',
-    label: 'Homepage & Platform Settings',
-    icon: 'ri-settings-4-line',
-    actions: ['VIEW', 'EDIT']
-  }
+  { resource: 'COURSE', label: 'Courses & Curriculum Modules', icon: 'ri-book-2-line', actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN'] },
+  { resource: 'BLOG', label: 'Blog Posts & Articles', icon: 'ri-article-line', actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN'] },
+  { resource: 'LIVE_CLASS', label: 'Live Classes & Webinars', icon: 'ri-vidicon-line', actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN'] },
+  { resource: 'SUBJECT', label: 'Subjects & Curriculum Categories', icon: 'ri-folder-2-line', actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'ASSIGN'] },
+  { resource: 'CASE_DISCUSSION', label: 'Case Discussions & Question Bank', icon: 'ri-question-answer-line', actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'PUBLISH', 'ASSIGN'] },
+  { resource: 'USER', label: 'User & Learner Management', icon: 'ri-team-line', actions: ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'TOGGLE_STATUS'] },
+  { resource: 'AUDIT_LOG', label: 'Audit Trail Logs', icon: 'ri-shield-check-line', actions: ['VIEW'] },
+  { resource: 'SETTINGS', label: 'Homepage & Platform Settings', icon: 'ri-settings-4-line', actions: ['VIEW', 'EDIT'] }
 ];
 
 const PermissionService = {
   RESOURCE_GROUPS,
+  MODULE_PERMISSIONS,
 
   /**
    * Get all registered system permissions grouped by resource
@@ -158,6 +137,25 @@ const PermissionService = {
   },
 
   /**
+   * Check if a user has access to a specific module (out of the 13 application modules)
+   */
+  hasModulePermissionSync(user, moduleKey) {
+    if (!user) return false;
+    if (user.role === 'superadmin') return true;
+    if (!['admin', 'instructor'].includes(user.role)) return false;
+    if (!user.permissions) return false;
+
+    let perms = user.permissions;
+    if (perms instanceof Set) {
+      return perms.has(moduleKey);
+    }
+    if (Array.isArray(perms)) {
+      return perms.includes(moduleKey);
+    }
+    return false;
+  },
+
+  /**
    * Synchronous check when user.permissions is pre-loaded on the request
    */
   hasPermissionSync(user, resource, action) {
@@ -166,13 +164,30 @@ const PermissionService = {
     if (!['admin', 'instructor'].includes(user.role)) return false;
     if (!user.permissions) return false;
 
+    // Check direct resource:action key
     const permKey = `${resource.toUpperCase()}:${action.toUpperCase()}`;
-    if (user.permissions instanceof Set) {
-      return user.permissions.has(permKey);
+    if (this.hasModulePermissionSync(user, permKey)) return true;
+
+    // Map resource to corresponding module permission key
+    const resourceModuleMap = {
+      'COURSE': 'MODULE_COURSES',
+      'SUBJECT': 'MODULE_SUBJECTS',
+      'CASE_DISCUSSION': 'MODULE_LEARNING_MODULE',
+      'BLOG': 'MODULE_BLOG',
+      'LIVE_CLASS': 'MODULE_LIVE_CLASSES',
+      'SETTINGS': 'MODULE_HOME',
+      'AUDIT_LOG': 'MODULE_AUDIT_LOGS',
+      'USER': 'MODULE_ADMIN_MANAGEMENT'
+    };
+
+    const mappedModule = resourceModuleMap[resource.toUpperCase()];
+    if (mappedModule && this.hasModulePermissionSync(user, mappedModule)) {
+      return true;
     }
-    if (Array.isArray(user.permissions)) {
-      return user.permissions.includes(permKey);
+    if (resource.toUpperCase() === 'COURSE' && this.hasModulePermissionSync(user, 'MODULE_SUBJECTS')) {
+      return true;
     }
+
     return false;
   },
 

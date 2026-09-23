@@ -1,8 +1,9 @@
 const User = require('../models/User');
+const PermissionService = require('../services/permissionService');
 
 // ─── Helper — resolve the correct dashboard path for a user's role ─────────
 function dashboardPathForRole(role) {
-  if (role === 'admin') return '/admin/dashboard';
+  if (role === 'admin' || role === 'superadmin') return '/admin/dashboard';
   if (role === 'instructor') return '/instructor/dashboard';
   return '/dashboard';
 }
@@ -17,21 +18,45 @@ exports.showLogin = (req, res) => {
 
 exports.login = async (req, res) => {
   const { email, password, redirect } = req.body;
-  const user = await User.findByEmail(email);
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  const user = await User.findByEmail(cleanEmail);
 
   if (!user || !User.verifyPassword(password, user.password)) {
+    await PermissionService.logAudit({
+      actorId: user ? user.id : null,
+      action: 'LOGIN_FAILED',
+      resource: 'AUTH',
+      details: { email: cleanEmail, reason: 'Invalid credentials' },
+      req
+    });
     req.flash('error', 'Invalid email or password. Please try again.');
     return res.redirect('/auth/login');
   }
 
-  if (!user.is_active) {
-    req.flash('error', 'Your account has been deactivated. Please contact support.');
+  if (user.is_active === 0 || user.is_active === false || user.is_deleted === 1) {
+    await PermissionService.logAudit({
+      actorId: user.id,
+      action: 'LOGIN_BLOCKED_DISABLED',
+      resource: 'AUTH',
+      details: { email: cleanEmail, role: user.role },
+      req
+    });
+    req.flash('error', 'Your account has been deactivated or deleted. Please contact the Super Admin.');
     return res.redirect('/auth/login');
+  }
+
+  // Domain restriction check for Admin & Instructor accounts
+  if (user.role === 'admin' || user.role === 'instructor') {
+    const allowedDomain = process.env.ORGANIZATION_EMAIL_DOMAIN || 'physioadvance.com';
+    const isDomainOk = cleanEmail.endsWith('@' + allowedDomain) || cleanEmail.includes('physioadvance.com') || cleanEmail.includes('organization.com');
+    if (!isDomainOk && user.id !== 1) {
+      req.flash('error', `Administrative accounts must use the official domain (@${allowedDomain}).`);
+      return res.redirect('/auth/login');
+    }
   }
 
   // Admin & Super Admin accounts bypass face verification for direct dashboard access
   if (user.role === 'admin' || user.role === 'superadmin') {
-    const PermissionService = require('../services/permissionService');
     const perms = await PermissionService.getUserPermissions(user.id);
     req.session.user = {
       id: user.id,
@@ -42,8 +67,18 @@ exports.login = async (req, res) => {
       phone: user.phone,
       user_code: User.formatCode(user),
       is_active: user.is_active,
+      is_deleted: user.is_deleted,
       permissions: Array.from(perms)
     };
+
+    await PermissionService.logAudit({
+      actorId: user.id,
+      action: 'LOGIN_SUCCESS',
+      resource: 'AUTH',
+      details: { role: user.role, method: 'PASSWORD_DIRECT' },
+      req
+    });
+
     req.flash('success', `Welcome back, ${user.role === 'superadmin' ? 'Super Admin' : 'Admin'} ${user.name.split(' ')[0]}!`);
     return res.redirect(redirect && redirect.startsWith('/') ? redirect : '/admin/dashboard');
   }

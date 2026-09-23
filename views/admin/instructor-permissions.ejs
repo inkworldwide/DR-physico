@@ -3,11 +3,11 @@
     <div>
       <div class="d-flex align-items-center gap-2 mb-1">
         <a href="/admin/instructors" class="text-decoration-none text-muted small fw-medium">
-          <i class="ri-arrow-left-line me-1"></i>Back to Instructors
+          <i class="ri-arrow-left-line me-1"></i>Back to Instructors Management
         </a>
       </div>
-      <h1 class="h3 fw-bold text-slate-900 mb-1">Instructor Permissions</h1>
-      <p class="text-muted small mb-0">Configure publishing, creation, and editing capabilities for <strong><%= instructor.name %></strong> (<%= instructor.email %>).</p>
+      <h1 class="h3 fw-bold text-slate-900 mb-1">Manage Instructor Permissions</h1>
+      <p class="text-muted small mb-0">Configure module access privileges for <strong><%= instructor.name %></strong> (<%= instructor.email %>).</p>
     </div>
     <div class="d-flex align-items-center gap-2">
       <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill fw-medium">
@@ -22,12 +22,28 @@
   </div>
 </div>
 
+<%
+  const instructorModules = [
+    { key: 'MODULE_DASHBOARD', name: '1. Dashboard', icon: 'ri-dashboard-line', desc: 'Access instructor overview dashboard' },
+    { key: 'MODULE_HOME', name: '2. Home', icon: 'ri-home-4-line', desc: 'Access homepage content' },
+    { key: 'MODULE_SUBJECTS', name: '3. Subjects', icon: 'ri-book-open-line', desc: 'Access curriculum subjects & categories' },
+    { key: 'MODULE_LEARNING_MODULE', name: '4. Learning Module', icon: 'ri-file-list-3-line', desc: 'Access clinical case questions & learning modules' },
+    { key: 'MODULE_LIVE_DISCUSSION', name: '5. Live Discussion', icon: 'ri-discuss-line', desc: 'Access clinical topic discussions' },
+    { key: 'MODULE_LIVE_CLASSES', name: '6. Live Classes', icon: 'ri-video-chat-line', desc: 'Host & schedule live Zoom sessions' },
+    { key: 'MODULE_TEAM', name: '7. Team', icon: 'ri-team-line', desc: 'Access faculty team profiles' },
+    { key: 'MODULE_BLOG', name: '8. Blog', icon: 'ri-article-line', desc: 'Write & post blog articles' },
+    { key: 'MODULE_ABOUT', name: '9. About', icon: 'ri-information-line', desc: 'Access about pages' },
+    { key: 'MODULE_CONTACT', name: '10. Contact', icon: 'ri-contacts-line', desc: 'Access contact inquiries' },
+    { key: 'MODULE_COURSES', name: '11. Courses & Course Uploads', icon: 'ri-book-2-line', desc: 'Allow instructor to create, upload & add courses based on subject topics' }
+  ];
+%>
+
 <form action="/admin/instructors/<%= instructor.id %>/permissions" method="POST">
   <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
     <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between pb-3 mb-4 border-bottom gap-3">
       <div>
-        <h5 class="fw-bold text-slate-900 mb-1">Granted Privileges</h5>
-        <p class="text-muted small mb-0">Instructors can only perform the actions selected below.</p>
+        <h5 class="fw-bold text-slate-900 mb-1">Instructor Module Permissions</h5>
+        <p class="text-muted small mb-0">Select modules this Instructor is allowed to manage.</p>
       </div>
       <div class="d-flex flex-wrap gap-2">
         <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="toggleAllCheckboxes(true)">
@@ -36,55 +52,35 @@
         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="toggleAllCheckboxes(false)">
           <i class="ri-checkbox-indeterminate-line me-1"></i>Deselect All
         </button>
-        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4 fw-semibold shadow-sm">
-          <i class="ri-save-line me-1"></i>Save Permissions
+        <button type="reset" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+          <i class="ri-refresh-line me-1"></i>Reset
         </button>
       </div>
     </div>
 
-    <div class="d-flex flex-column gap-4">
-      <% Object.keys(resourceGroups).forEach(resKey => { 
-           const group = resourceGroups[resKey];
+    <div class="row g-3">
+      <% instructorModules.forEach(mod => { 
+           const isChecked = userPermissions.has(mod.key);
       %>
-        <div class="border rounded-3 p-3 bg-light-subtle">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="d-flex align-items-center gap-2">
-              <div class="w-8 h-8 rounded-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                <i class="<%= group.icon || 'ri-shield-line' %>"></i>
+        <div class="col-md-6">
+          <label class="form-check border rounded-3 p-3 bg-white d-flex align-items-start gap-3 h-100 cursor-pointer shadow-2xs hover-shadow-sm transition-all <%= isChecked ? 'border-primary bg-primary-subtle' : '' %>" style="cursor: pointer;">
+            <input class="form-check-input mt-1 perm-checkbox" type="checkbox" name="permissions[]" value="<%= mod.key %>" <%= isChecked ? 'checked' : '' %>>
+            <div>
+              <div class="d-flex align-items-center gap-1.5 mb-1">
+                <i class="<%= mod.icon %> text-primary fs-5"></i>
+                <span class="fw-bold text-slate-900 text-sm"><%= mod.name %></span>
               </div>
-              <div>
-                <h6 class="fw-bold text-slate-900 mb-0"><%= group.label %></h6>
-                <span class="badge bg-light text-muted border text-xs" style="font-size: 0.65rem;"><%= group.resource %></span>
-              </div>
+              <div class="text-muted text-xs"><%= mod.desc %></div>
             </div>
-            <button type="button" class="btn btn-sm btn-link text-primary p-0 small fw-medium" onclick="toggleGroupCheckboxes('<%= group.resource %>')">
-              Toggle Category
-            </button>
-          </div>
-
-          <div class="row g-2">
-            <% group.permissions.forEach(perm => { 
-                 const isChecked = userPermissions.has(perm.permission_key);
-            %>
-              <div class="col-sm-6 col-md-4">
-                <label class="form-check border rounded-3 p-2.5 bg-white d-flex align-items-center gap-2 mb-0 cursor-pointer shadow-xs hover-shadow-sm transition-all <%= isChecked ? 'border-primary-subtle bg-primary-subtle' : '' %>" style="cursor: pointer;">
-                  <input class="form-check-input mt-0 perm-checkbox perm-group-<%= group.resource %>" type="checkbox" name="permissions[]" value="<%= perm.permission_key %>" <%= isChecked ? 'checked' : '' %>>
-                  <div class="overflow-hidden">
-                    <div class="fw-semibold text-slate-900 text-sm"><%= perm.action %></div>
-                    <div class="text-muted text-xs text-truncate" title="<%= perm.description || perm.name %>"><%= perm.name %></div>
-                  </div>
-                </label>
-              </div>
-            <% }) %>
-          </div>
+          </label>
         </div>
       <% }) %>
     </div>
 
-    <div class="d-flex justify-content-end gap-2 pt-4 mt-4 border-top">
-      <a href="/admin/instructors" class="btn btn-light rounded-pill px-4 text-muted fw-medium">Cancel</a>
-      <button type="submit" class="btn btn-primary rounded-pill px-4.5 py-2 fw-semibold shadow-sm">
-        <i class="ri-save-line me-1.5"></i>Save Changes
+    <div class="d-flex justify-content-between align-items-center gap-2 pt-4 mt-4 border-top">
+      <a href="/admin/instructors" class="btn btn-outline-secondary rounded-pill px-4 text-xs fw-semibold">Cancel</a>
+      <button type="submit" class="btn btn-primary rounded-pill px-4.5 py-2 fw-bold text-xs shadow-sm">
+        <i class="ri-save-line me-1.5"></i>Save Permissions
       </button>
     </div>
   </div>
@@ -94,14 +90,6 @@
   function toggleAllCheckboxes(checked) {
     document.querySelectorAll('.perm-checkbox').forEach(cb => {
       cb.checked = checked;
-    });
-  }
-
-  function toggleGroupCheckboxes(groupKey) {
-    const groupCbs = document.querySelectorAll('.perm-group-' + groupKey);
-    const anyUnchecked = Array.from(groupCbs).some(cb => !cb.checked);
-    groupCbs.forEach(cb => {
-      cb.checked = anyUnchecked;
     });
   }
 </script>

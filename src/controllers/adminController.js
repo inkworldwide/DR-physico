@@ -1788,12 +1788,27 @@ exports.updateCta = async (req, res) => {
  */
 exports.adminsIndex = async (req, res) => {
   try {
-    const admins = await User.allAdmins();
-    const superAdmins = await User.allSuperAdmins();
-    const allAdminsList = [...superAdmins, ...admins];
+    const activeAdmins = await User.allAdmins();
+    const activeSuperAdmins = await User.allSuperAdmins();
+    const activeAdminsList = [...activeSuperAdmins, ...activeAdmins];
 
-    // Preload permissions for each admin
-    const adminsWithPerms = await Promise.all(allAdminsList.map(async (adm) => {
+    // Preload permissions for active admins
+    const activeAdminsWithPerms = await Promise.all(activeAdminsList.map(async (adm) => {
+      const perms = await PermissionService.getUserPermissions(adm.id);
+      return {
+        ...adm,
+        user_code: User.formatCode(adm),
+        permissions: Array.from(perms),
+        permissionsCount: perms.size
+      };
+    }));
+
+    // Fetch soft-deleted admin accounts
+    const deletedAdminsList = await db.prepare(`
+      SELECT * FROM users WHERE (role = 'admin' OR role = 'superadmin') AND COALESCE(is_deleted, 0) = 1 ORDER BY updated_at DESC
+    `).all();
+
+    const deletedAdminsWithPerms = await Promise.all(deletedAdminsList.map(async (adm) => {
       const perms = await PermissionService.getUserPermissions(adm.id);
       return {
         ...adm,
@@ -1806,7 +1821,8 @@ exports.adminsIndex = async (req, res) => {
     res.render('admin/admins', {
       title: 'Admin Management',
       layout: 'layouts/admin',
-      admins: adminsWithPerms,
+      admins: activeAdminsWithPerms,
+      deletedAdmins: deletedAdminsWithPerms,
       currentPath: '/admin/admins'
     });
   } catch (err) {
@@ -1814,6 +1830,122 @@ exports.adminsIndex = async (req, res) => {
     req.flash('error', `Failed to load admins: ${err.message}`);
     res.redirect('/admin/dashboard');
   }
+};
+
+/**
+ * Move Admin account to Deleted Administrators / Trash (Soft Delete)
+ */
+exports.deleteAdmin = async (req, res) => {
+  try {
+    const targetId = parseInt(req.params.id, 10);
+    const targetAdmin = await User.findById(targetId);
+
+    if (!targetAdmin) {
+      req.flash('error', 'Administrator account not found.');
+      return res.redirect('/admin/admins');
+    }
+
+    if (req.session.user && req.session.user.id === targetId) {
+      req.flash('error', 'You cannot delete your own logged-in administrator account.');
+      return res.redirect('/admin/admins');
+    }
+
+    if (targetAdmin.role === 'superadmin' && targetAdmin.id === 1) {
+      req.flash('error', 'The master Super Administrator account cannot be deleted.');
+      return res.redirect('/admin/admins');
+    }
+
+    await User.softDelete(targetId);
+
+    await PermissionService.logAudit({
+      actorId: req.session.user.id,
+      action: 'ADMIN_DELETED',
+      resource: 'USER',
+      resourceId: String(targetId),
+      details: { name: targetAdmin.name, email: targetAdmin.email, role: targetAdmin.role },
+      req
+    });
+
+    req.flash('success', `Administrator "${targetAdmin.name}" moved to Deleted Administrators / Trash.`);
+  } catch (err) {
+    console.error('Error soft-deleting admin:', err);
+    req.flash('error', `Failed to delete administrator: ${err.message}`);
+  }
+  res.redirect('/admin/admins');
+};
+
+/**
+ * Restore soft-deleted Admin account back to active status
+ */
+exports.restoreAdmin = async (req, res) => {
+  try {
+    const targetId = parseInt(req.params.id, 10);
+    const targetAdmin = await User.findById(targetId);
+
+    if (!targetAdmin) {
+      req.flash('error', 'Administrator account not found.');
+      return res.redirect('/admin/admins');
+    }
+
+    await User.restore(targetId);
+
+    await PermissionService.logAudit({
+      actorId: req.session.user.id,
+      action: 'ADMIN_RESTORED',
+      resource: 'USER',
+      resourceId: String(targetId),
+      details: { name: targetAdmin.name, email: targetAdmin.email, role: targetAdmin.role },
+      req
+    });
+
+    req.flash('success', `Administrator "${targetAdmin.name}" restored successfully.`);
+  } catch (err) {
+    console.error('Error restoring admin:', err);
+    req.flash('error', `Failed to restore administrator: ${err.message}`);
+  }
+  res.redirect('/admin/admins');
+};
+
+/**
+ * Permanently purge Admin account from the database
+ */
+exports.permanentDeleteAdmin = async (req, res) => {
+  try {
+    const targetId = parseInt(req.params.id, 10);
+    const targetAdmin = await User.findById(targetId);
+
+    if (!targetAdmin) {
+      req.flash('error', 'Administrator account not found.');
+      return res.redirect('/admin/admins');
+    }
+
+    if (req.session.user && req.session.user.id === targetId) {
+      req.flash('error', 'You cannot permanently delete your own logged-in administrator account.');
+      return res.redirect('/admin/admins');
+    }
+
+    if (targetAdmin.role === 'superadmin' && targetAdmin.id === 1) {
+      req.flash('error', 'The master Super Administrator account cannot be permanently deleted.');
+      return res.redirect('/admin/admins');
+    }
+
+    await User.delete(targetId);
+
+    await PermissionService.logAudit({
+      actorId: req.session.user.id,
+      action: 'ADMIN_PERMANENTLY_DELETED',
+      resource: 'USER',
+      resourceId: String(targetId),
+      details: { name: targetAdmin.name, email: targetAdmin.email, role: targetAdmin.role },
+      req
+    });
+
+    req.flash('success', `Administrator "${targetAdmin.name}" permanently deleted.`);
+  } catch (err) {
+    console.error('Error permanently deleting admin:', err);
+    req.flash('error', `Failed to permanently delete administrator: ${err.message}`);
+  }
+  res.redirect('/admin/admins');
 };
 
 /**
@@ -2166,11 +2298,13 @@ const LiveDiscussion = require('../models/LiveDiscussion');
 exports.liveDiscussionsIndex = async (req, res) => {
   try {
     const discussions = await LiveDiscussion.all();
+    const categories = await db.prepare("SELECT * FROM categories WHERE COALESCE(is_deleted, 0) = 0 ORDER BY year ASC, name ASC").all();
     const headerSettings = await SiteSettings.getLiveDiscussionSettings();
     res.render('admin/live-discussions', {
       title: 'Live Discussions & Clinical Case Rounds',
       layout: 'layouts/admin',
       discussions,
+      categories: categories || [],
       headerSettings,
       currentPath: '/admin/live-discussions'
     });

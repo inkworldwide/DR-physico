@@ -9,49 +9,71 @@
   <div class="pe-sidebar-menu">
     <% if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) { %>
       <p class="pe-menu-label">Main</p>
-      <a href="/admin/dashboard" class="pe-menu-link <%= currentPath==='/admin/dashboard'?'active':'' %>">
-        <i class="ri-dashboard-2-line pe-icon-sky"></i><span>Dashboard</span>
-      </a>
-
-      <% if (isSuperAdmin) { %>
-        <p class="pe-menu-label pe-menu-label-superadmin">
-          <i class="ri-shield-keyhole-fill me-1 pe-icon-red"></i>Super Admin
-        </p>
-        <a href="/admin/admins" class="pe-menu-link <%= currentPath.startsWith('/admin/admins') ? 'active' : '' %>">
-          <i class="ri-admin-line pe-icon-red"></i><span>Admin Management</span>
-        </a>
-        <a href="/admin/instructors" class="pe-menu-link <%= currentPath.startsWith('/admin/instructors') ? 'active' : '' %>">
-          <i class="ri-presentation-line pe-icon-amber"></i><span>Instructor Permissions</span>
-        </a>
-        <a href="/admin/audit-logs" class="pe-menu-link <%= currentPath==='/admin/audit-logs'?'active':'' %>">
-          <i class="ri-shield-check-line pe-icon-sky"></i><span>Audit Logs</span>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_DASHBOARD')) { %>
+        <a href="/admin/dashboard" class="pe-menu-link <%= currentPath==='/admin/dashboard'?'active':'' %>">
+          <i class="ri-dashboard-2-line pe-icon-sky"></i><span>Dashboard</span>
         </a>
       <% } %>
 
-      <p class="pe-menu-label">Manage</p>
-      <% if (isSuperAdmin || hasPermission('SUBJECT', 'VIEW')) { %>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_ADMIN_MANAGEMENT') || hasModulePermission('MODULE_INSTRUCTOR_PERMISSIONS') || hasModulePermission('MODULE_AUDIT_LOGS')) { %>
+        <p class="pe-menu-label pe-menu-label-superadmin">
+          <i class="ri-shield-keyhole-fill me-1 pe-icon-red"></i>Administration
+        </p>
+        <% if (isSuperAdmin || hasModulePermission('MODULE_ADMIN_MANAGEMENT')) { %>
+          <a href="/admin/admins" class="pe-menu-link <%= currentPath.startsWith('/admin/admins') ? 'active' : '' %>">
+            <i class="ri-admin-line pe-icon-red"></i><span>Admin Management</span>
+          </a>
+        <% } %>
+        <% if (isSuperAdmin || hasModulePermission('MODULE_INSTRUCTOR_PERMISSIONS')) { %>
+          <a href="/admin/instructors" class="pe-menu-link <%= currentPath.startsWith('/admin/instructors') ? 'active' : '' %>">
+            <i class="ri-presentation-line pe-icon-amber"></i><span>Instructor Permissions</span>
+          </a>
+        <% } %>
+        <% if (isSuperAdmin || hasModulePermission('MODULE_AUDIT_LOGS')) { %>
+          <a href="/admin/audit-logs" class="pe-menu-link <%= currentPath==='/admin/audit-logs'?'active':'' %>">
+            <i class="ri-shield-check-line pe-icon-sky"></i><span>Audit Logs</span>
+          </a>
+        <% } %>
+      <% } %>
+
+      <p class="pe-menu-label">Manage Modules</p>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_SUBJECTS') || hasPermission('SUBJECT', 'VIEW')) { %>
         <a href="/admin/categories" class="pe-menu-link <%= (currentPath==='/admin/categories' || currentPath.startsWith('/admin/categories'))?'active':'' %>">
           <i class="ri-folder-2-line pe-icon-indigo"></i><span>Subjects</span>
         </a>
       <% } %>
-      <% if (isSuperAdmin || hasPermission('CASE_DISCUSSION', 'VIEW')) { %>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_LEARNING_MODULE')) { %>
         <a href="/admin/learning-modules" class="pe-menu-link <%= currentPath.startsWith('/admin/learning-modules') ? 'active' : '' %>">
           <i class="ri-book-read-line pe-icon-emerald"></i><span>Learning Modules</span>
         </a>
+      <% } %>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_LIVE_DISCUSSION')) { %>
         <a href="/admin/live-discussions" class="pe-menu-link <%= currentPath.startsWith('/admin/live-discussions') ? 'active' : '' %>">
           <i class="ri-question-answer-line pe-icon-cyan"></i><span>Live Discussions</span>
         </a>
       <% } %>
-      <% if (isSuperAdmin || hasPermission('USER', 'VIEW')) { %>
-        <a href="/admin/users" class="pe-menu-link <%= currentPath==='/admin/users'?'active':'' %>">
-          <i class="ri-team-line pe-icon-purple"></i><span>Users</span>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_LIVE_CLASSES')) { %>
+        <a href="/admin/live-sessions" class="pe-menu-link <%= currentPath==='/admin/live-sessions'?'active':'' %>">
+          <i class="ri-vidicon-line pe-icon-red"></i><span>Live Classes</span>
         </a>
-        <a href="/admin/orders" class="pe-menu-link <%= currentPath==='/admin/orders'?'active':'' %>">
-          <i class="ri-shopping-bag-3-line pe-icon-orange"></i><span>Orders</span>
+      <% } %>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_BLOG')) { %>
+        <a href="/admin/blog" class="pe-menu-link <%= currentPath==='/admin/blog'?'active':'' %>">
+          <i class="ri-article-line pe-icon-purple"></i><span>Blog</span>
+        </a>
+      <% } %>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_TEAM')) { %>
+        <a href="/admin/team" class="pe-menu-link <%= currentPath==='/admin/team'?'active':'' %>">
+          <i class="ri-user-star-line pe-icon-amber"></i><span>Team</span>
+        </a>
+      <% } %>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_CONTACT')) { %>
+        <a href="/admin/appointments" class="pe-menu-link <%= currentPath==='/admin/appointments'?'active':'' %>">
+          <i class="ri-calendar-check-line pe-icon-green"></i><span>Appointments</span>
         </a>
       <% } %>
 
-      <% if (isSuperAdmin || hasPermission('SETTINGS', 'VIEW')) { %>
+      <% if (isSuperAdmin || hasModulePermission('MODULE_HOME')) { %>
         <p class="pe-menu-label">Home Page</p>
         <a href="/admin/homepage-sections" class="pe-menu-link <%= currentPath==='/admin/homepage-sections'?'active':'' %>">
           <i class="ri-arrow-up-down-line pe-icon-yellow"></i><span>Sections Position Order</span>
@@ -59,36 +81,18 @@
         <a href="/admin/hero" class="pe-menu-link <%= currentPath==='/admin/hero'?'active':'' %>">
           <i class="ri-slideshow-line pe-icon-pink"></i><span>Hero Section</span>
         </a>
-
-        <% 
-          if (typeof adminHomepageNavSections !== 'undefined' && adminHomepageNavSections && adminHomepageNavSections.length > 0) {
-            const managedKeys = new Set(['curriculum', 'learning_journey', 'vision_mission', 'founders', 'blog', 'live_sessions', 'notes', 'callback_appointment', 'cta']);
-            const dynamicItems = adminHomepageNavSections.filter(s => managedKeys.has(s.section_key) || (s.admin_link && s.admin_link !== '/admin/dashboard' && s.admin_link !== '/admin/homepage-sections' && s.admin_link !== '/admin/hero' && s.admin_link !== '/admin/courses'));
-            
-            dynamicItems.forEach(sec => {
-              const isActiveLink = currentPath === sec.admin_link || currentPath.startsWith(sec.admin_link + '/');
-        %>
-          <a href="<%= sec.admin_link %>" class="pe-menu-link <%= isActiveLink ? 'active' : '' %>">
-            <i class="<%= sec.icon || 'ri-layout-grid-line' %> pe-icon-sky"></i>
-            <span><%= sec.name %></span>
-            <% if (sec.is_active === 0) { %>
-              <span class="badge bg-secondary-subtle text-light rounded-pill ms-auto" style="font-size: 0.65rem; background-color: rgba(255,255,255,0.2) !important;">Off</span>
-            <% } %>
-          </a>
-        <% 
-            });
-          } else { 
-        %>
-          <a href="/admin/curriculum" class="pe-menu-link <%= currentPath==='/admin/curriculum'?'active':'' %>"><i class="ri-graduation-cap-line pe-icon-blue"></i><span>Curriculum Cards</span></a>
-          <a href="/admin/learning-journey" class="pe-menu-link <%= currentPath==='/admin/learning-journey'?'active':'' %>"><i class="ri-route-line pe-icon-sky"></i><span>Learning Journey</span></a>
-          <a href="/admin/vision-mission" class="pe-menu-link <%= currentPath==='/admin/vision-mission'?'active':'' %>"><i class="ri-compass-3-line pe-icon-emerald"></i><span>Vision & Mission</span></a>
-          <a href="/admin/team" class="pe-menu-link <%= currentPath==='/admin/team'?'active':'' %>"><i class="ri-user-star-line pe-icon-amber"></i><span>Expert Teachers & Team</span></a>
-          <a href="/admin/blog" class="pe-menu-link <%= currentPath==='/admin/blog'?'active':'' %>"><i class="ri-article-line pe-icon-purple"></i><span>Blog</span></a>
-          <a href="/admin/live-sessions" class="pe-menu-link <%= currentPath==='/admin/live-sessions'?'active':'' %>"><i class="ri-vidicon-line pe-icon-red"></i><span>Live Sessions</span></a>
-          <a href="/admin/notes" class="pe-menu-link <%= currentPath==='/admin/notes'?'active':'' %>"><i class="ri-file-text-line pe-icon-orange"></i><span>Study Notes</span></a>
-          <a href="/admin/appointments" class="pe-menu-link <%= currentPath==='/admin/appointments'?'active':'' %>"><i class="ri-calendar-check-line pe-icon-green"></i><span>Appointments</span></a>
-          <a href="/admin/cta" class="pe-menu-link <%= currentPath==='/admin/cta'?'active':'' %>"><i class="ri-megaphone-line pe-icon-pink"></i><span>Call to Action Banner</span></a>
-        <% } %>
+        <a href="/admin/curriculum" class="pe-menu-link <%= currentPath==='/admin/curriculum'?'active':'' %>">
+          <i class="ri-graduation-cap-line pe-icon-blue"></i><span>Curriculum Cards</span>
+        </a>
+        <a href="/admin/learning-journey" class="pe-menu-link <%= currentPath==='/admin/learning-journey'?'active':'' %>">
+          <i class="ri-route-line pe-icon-sky"></i><span>Learning Journey</span>
+        </a>
+        <a href="/admin/vision-mission" class="pe-menu-link <%= currentPath==='/admin/vision-mission'?'active':'' %>">
+          <i class="ri-compass-3-line pe-icon-emerald"></i><span>Vision & Mission</span>
+        </a>
+        <a href="/admin/cta" class="pe-menu-link <%= currentPath==='/admin/cta'?'active':'' %>">
+          <i class="ri-megaphone-line pe-icon-pink"></i><span>Call to Action Banner</span>
+        </a>
       <% } %>
 
       <p class="pe-menu-label">Account</p>
@@ -101,19 +105,39 @@
 
     <% } else if (currentUser && currentUser.role === 'instructor') { %>
       <p class="pe-menu-label">Main</p>
-      <a href="/instructor/dashboard" class="pe-menu-link <%= currentPath==='/instructor/dashboard'?'active':'' %>"><i class="ri-dashboard-2-line pe-icon-sky"></i><span>Dashboard</span></a>
+      <a href="/instructor/dashboard" class="pe-menu-link <%= currentPath==='/instructor/dashboard'?'active':'' %>">
+        <i class="ri-dashboard-2-line pe-icon-sky"></i><span>Dashboard</span>
+      </a>
 
-      <p class="pe-menu-label">Teaching</p>
-      <% if (hasPermission('COURSE', 'VIEW')) { %>
-        <a href="/instructor/courses" class="pe-menu-link <%= currentPath === '/instructor/courses' ? 'active' : '' %>"><i class="ri-book-2-line pe-icon-indigo"></i><span>My Courses</span></a>
+      <p class="pe-menu-label">Teaching Modules</p>
+      <% if (hasModulePermission('MODULE_COURSES') || hasModulePermission('MODULE_SUBJECTS') || hasPermission('COURSE', 'VIEW')) { %>
+        <a href="/instructor/courses" class="pe-menu-link <%= currentPath === '/instructor/courses' ? 'active' : '' %>">
+          <i class="ri-book-2-line pe-icon-indigo"></i><span>My Courses</span>
+        </a>
       <% } %>
-      <% if (hasPermission('COURSE', 'CREATE')) { %>
-        <a href="/instructor/courses/wizard" class="pe-menu-link <%= currentPath.startsWith('/instructor/courses/wizard') ? 'active' : '' %>"><i class="ri-add-circle-line pe-icon-emerald"></i><span>Add Course</span></a>
+      <% if (hasModulePermission('MODULE_COURSES') || hasModulePermission('MODULE_SUBJECTS') || hasPermission('COURSE', 'CREATE')) { %>
+        <a href="/instructor/courses/wizard" class="pe-menu-link <%= currentPath === '/instructor/courses/wizard' ? 'active' : '' %>">
+          <i class="ri-add-circle-line pe-icon-blue"></i><span>Add / Upload Course</span>
+        </a>
+      <% } %>
+      <% if (hasModulePermission('MODULE_LIVE_CLASSES') || hasPermission('LIVE_CLASS', 'VIEW')) { %>
+        <a href="/admin/live-sessions" class="pe-menu-link <%= currentPath === '/admin/live-sessions' ? 'active' : '' %>">
+          <i class="ri-video-chat-line pe-icon-red"></i><span>Live Classes</span>
+        </a>
+      <% } %>
+      <% if (hasModulePermission('MODULE_LIVE_DISCUSSION')) { %>
+        <a href="/admin/live-discussions" class="pe-menu-link <%= currentPath.startsWith('/admin/live-discussions') ? 'active' : '' %>">
+          <i class="ri-question-answer-line pe-icon-cyan"></i><span>Live Discussions</span>
+        </a>
       <% } %>
 
       <p class="pe-menu-label">Account</p>
-      <a href="/instructor/profile" class="pe-menu-link <%= currentPath==='/instructor/profile'?'active':'' %>"><i class="ri-user-settings-line pe-icon-sky"></i><span>Profile</span></a>
-      <a href="/" class="pe-menu-link"><i class="ri-global-line pe-icon-green"></i><span>View Site</span></a>
+      <a href="/instructor/profile" class="pe-menu-link <%= currentPath==='/instructor/profile'?'active':'' %>">
+        <i class="ri-user-settings-line pe-icon-sky"></i><span>Profile</span>
+      </a>
+      <a href="/" class="pe-menu-link">
+        <i class="ri-global-line pe-icon-green"></i><span>View Site</span>
+      </a>
     <% } %>
   </div>
   <script>

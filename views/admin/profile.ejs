@@ -37,7 +37,13 @@
       </form>
       <h5 class="mb-0"><%= currentUser.name %></h5>
       <p class="text-muted-pe small mb-2"><%= profileUser.email %></p>
-      <span class="badge pe-badge-gradient"><i class="ri-shield-star-line me-1"></i> Administrator</span>
+      <% if (isSuperAdmin || profileUser.role === 'superadmin') { %>
+        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-1.5 rounded-pill fw-bold">
+          <i class="ri-vip-crown-fill me-1"></i> SUPER ADMIN
+        </span>
+      <% } else { %>
+        <span class="badge pe-badge-gradient"><i class="ri-shield-star-line me-1"></i> Administrator</span>
+      <% } %>
     </div>
   </div>
 

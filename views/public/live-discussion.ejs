@@ -12,7 +12,7 @@
         </span>
       <% } else { %>
         <span class="badge bg-warning text-dark font-weight-bold text-uppercase px-3.5 py-2 rounded-pill shadow-sm" style="font-size: 0.8rem; letter-spacing: 0.05em; background-color: #f59e0b !important;">
-          <i class="ri-question-answer-fill me-1"></i> Interactive Student & Expert Community
+          <i class="ri-question-answer-fill me-1"></i> Academic Subject & Topic Discussion Hub
         </span>
       <% } %>
 
@@ -22,34 +22,55 @@
         </span>
       <% } else { %>
         <span class="badge bg-white-20 text-white px-3 py-2 rounded-pill shadow-xs" style="font-size: 0.8rem;">
-          <i class="ri-pulse-fill text-success me-1"></i> Live Clinical Rounds
+          <i class="ri-pulse-fill text-success me-1"></i> Year-Wise & Topic-Wise Case Rounds
         </span>
       <% } %>
     </div>
 
     <h1 class="display-4 font-weight-bold text-white mb-2" style="letter-spacing: -0.02em;">
-      <%= (typeof headerSettings !== 'undefined' && headerSettings && headerSettings.title) ? headerSettings.title : 'Live Discussion' %>
+      <%= (typeof headerSettings !== 'undefined' && headerSettings && headerSettings.title) ? headerSettings.title : 'Live Subject Discussion' %>
     </h1>
     <p class="text-white-75 lead mx-auto mb-4" style="font-size: 1.15rem; line-height: 1.6; max-width: 720px;">
-      <%= (typeof headerSettings !== 'undefined' && headerSettings && headerSettings.subtitle) ? headerSettings.subtitle : 'Engage in real-time academic discussions, clinical case rounds, differential diagnoses, and evidence-based physiotherapy reasoning with verified mentors and peers.' %>
+      Type any subject name below to view instant subject suggestions. Select a subject to open all uploaded topics and clinical cases for that subject.
     </p>
 
-    <!-- Search Bar & Primary Actions -->
+    <!-- Hero Search Bar with Subject-First Auto-Complete Dropdown -->
     <div class="row justify-content-center">
-      <div class="col-lg-8 col-md-10">
-        <div class="input-group input-group-lg bg-white rounded-pill p-1 shadow-lg border-0 mb-3">
-          <span class="input-group-text bg-transparent border-0 ps-4 text-muted">
-            <i class="ri-search-2-line fs-5"></i>
-          </span>
-          <input type="text" id="discussionSearchInput" class="form-control border-0 shadow-none text-dark" placeholder="Search case discussions by condition, anatomy, or treatment (e.g. ACL, Stroke, COPD, Tendinopathy)..." style="font-size: 0.95rem;">
-          <button type="button" class="btn btn-primary rounded-pill px-4 fw-semibold" style="background: #0a5dc2;" onclick="filterDiscussions()">
-            Search
-          </button>
+      <div class="col-lg-9 col-md-11">
+        <div class="position-relative mb-3">
+          <div class="input-group input-group-lg bg-white rounded-pill p-1 shadow-lg border-0">
+            <span class="input-group-text bg-transparent border-0 ps-3 pe-1 text-muted">
+              <i class="ri-search-2-line fs-5"></i>
+            </span>
+            <select id="subjectDropdownSelect" class="form-select border-0 bg-light-subtle rounded-pill text-dark font-weight-semibold me-2 py-1 shadow-none" style="max-width: 230px; font-size: 0.88rem; cursor: pointer;" onchange="selectSubjectCategory(this.value)">
+              <option value="all" selected>All Academic Subjects</option>
+              <% (locals.categories || []).forEach(cat => { %>
+                <option value="<%= cat.slug %>"><%= cat.name %> (<%= cat.year > 0 ? 'Year ' + cat.year + ' BPT' : 'Other Subject' %>)</option>
+              <% }) %>
+            </select>
+            <input type="text" id="discussionSearchInput" class="form-control border-0 shadow-none text-dark" placeholder="Type any subject name (e.g. Neurology, Anatomy, Psychology, Orthopedics)..." style="font-size: 0.95rem;" autocomplete="off" oninput="handleSearchInput(this.value)" onkeydown="handleSearchKeydown(event)" onfocus="handleSearchInput(this.value)">
+            <button type="button" class="btn btn-primary rounded-pill px-4 fw-semibold" style="background: #0a5dc2;" onclick="performLiveSearch()">
+              Search
+            </button>
+          </div>
+
+          <!-- Auto-Complete Suggestions Dropdown (SUBJECTS FIRST) -->
+          <div id="searchSuggestionsDropdown" class="position-absolute start-0 end-0 top-100 mt-2 bg-white rounded-4 shadow-2xl border overflow-hidden text-start z-3 d-none" style="box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1); border-color: rgba(0,0,0,0.12) !important;">
+            <div class="p-2.5 bg-light-subtle border-bottom d-flex align-items-center justify-content-between px-3">
+              <span class="text-uppercase fw-bold text-muted" style="font-size: 0.72rem; letter-spacing: 0.08em;">
+                <i class="ri-book-open-fill me-1 text-primary"></i> Academic Subject Suggestions
+              </span>
+              <span class="text-muted" style="font-size: 0.72rem;">Use ↑ ↓ keys • Enter to select</span>
+            </div>
+            <div id="suggestionsList" class="py-1" style="max-height: 340px; overflow-y: auto;">
+              <!-- Subject Suggestions dynamically rendered here -->
+            </div>
+          </div>
         </div>
 
         <div class="d-flex flex-wrap align-items-center justify-content-center gap-2">
           <button type="button" class="btn btn-warning text-dark rounded-pill px-4 py-2 font-weight-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#newDiscussionModal">
-            <i class="ri-add-circle-fill me-1.5"></i> Start New Discussion
+            <i class="ri-add-circle-fill me-1.5"></i> Start New Subject Discussion
           </button>
         </div>
       </div>
@@ -57,321 +78,505 @@
   </div>
 </section>
 
-<!-- ============ MAIN LIVE DISCUSSION SECTION ============ -->
+<!-- ============ MAIN SUBJECT-WISE & TOPIC-WISE SECTION ============ -->
 <section class="pe-section bg-light-subtle py-5">
   <div class="container py-2">
 
-    <!-- Clinical Specialty Topic Selector Tabs -->
+    <!-- Year-Wise & Other Subjects Filter Navigation -->
     <div class="mb-4">
       <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <div>
-          <h4 class="fw-bold text-slate-900 mb-0">Browse by Clinical Specialty & Topics</h4>
-          <p class="text-muted small mb-0">Filter discussions by medical sub-discipline or academic examination focus.</p>
+          <h4 class="fw-bold text-slate-900 mb-0" id="sectionMainHeaderTitle">Browse Discussions Subject-Wise</h4>
+          <p class="text-muted small mb-0" id="sectionMainHeaderSubtitle">Filter by Year or Other Subjects below. Click any subject card to open its uploaded topics.</p>
         </div>
-        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill fw-semibold" id="activeTopicCountBadge">
-          Showing All 10 High-Yield Discussions
-        </span>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm d-none" id="backToSubjectsBtn" onclick="selectSubjectCategory('all')">
+            <i class="ri-arrow-left-line me-1"></i> Back to All Subjects
+          </button>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill fw-semibold" id="activeTopicCountBadge">
+            Showing All Subjects
+          </span>
+        </div>
       </div>
 
-      <div class="d-flex gap-2 overflow-auto pb-2 pe-topic-filter-bar" style="scrollbar-width: thin;">
-        <button type="button" class="btn btn-sm btn-dark rounded-pill px-3 py-2 fw-semibold text-nowrap topic-tab active" data-category="all" onclick="selectTopicCategory('all', this)">
-          <i class="ri-grid-fill me-1"></i> All Topics
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-medium text-nowrap topic-tab" data-category="orthopedics" onclick="selectTopicCategory('orthopedics', this)">
-          <i class="ri-bone-line text-primary me-1"></i> Orthopedics & MSK
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-medium text-nowrap topic-tab" data-category="neurology" onclick="selectTopicCategory('neurology', this)">
-          <i class="ri-brain-line text-danger me-1"></i> Neurology & Neuro-Rehab
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-medium text-nowrap topic-tab" data-category="cardiopulmonary" onclick="selectTopicCategory('cardiopulmonary', this)">
-          <i class="ri-heart-pulse-line text-success me-1"></i> Cardiopulmonary & ICU
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-medium text-nowrap topic-tab" data-category="sports" onclick="selectTopicCategory('sports', this)">
-          <i class="ri-trophy-line text-warning me-1"></i> Sports Physiotherapy
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-medium text-nowrap topic-tab" data-category="pediatrics" onclick="selectTopicCategory('pediatrics', this)">
-          <i class="ri-bear-smile-line text-info me-1"></i> Pediatric Physiotherapy
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-medium text-nowrap topic-tab" data-category="electrotherapy" onclick="selectTopicCategory('electrotherapy', this)">
-          <i class="ri-flashlight-line text-primary me-1"></i> Electrotherapy & Exercise Modalities
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-medium text-nowrap topic-tab" data-category="exam_prep" onclick="selectTopicCategory('exam_prep', this)">
-          <i class="ri-file-list-3-line text-purple me-1"></i> Exam Viva, SAQ & LAQ
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-medium text-nowrap topic-tab" data-category="research" onclick="selectTopicCategory('research', this)">
-          <i class="ri-microscope-line text-teal me-1"></i> Evidence-Based Practice (EBP)
-        </button>
+      <!-- Year-Wise & Category Filter Tabs -->
+      <div class="d-flex gap-2 overflow-auto pb-2 pe-topic-filter-bar" style="scrollbar-width: thin;" id="subjectFilterPillsBar">
+        <a href="/live-discussion" class="btn btn-sm <%= (locals.selectedYear || 'all') === 'all' ? 'btn-dark active' : 'btn-outline-secondary' %> rounded-pill px-3 py-2 fw-semibold text-nowrap year-tab" data-year="all" onclick="filterByYearCategory('all', this); return false;">
+          <i class="ri-grid-fill me-1"></i> All Subjects
+        </a>
+        <a href="/live-discussion?year=1" class="btn btn-sm <%= locals.selectedYear === '1' ? 'btn-dark active' : 'btn-outline-secondary' %> rounded-pill px-3 py-2 fw-medium text-nowrap year-tab" data-year="1" onclick="filterByYearCategory('1', this); return false;">
+          <i class="ri-number-1 text-primary me-1"></i> 1st Year BPT
+        </a>
+        <a href="/live-discussion?year=2" class="btn btn-sm <%= locals.selectedYear === '2' ? 'btn-dark active' : 'btn-outline-secondary' %> rounded-pill px-3 py-2 fw-medium text-nowrap year-tab" data-year="2" onclick="filterByYearCategory('2', this); return false;">
+          <i class="ri-number-2 text-primary me-1"></i> 2nd Year BPT
+        </a>
+        <a href="/live-discussion?year=3" class="btn btn-sm <%= locals.selectedYear === '3' ? 'btn-dark active' : 'btn-outline-secondary' %> rounded-pill px-3 py-2 fw-medium text-nowrap year-tab" data-year="3" onclick="filterByYearCategory('3', this); return false;">
+          <i class="ri-number-3 text-primary me-1"></i> 3rd Year BPT
+        </a>
+        <a href="/live-discussion?year=4" class="btn btn-sm <%= locals.selectedYear === '4' ? 'btn-dark active' : 'btn-outline-secondary' %> rounded-pill px-3 py-2 fw-medium text-nowrap year-tab" data-year="4" onclick="filterByYearCategory('4', this); return false;">
+          <i class="ri-number-4 text-primary me-1"></i> 4th Year BPT
+        </a>
+        <a href="/live-discussion?year=other" class="btn btn-sm <%= locals.selectedYear === 'other' ? 'btn-dark active' : 'btn-outline-secondary' %> rounded-pill px-3 py-2 fw-medium text-nowrap year-tab" data-year="other" onclick="filterByYearCategory('other', this); return false;">
+          <i class="ri-folder-add-line text-warning me-1"></i> Other Subjects & Electives
+        </a>
       </div>
     </div>
 
-    <!-- Active Discussions Grid / Feed -->
-    <div class="row g-4" id="discussionsContainer">
+    <!-- ================= VIEW 1: SUBJECT-WISE CARDS GRID ================= -->
+    <div id="subjectGridSection" class="mb-5">
+      <div class="row g-4" id="subjectCardsContainer">
+        <% 
+          const ALIAS_MAP_EJS = {
+            'human-anatomy': ['anatomy', 'human-anatomy'],
+            'anatomy': ['anatomy', 'human-anatomy'],
+            'human-physiology': ['physiology', 'human-physiology'],
+            'physiology': ['physiology', 'human-physiology'],
+            'biomechanics': ['biomechanics', 'biomechanics-kinesiology'],
+            'biomechanics-kinesiology': ['biomechanics-kinesiology', 'biomechanics'],
+            'psychology-sociology': ['psychology', 'sociology', 'psychology-sociology'],
+            'psychology': ['psychology', 'psychology-sociology'],
+            'sociology': ['sociology', 'psychology-sociology'],
+            'pathology-microbiology': ['pathology', 'microbiology', 'pathology-microbiology'],
+            'pathology': ['pathology', 'pathology-microbiology'],
+            'microbiology': ['microbiology', 'pathology-microbiology'],
+            'orthopedics': ['orthopedics', 'orthopedics-and-traumatology', 'physiotherapy-in-orthopedics'],
+            'orthopedics-and-traumatology': ['orthopedics', 'orthopedics-and-traumatology', 'physiotherapy-in-orthopedics'],
+            'physiotherapy-in-orthopedics': ['orthopedics', 'orthopedics-and-traumatology', 'physiotherapy-in-orthopedics'],
+            'physiotherapy-in-cardiorespiratory-conditions': ['cardiopulmonary', 'cardiorespiratory-physiotherapy', 'physiotherapy-in-cardiorespiratory-conditions'],
+            'neurology-neuromedicine-and-neurosurgery': ['neurology', 'neurology-neuromedicine-and-neurosurgery', 'physiotherapy-in-neurological-conditions'],
+            'pediatrics-and-pediatric-neurology': ['pediatrics', 'pediatrics-and-pediatric-neurology', 'physiotherapy-in-pediatric-conditions'],
+            'sports-physiotherapy-exercise-prescription': ['sports', 'sports-medicine', 'sports-physiotherapy-exercise-prescription'],
+            'evidence-based-practice': ['research', 'evidence-based-practice', 'research-methodology']
+          };
 
-      <% if (typeof discussions !== 'undefined' && discussions && discussions.length > 0) { %>
-        <% discussions.forEach((dis, idx) => { 
-             const catClass = dis.category === 'orthopedics' ? 'bg-primary-subtle text-primary border-primary-subtle' :
-                              dis.category === 'neurology' ? 'bg-danger-subtle text-danger border-danger-subtle' :
-                              dis.category === 'cardiopulmonary' ? 'bg-success-subtle text-success border-success-subtle' :
-                              dis.category === 'sports' ? 'bg-warning-subtle text-warning-emphasis border-warning-subtle' :
-                              dis.category === 'pediatrics' ? 'bg-info-subtle text-info border-info-subtle' :
-                              dis.category === 'electrotherapy' ? 'bg-primary-subtle text-primary border-primary-subtle' :
-                              dis.category === 'exam_prep' ? 'bg-purple-subtle text-purple border-purple-subtle' :
-                              'bg-secondary-subtle text-secondary border-secondary-subtle';
-             
-             const catIcon = dis.category === 'orthopedics' ? 'ri-bone-line' :
-                             dis.category === 'neurology' ? 'ri-brain-line' :
-                             dis.category === 'cardiopulmonary' ? 'ri-heart-pulse-line' :
-                             dis.category === 'sports' ? 'ri-trophy-line' :
-                             dis.category === 'pediatrics' ? 'ri-bear-smile-line' :
-                             dis.category === 'electrotherapy' ? 'ri-flashlight-line' :
-                             dis.category === 'exam_prep' ? 'ri-file-list-3-line' :
-                             'ri-microscope-line';
+          function checkCatMatchEJS(topicCategory, catSlug, catName) {
+            if (!topicCategory || !catSlug) return false;
+            const t = topicCategory.toLowerCase().trim();
+            const s = catSlug.toLowerCase().trim();
+            const n = (catName || '').toLowerCase().trim();
+            if (t === s || t === n) return true;
+            const list = ALIAS_MAP_EJS[s] || [];
+            return list.includes(t);
+          }
 
-             const initials = (dis.author_name || 'Faculty').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-             const qList = (dis.questions || '').split('\n').filter(q => q.trim().length > 0);
+          const EXCLUDE_REDUNDANT_SLUGS = new Set([
+            'anatomy',
+            'physiology',
+            'psychology',
+            'sociology',
+            'pathology',
+            'microbiology',
+            'orthopedics-and-traumatology',
+            'physiotherapy-in-orthopedics',
+            'general-medicine',
+            'physiotherapy-in-obg-conditions',
+            'physiotherapy-in-sports-conditions',
+            'physiotherapy-in-icu-setup-and-emergency-conditions',
+            'physiotherapy-in-neurological-conditions',
+            'physiotherapy-in-pediatric-conditions',
+            'community-medicine',
+            'community-physiotherapy',
+            'research-methodology'
+          ]);
+
+          const rawCats = (locals.categories || []).filter(c => !EXCLUDE_REDUNDANT_SLUGS.has(c.slug));
+          const sortedCategories = [...rawCats].sort((a, b) => {
+            const aYear = a.year > 0 ? a.year : 99;
+            const bYear = b.year > 0 ? b.year : 99;
+            if (aYear !== bYear) return aYear - bYear;
+            
+            const aCount = (discussions || []).filter(d => checkCatMatchEJS(d.category, a.slug, a.name)).length;
+            const bCount = (discussions || []).filter(d => checkCatMatchEJS(d.category, b.slug, b.name)).length;
+            if (aCount > 0 && bCount === 0) return -1;
+            if (aCount === 0 && bCount > 0) return 1;
+
+            return a.name.localeCompare(b.name);
+          });
+
+          sortedCategories.forEach((cat, idx) => { 
+             const catDiscussions = (typeof discussions !== 'undefined' ? discussions : []).filter(d => 
+               checkCatMatchEJS(d.category, cat.slug, cat.name)
+             );
+             const topicCount = catDiscussions.length;
+             const uniqueTopics = [...new Set(catDiscussions.map(d => d.tag_label || 'Clinical Topic'))];
+             const isOther = cat.year === 0 || cat.year === 'other' || !cat.year;
         %>
-          <div class="col-lg-6 discussion-item" data-category="<%= dis.category %>" data-keywords="<%= (dis.title + ' ' + dis.summary + ' ' + dis.questions + ' ' + dis.author_name).toLowerCase() %>">
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 pe-discussion-card transition-all position-relative <%= dis.is_pinned === 1 ? 'border-top border-4 border-warning' : '' %>">
+          <div class="col-lg-4 col-md-6 subject-card-item" data-category="<%= cat.slug %>" data-year="<%= isOther ? 'other' : cat.year %>" data-keywords="<%= (cat.name + ' year ' + cat.year + ' ' + (cat.description || '') + ' ' + uniqueTopics.join(' ')).toLowerCase() %>">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 transition-all hover-shadow cursor-pointer position-relative" onclick="selectSubjectCategory('<%= cat.slug %>')">
               <div class="d-flex align-items-center justify-content-between mb-3">
-                <span class="badge <%= catClass %> border px-3 py-1 rounded-pill text-xs fw-semibold">
-                  <i class="<%= catIcon %> me-1"></i> <%= dis.category.replace(/_/g, ' ').toUpperCase() %>
-                </span>
-                <div class="d-flex align-items-center gap-1.5">
-                  <% if (dis.is_pinned === 1) { %>
-                    <span class="badge bg-warning-subtle text-warning-emphasis px-2.5 py-1 rounded-pill text-xs fw-semibold">
-                      <i class="ri-pushpin-2-fill me-1"></i> Pinned
-                    </span>
-                  <% } %>
-                  <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1 rounded-pill text-xs fw-medium">
-                    <i class="ri-fire-line me-1"></i> <%= dis.tag_label || 'Clinical Case' %>
-                  </span>
+                <div class="w-12 h-12 rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                  <i class="<%= cat.icon || 'ri-book-open-line' %>"></i>
                 </div>
+                <span class="badge <%= isOther ? 'bg-warning-subtle text-dark border-warning-subtle' : 'bg-secondary-subtle text-secondary' %> px-3 py-1 rounded-pill text-xs fw-semibold">
+                  <%= isOther ? 'Other Subject' : 'Year ' + cat.year + ' BPT' %>
+                </span>
               </div>
 
               <h5 class="fw-bold text-slate-900 mb-2">
-                <%= dis.title %>
+                <%= cat.name %>
               </h5>
 
-              <p class="text-secondary text-sm mb-3" style="line-height: 1.6;">
-                <strong>Case Summary:</strong> <%= dis.summary %>
+              <p class="text-muted text-xs mb-3" style="line-height: 1.5;">
+                <%= cat.description || 'Explore uploaded topics, clinical dilemmas, and evidence-based Q&A for ' + cat.name + '.' %>
               </p>
 
-              <!-- Clinical Discussion Focus -->
-              <div class="p-3 bg-light rounded-3 border mb-3">
-                <div class="fw-bold text-dark text-xs text-uppercase mb-1.5" style="letter-spacing: 0.05em;">
-                  <i class="ri-focus-3-line text-primary me-1"></i> Core Discussion Dilemma:
+              <!-- Uploaded Topics Count & Preview -->
+              <div class="bg-light p-3 rounded-3 mb-3 border">
+                <div class="d-flex align-items-center justify-content-between text-xs fw-bold text-dark text-uppercase mb-2" style="letter-spacing: 0.05em;">
+                  <span><i class="ri-folder-open-line text-primary me-1"></i> Uploaded Topics:</span>
+                  <span class="badge bg-primary text-white rounded-pill px-2.5 py-0.5" style="font-size: 0.75rem;"><%= topicCount %> Topic<%= topicCount === 1 ? '' : 's' %> Available</span>
                 </div>
-                <% if (qList.length > 1) { %>
-                  <ul class="text-xs text-slate-700 mb-0 ps-3" style="line-height: 1.6;">
-                    <% qList.forEach(q => { %>
-                      <li><%= q.replace(/^\d+[\.\)]\s*/, '') %></li>
+                <% if (topicCount > 0) { %>
+                  <div class="d-flex flex-wrap gap-1.5">
+                    <% catDiscussions.slice(0, 4).forEach(d => { 
+                         const tTag = d.tag_label || 'Clinical Topic';
+                         const tSlug = (d.tag_label || 'topic-' + d.id).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    %>
+                      <a href="/live-discussion?category=<%= cat.slug %>&topic=<%= tSlug %>" class="btn btn-xs btn-white text-dark border px-2.5 py-1 rounded-pill text-xs fw-medium shadow-2xs hover-border-primary text-truncate cursor-pointer" style="max-width: 100%; transition: all 0.2s;" onclick="event.stopPropagation(); selectSubjectAndTopic('<%= cat.slug %>', '<%= tSlug %>'); return false;" title="Click to open <%= tTag %> topic discussion">
+                        <i class="ri-hashtag text-primary me-0.5"></i> <%= tTag %>
+                      </a>
                     <% }) %>
-                  </ul>
+                    <% if (catDiscussions.length > 4) { %>
+                      <span class="badge bg-secondary-subtle text-muted border px-2 py-1 rounded-pill text-xs align-self-center">+<%= catDiscussions.length - 4 %> more</span>
+                    <% } %>
+                  </div>
                 <% } else { %>
-                  <p class="text-xs text-slate-700 mb-0" style="line-height: 1.6;"><%= dis.questions %></p>
+                  <div class="text-muted text-xs italic">No topics uploaded yet. Click to start a discussion!</div>
                 <% } %>
               </div>
 
-              <!-- Expert Literature Takeaway (Expandable) -->
-              <% if (dis.takeaway) { %>
-                <div class="mb-3">
-                  <button class="btn btn-xs btn-outline-primary rounded-pill px-3 py-1 text-xs fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#takeaway-<%= dis.id %>">
-                    <i class="ri-book-read-line me-1"></i> View Mentor Literature Rationale <i class="ri-arrow-down-s-line"></i>
-                  </button>
-                  <div class="collapse mt-2" id="takeaway-<%= dis.id %>">
-                    <div class="p-3 rounded-3 bg-primary-subtle text-slate-900 text-xs border border-primary-subtle">
-                      <strong>Standard Clinical Consensus:</strong> <%= dis.takeaway %>
-                    </div>
-                  </div>
-                </div>
-              <% } %>
-
-              <!-- Author, Stats & Action Bar -->
-              <div class="d-flex align-items-center justify-content-between pt-3 border-top mt-auto">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.75rem;">
-                    <%= initials %>
-                  </div>
-                  <div>
-                    <div class="fw-semibold text-slate-900 text-xs"><%= dis.author_name %></div>
-                    <div class="text-muted text-xs">
-                      <%= dis.author_role || 'Faculty' %> • <span class="time-ago" data-timestamp="<%= dis.created_at ? new Date(dis.created_at).toISOString() : new Date().toISOString() %>">Just now</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 text-xs vote-btn" onclick="toggleUpvote(this, <%= dis.id %>, <%= dis.upvotes || 0 %>)">
-                    <i class="ri-thumb-up-line me-1"></i> <span class="vote-count"><%= dis.upvotes || 0 %></span>
-                  </button>
-                  <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 py-1 text-xs fw-semibold" data-bs-toggle="collapse" data-bs-target="#replies-<%= dis.id %>">
-                    <i class="ri-chat-3-line me-1"></i> <span class="reply-count"><%= (dis.replies ? dis.replies.length : dis.replies_count) || 0 %></span> Replies
-                  </button>
-                </div>
-              </div>
-
-              <!-- Expandable Replies Thread -->
-              <div class="collapse mt-3 pt-3 border-top" id="replies-<%= dis.id %>">
-                <div class="d-flex flex-column gap-2 mb-3 pe-replies-list">
-                  <% if (dis.replies && dis.replies.length > 0) { %>
-                    <% dis.replies.forEach(rep => { %>
-                      <div class="p-2.5 <%= rep.is_mentor === 1 ? 'bg-primary-subtle border border-primary-subtle' : 'bg-light' %> rounded-3 text-xs">
-                        <div class="d-flex justify-content-between font-weight-semibold <%= rep.is_mentor === 1 ? 'text-primary' : 'text-dark' %> mb-1">
-                          <span><%= rep.author_name %> <%= rep.author_role ? `(${rep.author_role})` : '' %></span>
-                          <div class="d-flex align-items-center gap-1.5">
-                            <% if (rep.is_mentor === 1) { %>
-                              <span class="badge bg-primary text-white rounded-pill px-2 py-0.5 text-xs"><i class="ri-shield-star-line me-0.5"></i>Mentor Verified</span>
-                            <% } %>
-                            <span class="text-muted text-xs time-ago" data-timestamp="<%= rep.created_at ? new Date(rep.created_at).toISOString() : new Date().toISOString() %>">Just now</span>
-                          </div>
-                        </div>
-                        <p class="text-secondary mb-0"><%= rep.content %></p>
-                      </div>
-                    <% }) %>
-                  <% } else { %>
-                    <div class="text-muted text-xs text-center py-2 empty-replies-msg">No replies yet. Be the first to share your clinical reasoning!</div>
-                  <% } %>
-                </div>
-
-                <!-- Add Reply Input -->
-                <form action="/live-discussion/reply" method="POST" onsubmit="submitReply(event, this, 'replies-<%= dis.id %>')">
-                  <input type="hidden" name="discussion_id" value="<%= dis.id %>">
-                  <div class="input-group input-group-sm">
-                    <input type="text" name="content" class="form-control" placeholder="Add your clinical insight or question..." required>
-                    <button class="btn btn-primary fw-semibold" type="submit">Post</button>
-                  </div>
-                </form>
+              <div class="pt-2 border-top mt-auto">
+                <a href="/live-discussion?category=<%= cat.slug %>" class="btn btn-outline-primary rounded-pill w-100 fw-bold shadow-xs py-2 text-sm d-flex align-items-center justify-content-center" onclick="event.stopPropagation(); selectSubjectCategory('<%= cat.slug %>'); return false;">
+                  Open Subject Topics (<%= topicCount %>) <i class="ri-arrow-right-line ms-1"></i>
+                </a>
               </div>
             </div>
           </div>
         <% }) %>
-      <% } %>
-
+      </div>
     </div>
 
-    <!-- Empty Search State -->
+
+    <!-- ================= VIEW 2: TOPIC-WISE DISCUSSIONS FEED & TOPIC SELECTOR ================= -->
+    <div id="topicDiscussionsSection">
+
+      <!-- Active Selected Subject Header Banner -->
+      <div id="activeSubjectBanner" class="p-4 bg-white rounded-4 shadow-sm border mb-4 d-none">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3 pb-3 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div class="w-12 h-12 rounded-3 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 1.6rem;" id="activeSubjectIcon">
+              <i class="ri-book-open-line"></i>
+            </div>
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-0.5 rounded-pill text-xs fw-semibold" id="activeSubjectYearBadge">Subject</span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-0.5 rounded-pill text-xs fw-semibold" id="activeSubjectTopicCount">0 Topics Available</span>
+              </div>
+              <h3 class="fw-bold text-slate-900 mb-0" id="activeSubjectTitle">Subject Name</h3>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-semibold text-xs" onclick="selectSubjectCategory('all')">
+              <i class="ri-layout-grid-line me-1"></i> View All Subjects
+            </button>
+            <button type="button" class="btn btn-warning text-dark rounded-pill px-3.5 py-2 font-weight-bold shadow-sm text-xs" data-bs-toggle="modal" data-bs-target="#newDiscussionModal">
+              <i class="ri-add-line me-1"></i> Add Topic Discussion
+            </button>
+          </div>
+        </div>
+
+        <!-- MULTIPLE UPLOADED TOPICS SELECTOR CONTROL BAR -->
+        <div id="multiTopicSelectorBar" class="p-3 bg-light rounded-3 border">
+          <div class="row align-items-center g-2">
+            <div class="col-md-5">
+              <label for="subjectTopicSelectDropdown" class="form-label text-uppercase fw-bold text-dark text-xs mb-1" style="letter-spacing: 0.05em;">
+                <i class="ri-folder-open-fill text-primary me-1"></i> Select Uploaded Topic to Open:
+              </label>
+              <select id="subjectTopicSelectDropdown" class="form-select border-2 border-primary rounded-3 text-dark font-weight-bold py-2 shadow-xs" style="font-size: 0.9rem;" onchange="selectSpecificUploadedTopic(this.value)">
+                <option value="all" selected>✨ Show All Uploaded Topics</option>
+              </select>
+            </div>
+            <div class="col-md-7">
+              <div class="text-uppercase fw-bold text-muted text-xs mb-1" style="letter-spacing: 0.05em;">Quick Topic Switcher:</div>
+              <div class="d-flex gap-1.5 overflow-auto pb-1" id="topicQuickPillsContainer" style="scrollbar-width: thin;">
+                <!-- Quick Topic Pills rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<%
+  function renderRepliesHTML(nodes, disId, depth) {
+    if (!nodes || nodes.length === 0) return '';
+    let html = '';
+    depth = depth || 0;
+
+    nodes.forEach(rep => {
+      const isMentor = rep.is_mentor === 1;
+      const childCount = rep.replies ? rep.replies.length : 0;
+      const initials = (rep.author_name || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const timeStr = rep.created_at ? new Date(rep.created_at).toISOString() : new Date().toISOString();
+      const visualIndentClass = depth > 0 ? (depth > 3 ? 'ps-2 ms-2' : 'ps-3 ms-3') : '';
+      const borderClass = depth > 0 ? 'border-start border-2 border-primary-subtle' : '';
+
+      html += `
+        <div class="pe-reply-item position-relative ${depth > 0 ? 'mt-2.5' : 'mt-2'}" id="reply-node-${rep.id}" data-reply-id="${rep.id}" data-discussion-id="${disId}">
+          <div class="pe-reply-content p-2.5 ${isMentor ? 'bg-primary-subtle border border-primary-subtle' : 'bg-light border'} rounded-3 text-xs shadow-2xs">
+            <div class="d-flex align-items-center justify-content-between mb-1.5">
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar rounded-circle ${isMentor ? 'bg-primary text-white' : 'bg-slate-200 text-slate-700'} fw-bold d-flex align-items-center justify-content-center" style="width: 26px; height: 26px; font-size: 0.65rem;">
+                  ${initials}
+                </div>
+                <div>
+                  <span class="fw-bold ${isMentor ? 'text-primary' : 'text-slate-900'} text-xs">${rep.author_name}</span>
+                  ${rep.author_role ? `<span class="text-muted text-xs ms-1">(${rep.author_role})</span>` : ''}
+                  ${isMentor ? `<span class="badge bg-primary text-white rounded-pill px-2 py-0.5 text-xs ms-1.5"><i class="ri-shield-star-line me-0.5"></i>Mentor Verified</span>` : ''}
+                </div>
+              </div>
+              <span class="text-muted text-xs time-ago" data-timestamp="${timeStr}">Just now</span>
+            </div>
+
+            <p class="text-secondary text-xs mb-2 ms-4" style="line-height: 1.55; white-space: pre-line;">${rep.content}</p>
+
+            <div class="d-flex align-items-center gap-2 ms-4">
+              <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn" onclick="handleReplyVote(this, ${rep.id}, 'like')" title="Like / Unlike comment">
+                <i class="ri-thumb-up-line text-primary"></i> <span class="reply-like-count">${rep.upvotes || 0}</span>
+              </button>
+
+              <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn" onclick="handleReplyVote(this, ${rep.id}, 'dislike')" title="Dislike / Undislike comment">
+                <i class="ri-thumb-down-line text-danger"></i> <span class="reply-dislike-count">${rep.downvotes || 0}</span>
+              </button>
+
+              <button type="button" class="btn btn-xs btn-link text-decoration-none text-primary p-0 text-xs fw-semibold d-inline-flex align-items-center gap-1 ms-1" onclick="openInlineReplyBox(${disId}, ${rep.id}, '${(rep.author_name || '').replace(/'/g, "\\'")}')">
+                <i class="ri-reply-line"></i> Reply
+              </button>
+
+              ${childCount > 0 ? `
+                <button type="button" class="btn btn-xs btn-link text-decoration-none text-secondary p-0 text-xs fw-medium d-inline-flex align-items-center gap-1 toggle-children-btn" onclick="toggleChildReplies(${rep.id})">
+                  <i class="ri-subtract-line me-0.5"></i> <span class="child-reply-count">${childCount}</span> ${childCount === 1 ? 'Reply' : 'Replies'}
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <div id="inline-reply-box-${rep.id}" class="mt-2 ms-4 d-none"></div>
+
+          <div id="child-replies-${rep.id}" class="pe-nested-replies ${borderClass} ${visualIndentClass} d-flex flex-column gap-1.5" style="${depth > 3 ? 'margin-left: 8px;' : ''}">
+            ${renderRepliesHTML(rep.replies, disId, depth + 1)}
+          </div>
+        </div>
+      `;
+    });
+
+    return html;
+  }
+%>
+
+      <!-- Topics Feed Grid -->
+      <div class="row g-4" id="discussionsContainer">
+
+        <% if (typeof discussions !== 'undefined' && discussions && discussions.length > 0) { %>
+          <% discussions.forEach((dis, idx) => { 
+               const matchedSub = (locals.categories || []).find(c => c.slug === dis.category || c.name.toLowerCase() === (dis.category || '').toLowerCase() || (dis.category || '').toLowerCase().includes(c.name.toLowerCase()));
+               const displaySubName = matchedSub ? matchedSub.name : dis.category.replace(/_/g, ' ').toUpperCase();
+               const displaySubIcon = matchedSub ? (matchedSub.icon || 'ri-book-open-line') : 'ri-book-open-line';
+               const catClass = 'bg-primary-subtle text-primary border-primary-subtle';
+               const initials = (dis.author_name || 'Faculty').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+               const qList = (dis.questions || '').split('\n').filter(q => q.trim().length > 0);
+               const topicSlug = (dis.tag_label || 'topic-' + dis.id).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          %>
+            <div class="col-lg-6 discussion-item" data-id="<%= dis.id %>" data-category="<%= dis.category %>" data-topic-slug="<%= topicSlug %>" data-topic-title="<%= (dis.tag_label || 'Clinical Topic') %>" data-subject-name="<%= displaySubName %>" data-keywords="<%= (dis.title + ' ' + dis.summary + ' ' + dis.questions + ' ' + dis.author_name + ' ' + dis.category + ' ' + displaySubName + ' ' + (dis.tag_label || '')).toLowerCase() %>">
+              <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 pe-discussion-card transition-all position-relative <%= dis.is_pinned === 1 ? 'border-top border-4 border-warning' : '' %>">
+                
+                <!-- Topic Header -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <span class="badge <%= catClass %> border px-3 py-1 rounded-pill text-xs fw-semibold cursor-pointer" onclick="selectSubjectCategory('<%= dis.category %>')" title="Filter by <%= displaySubName %>">
+                    <i class="<%= displaySubIcon %> me-1"></i> <%= displaySubName %>
+                  </span>
+                  <div class="d-flex align-items-center gap-1.5">
+                    <% if (dis.is_pinned === 1) { %>
+                      <span class="badge bg-warning-subtle text-warning-emphasis px-2.5 py-1 rounded-pill text-xs fw-semibold">
+                        <i class="ri-pushpin-2-fill me-1"></i> Featured Topic
+                      </span>
+                    <% } %>
+                    <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1 rounded-pill text-xs fw-medium">
+                      <i class="ri-hashtag me-0.5"></i> <%= dis.tag_label || 'Clinical Topic' %>
+                    </span>
+                  </div>
+                </div>
+
+                <h5 class="fw-bold text-slate-900 mb-2 cursor-pointer hover-text-primary transition-all" onclick="openFullscreenDiscussion(<%= dis.id %>)" title="Click to view full screen">
+                  <%= dis.title %>
+                </h5>
+
+                <p class="text-secondary text-sm mb-3" style="line-height: 1.6;">
+                  <strong>Topic Summary:</strong> <%= dis.summary %>
+                </p>
+
+                <!-- Core Dilemma / Questions -->
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                  <div class="fw-bold text-dark text-xs text-uppercase mb-1.5" style="letter-spacing: 0.05em;">
+                    <i class="ri-focus-3-line text-primary me-1"></i> Key Discussion Questions:
+                  </div>
+                  <% if (qList.length > 1) { %>
+                    <ul class="text-xs text-slate-700 mb-0 ps-3" style="line-height: 1.6;">
+                      <% qList.forEach(q => { %>
+                        <li><%= q.replace(/^\d+[\.\)]\s*/, '') %></li>
+                      <% }) %>
+                    </ul>
+                  <% } else { %>
+                    <p class="text-xs text-slate-700 mb-0" style="line-height: 1.6;"><%= dis.questions %></p>
+                  <% } %>
+                </div>
+
+                <!-- Expert Literature Takeaway -->
+                <% if (dis.takeaway) { %>
+                  <div class="mb-3">
+                    <button class="btn btn-xs btn-outline-primary rounded-pill px-3 py-1 text-xs fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#takeaway-<%= dis.id %>">
+                      <i class="ri-book-read-line me-1"></i> View Mentor Literature Rationale <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                    <div class="collapse mt-2" id="takeaway-<%= dis.id %>">
+                      <div class="p-3 rounded-3 bg-primary-subtle text-slate-900 text-xs border border-primary-subtle">
+                        <strong>Standard Clinical Consensus:</strong> <%= dis.takeaway %>
+                      </div>
+                    </div>
+                  </div>
+                <% } %>
+
+                <!-- Author, Stats & Action Bar -->
+                <div class="d-flex align-items-center justify-content-between pt-3 border-top mt-auto flex-wrap gap-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                      <%= initials %>
+                    </div>
+                    <div>
+                      <div class="fw-semibold text-slate-900 text-xs"><%= dis.author_name %></div>
+                      <div class="text-muted text-xs">
+                        <%= dis.author_role || 'Faculty' %> • <span class="time-ago" data-timestamp="<%= dis.created_at ? new Date(dis.created_at).toISOString() : new Date().toISOString() %>">Just now</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-1.5 flex-wrap ms-auto ms-md-0">
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 text-xs disc-like-btn" onclick="handleDiscussionVote(this, <%= dis.id %>, 'like')" title="Like / Unlike topic">
+                      <i class="ri-thumb-up-line me-1"></i> <span class="disc-like-count"><%= dis.upvotes || 0 %></span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1 text-xs disc-dislike-btn" onclick="handleDiscussionVote(this, <%= dis.id %>, 'dislike')" title="Dislike / Undislike topic">
+                      <i class="ri-thumb-down-line me-1"></i> <span class="disc-dislike-count"><%= dis.downvotes || 0 %></span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 py-1 text-xs fw-semibold" data-bs-toggle="collapse" data-bs-target="#replies-<%= dis.id %>">
+                      <i class="ri-chat-3-line me-1"></i> <span class="reply-count"><%= (dis.replies ? dis.replies.length : dis.replies_count) || 0 %></span> Replies
+                    </button>
+                    <a href="/live-discussion/card/<%= dis.id %>" class="btn btn-sm btn-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 text-xs fw-bold d-inline-flex align-items-center gap-1 view-fullscreen-btn shadow-2xs hover-scale transition-all" title="View this discussion card in Full Page">
+                      <i class="ri-external-link-line me-0.5"></i> View Card
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Expandable Replies Thread -->
+                <div class="collapse mt-3 pt-3 border-top" id="replies-<%= dis.id %>">
+                  <div class="d-flex flex-column gap-2 mb-3 pe-replies-list" id="root-replies-<%= dis.id %>">
+                    <% if (dis.replies && dis.replies.length > 0) { %>
+                      <%- renderRepliesHTML(dis.replies, dis.id, 0) %>
+                    <% } else { %>
+                      <div class="text-muted text-xs text-center py-2 empty-replies-msg">No replies yet. Be the first to share your clinical reasoning!</div>
+                    <% } %>
+                  </div>
+
+                  <!-- Add Root Reply Form -->
+                  <form action="/live-discussion/reply" method="POST" onsubmit="submitReply(event, this, 'replies-<%= dis.id %>')">
+                    <input type="hidden" name="discussion_id" value="<%= dis.id %>">
+                    <div class="input-group input-group-sm">
+                      <input type="text" name="content" class="form-control text-xs main-reply-input" placeholder="Add your clinical insight or question..." required>
+                      <button class="btn btn-primary fw-semibold submit-root-btn" type="submit">Post</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+
+      </div>
+    </div>
+
+    <!-- Empty State when no topics found -->
     <div id="noDiscussionsFound" class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center d-none mt-4">
       <div class="d-inline-flex align-items-center justify-content-center bg-light text-muted rounded-circle mb-3" style="width: 64px; height: 64px;">
         <i class="ri-search-eye-line fs-2"></i>
       </div>
-      <h5 class="fw-bold text-dark mb-1">No matching clinical discussions found</h5>
-      <p class="text-muted small mb-3">Try adjusting your keywords, or be the first to start a discussion thread on this topic!</p>
+      <h5 class="fw-bold text-dark mb-1">No matching topics found</h5>
+      <p class="text-muted small mb-3">Be the first to start a new topic discussion under this subject!</p>
       <button type="button" class="btn btn-primary rounded-pill px-4 py-2 font-weight-semibold mx-auto" data-bs-toggle="modal" data-bs-target="#newDiscussionModal">
-        <i class="ri-add-circle-fill me-1"></i> Start New Discussion
+        <i class="ri-add-circle-fill me-1"></i> Start New Subject Discussion
       </button>
     </div>
 
   </div>
 </section>
 
-<!-- ============ COMMUNITY GUIDELINES & BEST PRACTICES ============ -->
-<section class="pe-section bg-white py-5 border-top">
-  <div class="container py-2">
-    <div class="text-center mb-4">
-      <h4 class="fw-bold text-slate-900 mb-1">Clinical Discussion Professional Conduct</h4>
-      <p class="text-muted small mb-0">Upholding highest standards of healthcare education and evidence-based exchange.</p>
-    </div>
-
-    <div class="row g-4 justify-content-center">
-      <div class="col-md-4">
-        <div class="card h-100 border rounded-4 p-3.5 bg-light-subtle shadow-none">
-          <div class="d-flex align-items-center gap-2.5 mb-2">
-            <div class="w-8 h-8 rounded-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-              <i class="ri-microscope-fill"></i>
-            </div>
-            <h6 class="fw-bold text-slate-900 mb-0">Evidence-Based Reasoning</h6>
-          </div>
-          <p class="text-secondary small mb-0" style="line-height: 1.55;">Support treatment proposals with standard literature references, physiological mechanisms, or validated clinical practice guidelines.</p>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card h-100 border rounded-4 p-3.5 bg-light-subtle shadow-none">
-          <div class="d-flex align-items-center gap-2.5 mb-2">
-            <div class="w-8 h-8 rounded-2 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-              <i class="ri-user-unfollow-fill"></i>
-            </div>
-            <h6 class="fw-bold text-slate-900 mb-0">Patient De-Identification</h6>
-          </div>
-          <p class="text-secondary small mb-0" style="line-height: 1.55;">Ensure all real clinical case descriptions are anonymized with no identifiable patient names, exact addresses, or hospital tags.</p>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card h-100 border rounded-4 p-3.5 bg-light-subtle shadow-none">
-          <div class="d-flex align-items-center gap-2.5 mb-2">
-            <div class="w-8 h-8 rounded-2 bg-warning-subtle text-warning-emphasis d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-              <i class="ri-medal-fill"></i>
-            </div>
-            <h6 class="fw-bold text-slate-900 mb-0">Faculty Peer Review</h6>
-          </div>
-          <p class="text-secondary small mb-0" style="line-height: 1.55;">Key discussion takeaways and high-yield questions are actively reviewed and verified by senior physiotherapy professors.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ START NEW DISCUSSION MODAL POP-UP ============ -->
+<!-- ============ START NEW DISCUSSION MODAL ============ -->
 <div class="modal fade" id="newDiscussionModal" tabindex="-1" aria-labelledby="newDiscussionModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
       <div class="modal-header bg-primary text-white p-4">
-        <h5 class="modal-title font-weight-bold text-white d-flex align-items-center gap-2" id="newDiscussionModalLabel">
-          <i class="ri-chat-new-fill text-warning fs-4"></i> Start New Clinical Discussion
-        </h5>
+        <div>
+          <h5 class="modal-header-title fw-bold mb-0 text-white" id="newDiscussionModalLabel">
+            <i class="ri-chat-new-line me-1.5"></i> Start Academic Subject Discussion
+          </h5>
+          <p class="text-white-75 text-xs mb-0 mt-1">Post a topic, case dilemma, or viva question under your subject.</p>
+        </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-
-      <form id="newDiscussionForm" action="/live-discussion/create" method="POST">
-        <div class="modal-body p-4">
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <label class="form-label font-weight-bold small text-slate-800">Specialty Category <span class="text-danger">*</span></label>
-              <select name="category" id="newDisCategory" class="form-select rounded-3" required>
-                <option value="orthopedics" selected>Orthopedics & MSK</option>
-                <option value="neurology">Neurology & Neuro-Rehab</option>
-                <option value="cardiopulmonary">Cardiopulmonary & ICU</option>
-                <option value="sports">Sports Physiotherapy</option>
-                <option value="pediatrics">Pediatric Physiotherapy</option>
-                <option value="electrotherapy">Electrotherapy & Modalities</option>
-                <option value="exam_prep">Exam Viva, SAQ & LAQ</option>
-                <option value="research">Evidence-Based Practice</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label font-weight-bold small text-slate-800">Discussion Tag / Focus</label>
-              <select name="tag_label" id="newDisTag" class="form-select rounded-3">
-                <option value="Clinical Case Round" selected>Clinical Case Round</option>
-                <option value="Differential Diagnosis">Differential Diagnosis</option>
-                <option value="Treatment Protocol">Treatment Protocol</option>
-                <option value="Exam Viva Question">Exam Viva Question</option>
-                <option value="Literature Appraisal">Literature Appraisal</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label font-weight-bold small text-slate-800">Discussion Title / Clinical Headline <span class="text-danger">*</span></label>
-            <input type="text" name="title" id="newDisTitle" class="form-control rounded-3" placeholder="e.g. 45yo Carpenter with Lateral Epicondylalgia refractory to standard eccentric loading" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label font-weight-bold small text-slate-800">Patient Presentation & History <span class="text-danger">*</span></label>
-            <textarea name="summary" id="newDisSummary" rows="3" class="form-control rounded-3" placeholder="Describe age, symptoms, onset, functional limitations, assessment tests, and previous interventions..." required></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label font-weight-bold small text-slate-800">Core Clinical Dilemmas / Specific Questions <span class="text-danger">*</span></label>
-            <textarea name="questions" id="newDisQuestions" rows="3" class="form-control rounded-3" placeholder="What specific questions would you like fellow physiotherapists and faculty to analyze?" required></textarea>
-          </div>
-
+      <form action="/live-discussion/create" method="POST">
+        <div class="modal-body p-4 bg-white">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label font-weight-bold small text-slate-800">Your Name / Title <span class="text-danger">*</span></label>
-              <input type="text" name="author_name" id="newDisAuthor" class="form-control rounded-3" placeholder="e.g. Dr. Priya Patel (PT)" value="<%= currentUser ? currentUser.name : '' %>" required>
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Select Academic Year *</label>
+              <select id="publicNewYearSelect" class="form-select rounded-3" onchange="filterPublicModalCategories(this.value, 'newDisCategory')">
+                <option value="all" selected>All Academic Years & Electives</option>
+                <option value="1">1st Year BPT Subjects</option>
+                <option value="2">2nd Year BPT Subjects</option>
+                <option value="3">3rd Year BPT Subjects</option>
+                <option value="4">4th Year BPT Subjects</option>
+                <option value="other">Other Subjects & Electives</option>
+              </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label font-weight-bold small text-slate-800">Designation / Role</label>
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Target Academic Subject *</label>
+              <select name="category" id="newDisCategory" class="form-select rounded-3" required>
+                <!-- Populated dynamically based on selected Academic Year -->
+              </select>
+            </div>
+            
+            <!-- Topic Tag / Unit Name on the NEXT LINE / SENTENCE -->
+            <div class="col-12">
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Topic Tag / Unit Name *</label>
+              <input type="text" name="tag_label" id="newDisTag" class="form-control rounded-3" placeholder="e.g. Brunnstrom Stage 2 / Pain Catastrophizing / Rotator Interval" required>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Discussion Title *</label>
+              <input type="text" name="title" id="newDisTitle" class="form-control rounded-3" placeholder="e.g. 45yo Patient with High Kinesiophobia in Chronic Low Back Pain" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Topic Summary & Background *</label>
+              <textarea name="summary" id="newDisSummary" class="form-control rounded-3" rows="3" placeholder="Provide background information, symptoms, or anatomical context..." required></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Key Discussion Dilemmas / Questions *</label>
+              <textarea name="questions" id="newDisQuestions" class="form-control rounded-3" rows="3" placeholder="List 2-3 specific clinical or viva questions..." required></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Evidence-Based Rationale (Optional)</label>
+              <textarea name="takeaway" id="newDisTakeaway" class="form-control rounded-3" rows="2" placeholder="Standard clinical consensus or literature reference..."></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Your Name *</label>
+              <input type="text" name="author_name" id="newDisAuthor" class="form-control rounded-3" placeholder="Dr. Full Name" value="<%= currentUser ? currentUser.name : '' %>" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label font-weight-semibold text-xs text-uppercase text-dark mb-1">Role / Designation</label>
               <input type="text" name="author_role" id="newDisRole" class="form-control rounded-3" placeholder="e.g. BPT 4th Year / MPT Intern" value="<%= currentUser ? (currentUser.headline || currentUser.role) : '' %>">
             </div>
           </div>
@@ -388,49 +593,537 @@
   </div>
 </div>
 
-<script>
-  let currentCategory = 'all';
+<!-- ============ FULLSCREEN DISCUSSION CARD MODAL ============ -->
+<div class="modal fade" id="fullscreenDiscussionModal" tabindex="-1" aria-labelledby="fullscreenDiscussionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden" style="background: #f8fafc;">
+      <div class="modal-header bg-slate-900 text-white p-3 p-md-4 border-bottom border-slate-800 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="badge bg-primary px-3 py-1.5 rounded-pill text-xs fw-bold" id="fsModalSubjectBadge">Subject</span>
+          <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1.5 rounded-pill text-xs fw-medium" id="fsModalTagBadge"># Topic</span>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3 p-md-5" id="fullscreenDiscussionModalBody">
+        <!-- Dynamic Content -->
+      </div>
+    </div>
+  </div>
+</div>
 
-  function selectTopicCategory(cat, btn) {
-    currentCategory = cat;
-    document.querySelectorAll('.topic-tab').forEach(b => {
+<script>
+  const ALIAS_MAP = {
+    'human-anatomy': ['anatomy', 'human-anatomy'],
+    'anatomy': ['anatomy', 'human-anatomy'],
+    'human-physiology': ['physiology', 'human-physiology'],
+    'physiology': ['physiology', 'human-physiology'],
+    'biomechanics': ['biomechanics', 'biomechanics-kinesiology'],
+    'biomechanics-kinesiology': ['biomechanics-kinesiology', 'biomechanics'],
+    'psychology-sociology': ['psychology', 'sociology', 'psychology-sociology'],
+    'psychology': ['psychology', 'psychology-sociology'],
+    'sociology': ['sociology', 'psychology-sociology'],
+    'pathology-microbiology': ['pathology', 'microbiology', 'pathology-microbiology'],
+    'pathology': ['pathology', 'pathology-microbiology'],
+    'microbiology': ['microbiology', 'pathology-microbiology'],
+    'orthopedics': ['orthopedics', 'orthopedics-and-traumatology', 'physiotherapy-in-orthopedics'],
+    'orthopedics-and-traumatology': ['orthopedics', 'orthopedics-and-traumatology', 'physiotherapy-in-orthopedics'],
+    'physiotherapy-in-orthopedics': ['orthopedics', 'orthopedics-and-traumatology', 'physiotherapy-in-orthopedics'],
+    'physiotherapy-in-cardiorespiratory-conditions': ['cardiopulmonary', 'cardiorespiratory-physiotherapy', 'physiotherapy-in-cardiorespiratory-conditions'],
+    'neurology-neuromedicine-and-neurosurgery': ['neurology', 'neurology-neuromedicine-and-neurosurgery', 'physiotherapy-in-neurological-conditions'],
+    'pediatrics-and-pediatric-neurology': ['pediatrics', 'pediatrics-and-pediatric-neurology', 'physiotherapy-in-pediatric-conditions'],
+    'sports-physiotherapy-exercise-prescription': ['sports', 'sports-medicine', 'sports-physiotherapy-exercise-prescription'],
+    'evidence-based-practice': ['research', 'evidence-based-practice', 'research-methodology']
+  };
+
+  function isCategoryMatch(topicCat, catSlug) {
+    if (!topicCat || !catSlug) return false;
+    const t = topicCat.toLowerCase().trim();
+    const s = catSlug.toLowerCase().trim();
+    if (t === s) return true;
+    const list = ALIAS_MAP[s] || [];
+    return list.includes(t);
+  }
+
+  let currentCategory = <%- JSON.stringify(locals.selectedCategory || 'all') %>;
+  let activeYearFilter = <%- JSON.stringify(locals.selectedYear || 'all') %>;
+  let currentSelectedTopicSlug = <%- JSON.stringify(locals.selectedTopic || 'all') %>;
+
+  <% const pubCats = (typeof categories !== 'undefined' && categories && categories.length > 0) ? categories : (locals.categories || []); %>
+  const ALL_PUBLIC_CATEGORIES = [
+    <% pubCats.forEach(function(cat) { 
+         const yKey = (cat.year > 0 ? String(cat.year) : 'other');
+    %>
+      {
+        slug: <%- JSON.stringify(cat.slug) %>,
+        name: <%- JSON.stringify(cat.name) %>,
+        yearKey: '<%= yKey %>'
+      },
+    <% }); %>
+  ];
+
+  function filterPublicModalCategories(yearVal, selectId, targetSlug) {
+    const selectEl = document.getElementById(selectId);
+    if (!selectEl) return;
+
+    const targetYear = (yearVal || 'all').toString();
+    const filtered = ALL_PUBLIC_CATEGORIES.filter(c => targetYear === 'all' || c.yearKey.toString() === targetYear);
+
+    if (filtered.length === 0) {
+      selectEl.innerHTML = '<option value="">No subjects found for this year</option>';
+      return;
+    }
+
+    let html = '';
+    filtered.forEach((c, idx) => {
+      const yearLabel = c.yearKey === 'other' ? 'Other Subject' : 'Year ' + c.yearKey + ' BPT';
+      const isSelected = targetSlug ? (c.slug === targetSlug) : (idx === 0);
+      html += `<option value="${c.slug}" data-year="${c.yearKey}" ${isSelected ? 'selected' : ''}>${c.name} (${yearLabel})</option>`;
+    });
+
+    selectEl.innerHTML = html;
+
+    if (targetSlug && filtered.some(c => c.slug === targetSlug)) {
+      selectEl.value = targetSlug;
+    } else if (filtered.length > 0) {
+      selectEl.value = filtered[0].slug;
+    }
+  }
+
+  const categoryMetaMap = {};
+  <% pubCats.forEach(cat => { %>
+    categoryMetaMap['<%= cat.slug %>'] = {
+      name: <%- JSON.stringify(cat.name) %>,
+      yearTag: '<%= cat.year > 0 ? String(cat.year) : "other" %>',
+      yearLabel: '<%= cat.year > 0 ? "Year " + cat.year + " BPT" : "Other Subject" %>',
+      icon: '<%= cat.icon || "ri-book-open-line" %>'
+    };
+  <% }) %>
+
+  document.addEventListener('DOMContentLoaded', () => {
+    filterPublicModalCategories('all', 'newDisCategory');
+  });
+
+  // Auto-Complete Candidates Array (SUBJECTS FIRST)
+  const suggestionCandidates = [];
+
+  // Populate ALL Academic & Other Subjects FIRST
+  <% (locals.categories || []).forEach(cat => { 
+       const isOther = (cat.year === 0 || cat.year === 'other' || !cat.year);
+  %>
+    suggestionCandidates.push({
+      type: 'subject',
+      badge: 'Subject',
+      badgeClass: 'bg-primary-subtle text-primary border-primary-subtle',
+      text: <%- JSON.stringify(cat.name) %>,
+      subtext: <%- JSON.stringify(isOther ? 'Other Subject & Elective' : 'Year ' + cat.year + ' BPT Academic Subject') %>,
+      slug: <%- JSON.stringify(cat.slug) %>,
+      icon: <%- JSON.stringify(cat.icon || 'ri-book-open-line') %>
+    });
+  <% }) %>
+
+  let selectedSuggestionIndex = -1;
+
+  function handleSearchInput(val) {
+    const query = (val || '').trim().toLowerCase();
+    const dropdown = document.getElementById('searchSuggestionsDropdown');
+    const container = document.getElementById('suggestionsList');
+
+    if (query.length < 1) {
+      dropdown.classList.add('d-none');
+      selectedSuggestionIndex = -1;
+      filterDiscussions();
+      return;
+    }
+
+    // Filter deduplicated SUBJECT candidate items matching typed letters
+    const seenTexts = new Set();
+    const matches = [];
+
+    suggestionCandidates.forEach(cand => {
+      const textLower = cand.text.toLowerCase();
+      const subLower = (cand.subtext || '').toLowerCase();
+      if ((textLower.includes(query) || subLower.includes(query)) && !seenTexts.has(cand.text)) {
+        seenTexts.add(cand.text);
+        
+        let score = 0;
+        if (textLower.startsWith(query)) score += 20; // Highest priority for prefix match
+        if (textLower.includes(query)) score += 10;
+
+        matches.push({ ...cand, score });
+      }
+    });
+
+    matches.sort((a, b) => b.score - a.score);
+
+    if (matches.length === 0) {
+      container.innerHTML = `
+        <div class="px-3 py-3 text-muted text-xs text-center">
+          <i class="ri-search-eye-line me-1"></i> No subject found matching "<strong>${escapeHtml(val)}</strong>". Press Search to scan topics.
+        </div>
+      `;
+      dropdown.classList.remove('d-none');
+      filterDiscussions();
+      return;
+    }
+
+    // Render SUBJECT Suggestions First
+    let html = '';
+    matches.slice(0, 8).forEach((item, idx) => {
+      const highlightedText = highlightMatch(item.text, query);
+      html += `
+        <div class="suggestion-item d-flex align-items-center justify-content-between px-3 py-2.5 text-dark border-bottom border-light-subtle cursor-pointer transition-all" data-index="${idx}" onclick="selectSubjectFromSuggestion('${item.slug}')">
+          <div class="d-flex align-items-center gap-2.5 overflow-hidden">
+            <i class="${item.icon || 'ri-book-open-line'} text-primary fs-6 flex-shrink-0"></i>
+            <div class="text-truncate">
+              <div class="fw-bold text-slate-900 text-sm mb-0.5 text-truncate" style="font-size: 0.92rem;">${highlightedText}</div>
+              <div class="text-muted text-xs text-truncate" style="font-size: 0.75rem;">${escapeHtml(item.subtext || '')}</div>
+            </div>
+          </div>
+          <span class="badge ${item.badgeClass} rounded-pill px-2.5 py-1 text-xs font-weight-semibold ms-3 flex-shrink-0" style="font-size: 0.7rem;">
+            ${escapeHtml(item.badge || 'Subject')}
+          </span>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+    dropdown.classList.remove('d-none');
+    selectedSuggestionIndex = -1;
+
+    filterDiscussions();
+  }
+
+  function highlightMatch(text, query) {
+    if (!query) return escapeHtml(text);
+    const escapedText = escapeHtml(text);
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return escapedText.replace(regex, '<strong class="text-primary font-weight-bold">$1</strong>');
+  }
+
+  function selectSubjectFromSuggestion(slug) {
+    const dropdown = document.getElementById('searchSuggestionsDropdown');
+    dropdown.classList.add('d-none');
+    selectedSuggestionIndex = -1;
+    selectSubjectCategory(slug);
+  }
+
+  function handleSearchKeydown(e) {
+    const dropdown = document.getElementById('searchSuggestionsDropdown');
+    const items = document.querySelectorAll('.suggestion-item');
+
+    if (dropdown.classList.contains('d-none') || items.length === 0) {
+      if (e.key === 'Enter') {
+        performLiveSearch();
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedSuggestionIndex = (selectedSuggestionIndex + 1) % items.length;
+      updateSuggestionHighlight(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedSuggestionIndex = (selectedSuggestionIndex - 1 + items.length) % items.length;
+      updateSuggestionHighlight(items);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedSuggestionIndex >= 0 && items[selectedSuggestionIndex]) {
+        items[selectedSuggestionIndex].click();
+      } else {
+        dropdown.classList.add('d-none');
+        performLiveSearch();
+      }
+    } else if (e.key === 'Escape') {
+      dropdown.classList.add('d-none');
+      selectedSuggestionIndex = -1;
+    }
+  }
+
+  function updateSuggestionHighlight(items) {
+    items.forEach((item, idx) => {
+      if (idx === selectedSuggestionIndex) {
+        item.classList.add('bg-primary-subtle');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.classList.remove('bg-primary-subtle');
+      }
+    });
+  }
+
+  // Close suggestions on outside click
+  document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('searchSuggestionsDropdown');
+    const input = document.getElementById('discussionSearchInput');
+    if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
+      dropdown.classList.add('d-none');
+      selectedSuggestionIndex = -1;
+    }
+  });
+
+  // Filter Subject Cards Grid by Year / Category (1st Year, 2nd Year, 3rd Year, 4th Year, Other Subjects)
+  function filterByYearCategory(yearVal, btn, updateUrl = true) {
+    activeYearFilter = yearVal || 'all';
+
+    document.querySelectorAll('#subjectFilterPillsBar .year-tab').forEach(b => {
       b.classList.remove('btn-dark', 'active');
       b.classList.add('btn-outline-secondary');
     });
-    btn.classList.remove('btn-outline-secondary');
-    btn.classList.add('btn-dark', 'active');
 
+    const targetPill = btn || document.querySelector(`#subjectFilterPillsBar .year-tab[data-year="${activeYearFilter}"]`);
+    if (targetPill) {
+      targetPill.classList.remove('btn-outline-secondary');
+      targetPill.classList.add('btn-dark', 'active');
+    }
+
+    if (currentCategory !== 'all') {
+      currentCategory = 'all';
+      document.getElementById('subjectGridSection').classList.remove('d-none');
+      document.getElementById('activeSubjectBanner').classList.add('d-none');
+      document.getElementById('backToSubjectsBtn').classList.add('d-none');
+    }
+
+    if (updateUrl && window.history && window.history.pushState) {
+      const newUrl = activeYearFilter !== 'all' ? `/live-discussion?year=${activeYearFilter}` : '/live-discussion';
+      window.history.pushState({ year: activeYearFilter }, '', newUrl);
+    }
+
+    filterDiscussions();
+  }
+
+  // Open a specific subject AND open a specific topic directly
+  function selectSubjectAndTopic(catSlug, topicSlug) {
+    selectSubjectCategory(catSlug);
+    if (topicSlug && topicSlug !== 'all') {
+      setTimeout(() => {
+        selectSpecificUploadedTopic(topicSlug);
+      }, 50);
+    }
+  }
+
+  // Open a specific subject and build topic dropdown/pill controls
+  function selectSubjectCategory(cat, updateUrl = true) {
+    currentCategory = cat || 'all';
+    currentSelectedTopicSlug = 'all'; // Reset selected topic
+
+    const dropdown = document.getElementById('subjectDropdownSelect');
+    if (dropdown && dropdown.value !== currentCategory) {
+      dropdown.value = currentCategory;
+    }
+
+    const gridSection = document.getElementById('subjectGridSection');
+    const activeBanner = document.getElementById('activeSubjectBanner');
+    const backBtn = document.getElementById('backToSubjectsBtn');
+    const mainHeaderTitle = document.getElementById('sectionMainHeaderTitle');
+    const mainHeaderSubtitle = document.getElementById('sectionMainHeaderSubtitle');
+
+    if (currentCategory === 'all') {
+      gridSection.classList.remove('d-none');
+      activeBanner.classList.add('d-none');
+      if (backBtn) backBtn.classList.add('d-none');
+      if (mainHeaderTitle) mainHeaderTitle.innerText = "Browse Discussions Subject-Wise";
+      if (mainHeaderSubtitle) mainHeaderSubtitle.innerText = "Filter by Year or Other Subjects below. Click any subject card to open its uploaded topics.";
+
+      if (updateUrl && window.history && window.history.pushState) {
+        const newUrl = activeYearFilter !== 'all' ? `/live-discussion?year=${activeYearFilter}` : '/live-discussion';
+        window.history.pushState({ year: activeYearFilter }, '', newUrl);
+      }
+    } else {
+      gridSection.classList.add('d-none');
+      activeBanner.classList.remove('d-none');
+      if (backBtn) backBtn.classList.remove('d-none');
+
+      const meta = categoryMetaMap[currentCategory] || { name: currentCategory.replace(/_/g, ' ').toUpperCase(), yearLabel: 'Subject', icon: 'ri-book-open-line' };
+      document.getElementById('activeSubjectTitle').innerText = meta.name;
+      document.getElementById('activeSubjectYearBadge').innerText = meta.yearLabel || (meta.yearTag === 'other' ? 'Other Subject' : 'Year ' + meta.yearTag + ' BPT');
+      document.getElementById('activeSubjectIcon').innerHTML = `<i class="${meta.icon}"></i>`;
+      if (mainHeaderTitle) mainHeaderTitle.innerText = `${meta.name} — Uploaded Topics`;
+      if (mainHeaderSubtitle) mainHeaderSubtitle.innerText = `Select any topic option below to explore uploaded case discussions for ${meta.name}.`;
+
+      if (updateUrl && window.history && window.history.pushState) {
+        window.history.pushState({ category: currentCategory }, '', `/live-discussion?category=${currentCategory}`);
+      }
+
+      // Build Multiple Uploaded Topics Selector Dropdown & Pills
+      buildSubjectTopicOptions(currentCategory);
+
+      // Smooth scroll down to active topics section
+      const activeBannerEl = document.getElementById('activeSubjectBanner');
+      if (activeBannerEl) {
+        activeBannerEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    filterDiscussions();
+  }
+
+  // Build Multiple Uploaded Topics Dropdown & Quick Pills Bar for current subject
+  function buildSubjectTopicOptions(catSlug) {
+    const items = document.querySelectorAll(`.discussion-item`);
+    const subjectTopicsMap = [];
+    const seenTopics = new Set();
+
+    items.forEach(item => {
+      const itemCat = (item.getAttribute('data-category') || '').toLowerCase();
+      const topicSlug = (item.getAttribute('data-topic-slug') || '').toLowerCase();
+      const topicTitle = item.getAttribute('data-topic-title') || 'Clinical Topic';
+
+      if (isCategoryMatch(itemCat, catSlug)) {
+        if (!seenTopics.has(topicSlug)) {
+          seenTopics.add(topicSlug);
+          subjectTopicsMap.push({ slug: topicSlug, title: topicTitle });
+        }
+      }
+    });
+
+    const topicSelectDropdown = document.getElementById('subjectTopicSelectDropdown');
+    const quickPillsContainer = document.getElementById('topicQuickPillsContainer');
+    const activeTopicCountBadge = document.getElementById('activeSubjectTopicCount');
+
+    if (activeTopicCountBadge) {
+      activeTopicCountBadge.innerText = `${subjectTopicsMap.length} Topic${subjectTopicsMap.length === 1 ? '' : 's'} Available`;
+    }
+
+    // Populate Dropdown
+    let dropdownHtml = `<option value="all" selected>✨ Show All Uploaded Topics (${subjectTopicsMap.length} Available)</option>`;
+    subjectTopicsMap.forEach((t, i) => {
+      dropdownHtml += `<option value="${t.slug}">Topic ${i + 1}: ${escapeHtml(t.title)}</option>`;
+    });
+    if (topicSelectDropdown) topicSelectDropdown.innerHTML = dropdownHtml;
+
+    // Populate Quick Pills
+    let pillsHtml = `
+      <button type="button" class="btn btn-xs btn-dark rounded-pill px-3 py-1 text-xs fw-semibold topic-quick-pill active" onclick="selectSpecificUploadedTopic('all', this)">
+        All Topics (${subjectTopicsMap.length})
+      </button>
+    `;
+    subjectTopicsMap.forEach((t, i) => {
+      pillsHtml += `
+        <button type="button" class="btn btn-xs btn-outline-primary rounded-pill px-3 py-1 text-xs fw-semibold topic-quick-pill text-nowrap" onclick="selectSpecificUploadedTopic('${t.slug}', this)">
+          Topic ${i + 1}: ${escapeHtml(t.title)}
+        </button>
+      `;
+    });
+    if (quickPillsContainer) quickPillsContainer.innerHTML = pillsHtml;
+  }
+
+  // Select a specific topic option under the current subject
+  function selectSpecificUploadedTopic(topicSlug, btn, updateUrl = true) {
+    currentSelectedTopicSlug = topicSlug || 'all';
+
+    const dropdown = document.getElementById('subjectTopicSelectDropdown');
+    if (dropdown && dropdown.value !== currentSelectedTopicSlug) {
+      dropdown.value = currentSelectedTopicSlug;
+    }
+
+    // Highlight pills
+    document.querySelectorAll('.topic-quick-pill').forEach(b => {
+      b.classList.remove('btn-dark', 'active');
+      b.classList.add('btn-outline-primary');
+    });
+    if (btn) {
+      btn.classList.remove('btn-outline-primary');
+      btn.classList.add('btn-dark', 'active');
+    }
+
+    if (updateUrl && window.history && window.history.pushState) {
+      const topicQuery = currentSelectedTopicSlug !== 'all' ? `&topic=${currentSelectedTopicSlug}` : '';
+      window.history.pushState({ category: currentCategory, topic: currentSelectedTopicSlug }, '', `/live-discussion?category=${currentCategory}${topicQuery}`);
+    }
+
+    filterDiscussions();
+  }
+
+  function performLiveSearch() {
+    const dropdown = document.getElementById('searchSuggestionsDropdown');
+    if (dropdown) dropdown.classList.add('d-none');
     filterDiscussions();
   }
 
   function filterDiscussions() {
     const query = (document.getElementById('discussionSearchInput').value || '').toLowerCase().trim();
     const items = document.querySelectorAll('.discussion-item');
-    let visibleCount = 0;
+    const subjectCards = document.querySelectorAll('.subject-card-item');
+    let visibleDiscussionsCount = 0;
+    let visibleSubjectsCount = 0;
 
+    // 1. Filter Subject Cards Grid by Year and Search Query
+    subjectCards.forEach(card => {
+      const cardCat = (card.getAttribute('data-category') || '').toLowerCase();
+      const cardYear = (card.getAttribute('data-year') || 'other').toString();
+      const cardKeywords = (card.getAttribute('data-keywords') || '') + ' ' + (card.textContent || '').toLowerCase();
+      
+      const matchYear = (activeYearFilter === 'all' || cardYear === activeYearFilter.toString());
+      const matchSearch = (!query || cardKeywords.includes(query));
+
+      if (matchYear && matchSearch) {
+        card.style.display = '';
+        visibleSubjectsCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // 2. Filter Topic Discussions
     items.forEach(item => {
-      const itemCat = item.getAttribute('data-category');
-      const itemKeywords = (item.getAttribute('data-keywords') || '') + ' ' + (item.innerText || '').toLowerCase();
+      const itemCat = (item.getAttribute('data-category') || '').toLowerCase();
+      const itemSubName = (item.getAttribute('data-subject-name') || '').toLowerCase();
+      const itemTopicSlug = (item.getAttribute('data-topic-slug') || '').toLowerCase();
+      const itemKeywords = (item.getAttribute('data-keywords') || '') + ' ' + (item.textContent || '').toLowerCase();
 
-      const matchCategory = (currentCategory === 'all' || itemCat === currentCategory);
+      // Find category year from categoryMetaMap
+      let catMeta = categoryMetaMap[itemCat];
+      if (!catMeta) {
+        for (const [s, list] of Object.entries(ALIAS_MAP)) {
+          if (list.includes(itemCat) && categoryMetaMap[s]) {
+            catMeta = categoryMetaMap[s];
+            break;
+          }
+        }
+      }
+      const itemYear = catMeta ? (catMeta.yearTag || 'other') : 'other';
+
+      const matchYear = (activeYearFilter === 'all' || itemYear === activeYearFilter.toString());
+
+      const matchSubject = (
+        currentCategory !== 'all' && (
+          isCategoryMatch(itemCat, currentCategory) || 
+          itemSubName.includes(currentCategory.toLowerCase())
+        )
+      );
+
+      const matchTopic = (
+        currentSelectedTopicSlug === 'all' || 
+        itemTopicSlug === currentSelectedTopicSlug.toLowerCase()
+      );
+
       const matchSearch = (!query || itemKeywords.includes(query));
 
-      if (matchCategory && matchSearch) {
+      // CRITICAL FIX: Topic cards are ONLY displayed when a specific subject is selected (currentCategory !== 'all')
+      if (currentCategory !== 'all' && matchSubject && matchTopic && matchSearch) {
         item.style.display = '';
-        visibleCount++;
+        visibleDiscussionsCount++;
       } else {
         item.style.display = 'none';
       }
     });
 
+    // 3. Update Header Badge Cleanly
     const badge = document.getElementById('activeTopicCountBadge');
     if (badge) {
-      badge.innerText = `Showing ${visibleCount} Discussions`;
+      if (currentCategory === 'all') {
+        const yearText = activeYearFilter === 'all' ? 'All' : activeYearFilter === 'other' ? 'Other / Elective' : `Year ${activeYearFilter} BPT`;
+        badge.innerText = `Showing ${visibleSubjectsCount} ${yearText} Subjects`;
+      } else {
+        badge.innerText = `Showing ${visibleDiscussionsCount} Uploaded Topic${visibleDiscussionsCount === 1 ? '' : 's'}`;
+      }
     }
 
     const emptyState = document.getElementById('noDiscussionsFound');
     if (emptyState) {
-      if (visibleCount === 0) {
+      if (currentCategory !== 'all' && visibleDiscussionsCount === 0) {
+        emptyState.classList.remove('d-none');
+      } else if (currentCategory === 'all' && visibleSubjectsCount === 0) {
         emptyState.classList.remove('d-none');
       } else {
         emptyState.classList.add('d-none');
@@ -438,7 +1131,53 @@
     }
   }
 
-  document.getElementById('discussionSearchInput').addEventListener('input', filterDiscussions);
+  // On page load, check URL query
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialCategory = urlParams.get('category') || currentCategory;
+    const initialYear = urlParams.get('year') || activeYearFilter;
+    const initialTopic = urlParams.get('topic') || currentSelectedTopicSlug;
+
+    if (initialYear && initialYear !== 'all') {
+      filterByYearCategory(initialYear, null, false);
+    }
+
+    if (initialCategory && initialCategory !== 'all') {
+      selectSubjectCategory(initialCategory, false);
+      if (initialTopic && initialTopic !== 'all') {
+        selectSpecificUploadedTopic(initialTopic, null, false);
+      }
+    } else {
+      filterDiscussions();
+    }
+  });
+
+  window.addEventListener('popstate', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('category') || 'all';
+    const yearParam = urlParams.get('year') || 'all';
+    const topicParam = urlParams.get('topic') || 'all';
+
+    activeYearFilter = yearParam;
+    document.querySelectorAll('#subjectFilterPillsBar .year-tab').forEach(b => {
+      b.classList.remove('btn-dark', 'active');
+      b.classList.add('btn-outline-secondary');
+    });
+    const targetPill = document.querySelector(`#subjectFilterPillsBar .year-tab[data-year="${activeYearFilter}"]`);
+    if (targetPill) {
+      targetPill.classList.remove('btn-outline-secondary');
+      targetPill.classList.add('btn-dark', 'active');
+    }
+
+    if (catParam !== 'all') {
+      selectSubjectCategory(catParam, false);
+      if (topicParam !== 'all') {
+        selectSpecificUploadedTopic(topicParam, null, false);
+      }
+    } else {
+      selectSubjectCategory('all', false);
+    }
+  });
 
   function toggleUpvote(btn, disId, baseCount) {
     const countSpan = btn.querySelector('.vote-count');
@@ -467,54 +1206,398 @@
     const text = (input ? input.value : '').trim();
     if (!text) return;
 
+    const submitBtn = form.querySelector('.submit-root-btn');
+    if (submitBtn) submitBtn.disabled = true;
+
+    const disId = form.querySelector('input[name="discussion_id"]').value;
     const list = form.parentElement.querySelector('.pe-replies-list');
     const emptyMsg = list ? list.querySelector('.empty-replies-msg') : null;
-    if (emptyMsg) emptyMsg.remove();
-
-    const authorName = '<%= currentUser ? currentUser.name : "Student Member" %>';
-    const nowIso = new Date().toISOString();
-    
-    const replyDiv = document.createElement('div');
-    replyDiv.className = 'p-2.5 bg-primary-subtle rounded-3 text-xs border border-primary-subtle';
-    replyDiv.innerHTML = `
-      <div class="d-flex justify-content-between font-weight-semibold text-primary mb-1">
-        <span>${escapeHtml(authorName)}</span>
-        <span class="text-muted text-xs time-ago" data-timestamp="${nowIso}">Just now</span>
-      </div>
-      <p class="text-dark mb-0">${escapeHtml(text)}</p>
-    `;
-    
-    // Put new reply at the very TOP of the replies list
-    if (list) {
-      list.insertAdjacentElement('afterbegin', replyDiv);
-    }
-
-    // Submit formData in background
-    const formData = new FormData(form);
-    const params = new URLSearchParams();
-    for (const pair of formData.entries()) {
-      params.append(pair[0], pair[1]);
-    }
 
     fetch('/live-discussion/reply', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: params.toString()
-    }).catch(err => console.error('Reply submission error:', err));
+      body: JSON.stringify({
+        discussion_id: disId,
+        content: text
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (submitBtn) submitBtn.disabled = false;
+      if (data.success && data.reply) {
+        if (emptyMsg) emptyMsg.remove();
+        if (input) input.value = '';
 
-    if (input) input.value = '';
+        const nodeHTML = createReplyNodeHTML(data.reply, disId, 0);
+        if (list) {
+          list.insertAdjacentHTML('beforeend', nodeHTML);
+        }
 
-    // Update count badge
-    const card = form.closest('.pe-discussion-card');
-    const replyCountSpan = card ? card.querySelector('.reply-count') : null;
-    if (replyCountSpan) {
-      replyCountSpan.innerText = (parseInt(replyCountSpan.innerText, 10) || 0) + 1;
+        updateTopicCardReplyCount(disId, data.totalRepliesCount);
+        updateAllTimestamps();
+      } else {
+        alert(data.message || 'Failed to post reply.');
+      }
+    })
+    .catch(err => {
+      console.error('Reply submission error:', err);
+      if (submitBtn) submitBtn.disabled = false;
+      alert('An error occurred while posting your reply.');
+    });
+  }
+
+  function openInlineReplyBox(disId, parentReplyId, authorName) {
+    document.querySelectorAll('.pe-inline-reply-composer').forEach(box => {
+      box.parentElement.classList.add('d-none');
+      box.remove();
+    });
+
+    const targetContainer = document.getElementById(`inline-reply-box-${parentReplyId}`);
+    if (!targetContainer) return;
+
+    const composerHTML = `
+      <div class="pe-inline-reply-composer p-2.5 bg-white border rounded-3 shadow-sm mb-2">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="text-xs fw-bold text-primary">
+            <i class="ri-reply-fill me-1"></i> Replying to <span class="text-dark">${escapeHtml(authorName)}</span>
+          </span>
+          <button type="button" class="btn-close btn-close-xs" onclick="closeInlineReplyBox(${parentReplyId})"></button>
+        </div>
+        <form onsubmit="submitInlineReply(event, ${disId}, ${parentReplyId})">
+          <div class="mb-2">
+            <textarea class="form-control form-control-sm text-xs rounded-2 reply-content-input" rows="2" placeholder="Write your reply to ${escapeHtml(authorName)}..." required></textarea>
+          </div>
+          <div class="d-flex align-items-center justify-content-end gap-2">
+            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-3" onclick="closeInlineReplyBox(${parentReplyId})">Cancel</button>
+            <button type="submit" class="btn btn-xs btn-primary rounded-pill px-3 fw-semibold submit-reply-btn">
+              <i class="ri-send-plane-fill me-1"></i> Reply
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    targetContainer.innerHTML = composerHTML;
+    targetContainer.classList.remove('d-none');
+
+    const textarea = targetContainer.querySelector('.reply-content-input');
+    if (textarea) textarea.focus();
+  }
+
+  function closeInlineReplyBox(parentReplyId) {
+    const targetContainer = document.getElementById(`inline-reply-box-${parentReplyId}`);
+    if (targetContainer) {
+      targetContainer.innerHTML = '';
+      targetContainer.classList.add('d-none');
+    }
+  }
+
+  function submitInlineReply(event, disId, parentReplyId) {
+    event.preventDefault();
+    const form = event.target;
+    const textarea = form.querySelector('.reply-content-input');
+    const submitBtn = form.querySelector('.submit-reply-btn');
+    const content = (textarea.value || '').trim();
+
+    if (!content) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span> Posting...`;
+
+    fetch('/live-discussion/reply', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        discussion_id: disId,
+        parent_id: parentReplyId,
+        content
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && data.reply) {
+        closeInlineReplyBox(parentReplyId);
+
+        const childContainer = document.getElementById(`child-replies-${parentReplyId}`);
+        if (childContainer) {
+          childContainer.classList.remove('d-none');
+          
+          const parentItem = document.getElementById(`reply-node-${parentReplyId}`);
+          const parentNested = parentItem ? parentItem.closest('.pe-nested-replies') : null;
+          const currentDepth = parentNested ? (parentNested.querySelectorAll('.pe-reply-item').length + 1) : 1;
+
+          const newReplyHTML = createReplyNodeHTML(data.reply, disId, currentDepth);
+          childContainer.insertAdjacentHTML('beforeend', newReplyHTML);
+        }
+
+        updateTopicCardReplyCount(disId, data.totalRepliesCount);
+        updateParentSubThreadCount(parentReplyId);
+        updateAllTimestamps();
+      } else {
+        alert(data.message || 'Failed to post reply.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="ri-send-plane-fill me-1"></i> Reply`;
+      }
+    })
+    .catch(err => {
+      console.error('Error submitting inline reply:', err);
+      alert('An error occurred while posting your reply.');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<i class="ri-send-plane-fill me-1"></i> Reply`;
+    });
+  }
+
+  function createReplyNodeHTML(rep, disId, depth) {
+    depth = depth || 0;
+    const isMentor = rep.is_mentor === 1;
+    const childCount = rep.replies ? rep.replies.length : 0;
+    const initials = (rep.author_name || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const timeStr = rep.created_at ? new Date(rep.created_at).toISOString() : new Date().toISOString();
+    const visualIndentClass = depth > 0 ? (depth > 3 ? 'ps-2 ms-2' : 'ps-3 ms-3') : '';
+    const borderClass = depth > 0 ? 'border-start border-2 border-primary-subtle' : '';
+
+    return `
+      <div class="pe-reply-item position-relative ${depth > 0 ? 'mt-2.5' : 'mt-2'}" id="reply-node-${rep.id}" data-reply-id="${rep.id}" data-discussion-id="${disId}">
+        <div class="pe-reply-content p-2.5 ${isMentor ? 'bg-primary-subtle border border-primary-subtle' : 'bg-light border'} rounded-3 text-xs shadow-2xs">
+          <div class="d-flex align-items-center justify-content-between mb-1.5">
+            <div class="d-flex align-items-center gap-2">
+              <div class="avatar rounded-circle ${isMentor ? 'bg-primary text-white' : 'bg-slate-200 text-slate-700'} fw-bold d-flex align-items-center justify-content-center" style="width: 26px; height: 26px; font-size: 0.65rem;">
+                ${initials}
+              </div>
+              <div>
+                <span class="fw-bold ${isMentor ? 'text-primary' : 'text-slate-900'} text-xs">${escapeHtml(rep.author_name)}</span>
+                ${rep.author_role ? `<span class="text-muted text-xs ms-1">(${escapeHtml(rep.author_role)})</span>` : ''}
+                ${isMentor ? `<span class="badge bg-primary text-white rounded-pill px-2 py-0.5 text-xs ms-1.5"><i class="ri-shield-star-line me-0.5"></i>Mentor Verified</span>` : ''}
+              </div>
+            </div>
+            <span class="text-muted text-xs time-ago" data-timestamp="${timeStr}">Just now</span>
+          </div>
+
+          <p class="text-secondary text-xs mb-2 ms-4" style="line-height: 1.55; white-space: pre-line;">${escapeHtml(rep.content)}</p>
+
+          <div class="d-flex align-items-center gap-2 ms-4">
+            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn" onclick="handleReplyVote(this, ${rep.id}, 'like')" title="Like / Unlike comment">
+              <i class="ri-thumb-up-line text-primary"></i> <span class="reply-like-count">${rep.upvotes || 0}</span>
+            </button>
+
+            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn" onclick="handleReplyVote(this, ${rep.id}, 'dislike')" title="Dislike / Undislike comment">
+              <i class="ri-thumb-down-line text-danger"></i> <span class="reply-dislike-count">${rep.downvotes || 0}</span>
+            </button>
+
+            <button type="button" class="btn btn-xs btn-link text-decoration-none text-primary p-0 text-xs fw-semibold d-inline-flex align-items-center gap-1 ms-1" onclick="openInlineReplyBox(${disId}, ${rep.id}, '${escapeHtml(rep.author_name).replace(/'/g, "\\'")}')">
+              <i class="ri-reply-line"></i> Reply
+            </button>
+
+            <button type="button" class="btn btn-xs btn-link text-decoration-none text-secondary p-0 text-xs fw-medium d-inline-flex align-items-center gap-1 toggle-children-btn ${childCount > 0 ? '' : 'd-none'}" onclick="toggleChildReplies(${rep.id})">
+              <i class="ri-subtract-line me-0.5"></i> <span class="child-reply-count">${childCount}</span> ${childCount === 1 ? 'Reply' : 'Replies'}
+            </button>
+          </div>
+        </div>
+
+        <div id="inline-reply-box-${rep.id}" class="mt-2 ms-4 d-none"></div>
+
+        <div id="child-replies-${rep.id}" class="pe-nested-replies ${borderClass} ${visualIndentClass} d-flex flex-column gap-1.5" style="${depth > 3 ? 'margin-left: 8px;' : ''}">
+        </div>
+      </div>
+    `;
+  }
+
+  function handleReplyVote(btn, replyId, voteType) {
+    const parent = btn.closest('.d-flex');
+    const likeBtn = parent.querySelector('.reply-like-btn');
+    const dislikeBtn = parent.querySelector('.reply-dislike-btn');
+
+    const isLikeActive = likeBtn.classList.contains('active') || likeBtn.classList.contains('btn-primary');
+    const isDislikeActive = dislikeBtn.classList.contains('active') || dislikeBtn.classList.contains('btn-danger');
+
+    let previousState = 'none';
+    if (isLikeActive) previousState = 'liked';
+    else if (isDislikeActive) previousState = 'disliked';
+
+    let action = voteType;
+    if (voteType === 'like' && isLikeActive) action = 'unlike';
+    if (voteType === 'dislike' && isDislikeActive) action = 'undislike';
+
+    const likeSpan = likeBtn.querySelector('.reply-like-count');
+    const dislikeSpan = dislikeBtn.querySelector('.reply-dislike-count');
+    const likeIcon = likeBtn.querySelector('i');
+    const dislikeIcon = dislikeBtn.querySelector('i');
+
+    let currentLikes = parseInt(likeSpan.textContent, 10) || 0;
+    let currentDislikes = parseInt(dislikeSpan.textContent, 10) || 0;
+
+    if (action === 'like') {
+      likeBtn.className = 'btn btn-xs btn-primary text-white rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn active';
+      likeIcon.className = 'ri-thumb-up-fill';
+      currentLikes += 1;
+      if (previousState === 'disliked') {
+        dislikeBtn.className = 'btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn';
+        dislikeIcon.className = 'ri-thumb-down-line text-danger';
+        currentDislikes = Math.max(0, currentDislikes - 1);
+      }
+    } else if (action === 'unlike') {
+      likeBtn.className = 'btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn';
+      likeIcon.className = 'ri-thumb-up-line text-primary';
+      currentLikes = Math.max(0, currentLikes - 1);
+    } else if (action === 'dislike') {
+      dislikeBtn.className = 'btn btn-xs btn-danger text-white rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn active';
+      dislikeIcon.className = 'ri-thumb-down-fill';
+      currentDislikes += 1;
+      if (previousState === 'liked') {
+        likeBtn.className = 'btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn';
+        likeIcon.className = 'ri-thumb-up-line text-primary';
+        currentLikes = Math.max(0, currentLikes - 1);
+      }
+    } else if (action === 'undislike') {
+      dislikeBtn.className = 'btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn';
+      dislikeIcon.className = 'ri-thumb-down-line text-danger';
+      currentDislikes = Math.max(0, currentDislikes - 1);
     }
 
-    updateAllTimestamps();
+    likeSpan.textContent = currentLikes;
+    dislikeSpan.textContent = currentDislikes;
+
+    fetch(`/live-discussion/reply/${replyId}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ action, previousState })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        likeSpan.textContent = data.upvotes;
+        dislikeSpan.textContent = data.downvotes;
+      }
+    })
+    .catch(err => console.error('Error voting reply:', err));
+  }
+
+  function handleDiscussionVote(btn, disId, voteType) {
+    const parent = btn.closest('.d-flex');
+    const likeBtn = parent.querySelector('.disc-like-btn');
+    const dislikeBtn = parent.querySelector('.disc-dislike-btn');
+
+    const isLikeActive = likeBtn.classList.contains('active') || likeBtn.classList.contains('btn-primary');
+    const isDislikeActive = dislikeBtn.classList.contains('active') || dislikeBtn.classList.contains('btn-danger');
+
+    let previousState = 'none';
+    if (isLikeActive) previousState = 'liked';
+    else if (isDislikeActive) previousState = 'disliked';
+
+    let action = voteType;
+    if (voteType === 'like' && isLikeActive) action = 'unlike';
+    if (voteType === 'dislike' && isDislikeActive) action = 'undislike';
+
+    const likeSpan = likeBtn.querySelector('.disc-like-count');
+    const dislikeSpan = dislikeBtn.querySelector('.disc-dislike-count');
+    const likeIcon = likeBtn.querySelector('i');
+    const dislikeIcon = dislikeBtn.querySelector('i');
+
+    let currentLikes = parseInt(likeSpan.textContent, 10) || 0;
+    let currentDislikes = parseInt(dislikeSpan.textContent, 10) || 0;
+
+    if (action === 'like') {
+      likeBtn.className = 'btn btn-sm btn-primary text-white rounded-pill px-2.5 py-1 text-xs disc-like-btn active';
+      likeIcon.className = 'ri-thumb-up-fill me-1';
+      currentLikes += 1;
+      if (previousState === 'disliked') {
+        dislikeBtn.className = 'btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1 text-xs disc-dislike-btn';
+        dislikeIcon.className = 'ri-thumb-down-line me-1';
+        currentDislikes = Math.max(0, currentDislikes - 1);
+      }
+    } else if (action === 'unlike') {
+      likeBtn.className = 'btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 text-xs disc-like-btn';
+      likeIcon.className = 'ri-thumb-up-line me-1';
+      currentLikes = Math.max(0, currentLikes - 1);
+    } else if (action === 'dislike') {
+      dislikeBtn.className = 'btn btn-sm btn-danger text-white rounded-pill px-2.5 py-1 text-xs disc-dislike-btn active';
+      dislikeIcon.className = 'ri-thumb-down-fill me-1';
+      currentDislikes += 1;
+      if (previousState === 'liked') {
+        likeBtn.className = 'btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 text-xs disc-like-btn';
+        likeIcon.className = 'ri-thumb-up-line me-1';
+        currentLikes = Math.max(0, currentLikes - 1);
+      }
+    } else if (action === 'undislike') {
+      dislikeBtn.className = 'btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1 text-xs disc-dislike-btn';
+      dislikeIcon.className = 'ri-thumb-down-line me-1';
+      currentDislikes = Math.max(0, currentDislikes - 1);
+    }
+
+    likeSpan.textContent = currentLikes;
+    dislikeSpan.textContent = currentDislikes;
+
+    fetch(`/live-discussion/${disId}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ action, previousState })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        likeSpan.textContent = data.upvotes;
+        dislikeSpan.textContent = data.downvotes;
+      }
+    })
+    .catch(err => console.error('Error voting discussion:', err));
+  }
+
+  function toggleChildReplies(replyId) {
+    const childContainer = document.getElementById(`child-replies-${replyId}`);
+    const parentNode = document.getElementById(`reply-node-${replyId}`);
+    const toggleBtn = parentNode ? parentNode.querySelector('.toggle-children-btn') : null;
+
+    if (childContainer) {
+      const isHidden = childContainer.classList.contains('d-none');
+      if (isHidden) {
+        childContainer.classList.remove('d-none');
+        if (toggleBtn) {
+          const icon = toggleBtn.querySelector('i');
+          if (icon) icon.className = 'ri-subtract-line me-0.5';
+        }
+      } else {
+        childContainer.classList.add('d-none');
+        if (toggleBtn) {
+          const icon = toggleBtn.querySelector('i');
+          if (icon) icon.className = 'ri-add-line me-0.5';
+        }
+      }
+    }
+  }
+
+  function updateParentSubThreadCount(parentReplyId) {
+    const parentNode = document.getElementById(`reply-node-${parentReplyId}`);
+    if (!parentNode) return;
+
+    const childContainer = document.getElementById(`child-replies-${parentReplyId}`);
+    const directChildren = childContainer ? childContainer.querySelectorAll(':scope > .pe-reply-item').length : 0;
+
+    let toggleBtn = parentNode.querySelector('.toggle-children-btn');
+    if (toggleBtn) {
+      toggleBtn.classList.remove('d-none');
+      const countSpan = toggleBtn.querySelector('.child-reply-count');
+      if (countSpan) countSpan.textContent = directChildren;
+    }
+  }
+
+  function updateTopicCardReplyCount(disId, totalCount) {
+    const repliesContainer = document.getElementById(`replies-${disId}`);
+    const card = repliesContainer ? repliesContainer.closest('.pe-discussion-card') : null;
+    if (!card) return;
+
+    const replyCountSpan = card.querySelector('.reply-count');
+    if (replyCountSpan) {
+      replyCountSpan.textContent = totalCount;
+    }
+
+    const emptyMsg = repliesContainer.querySelector('.empty-replies-msg');
+    if (emptyMsg) emptyMsg.remove();
   }
 
   function formatTimeAgo(timestamp) {
@@ -523,25 +1606,15 @@
     const now = new Date();
     const diffInSec = Math.floor((now - date) / 1000);
 
-    if (diffInSec < 45) {
-      return 'Just now';
-    }
+    if (diffInSec < 45) return 'Just now';
     const diffInMin = Math.floor(diffInSec / 60);
-    if (diffInMin < 60) {
-      return diffInMin + 'm ago';
-    }
+    if (diffInMin < 60) return diffInMin + 'm ago';
     const diffInHours = Math.floor(diffInMin / 60);
-    if (diffInHours < 24) {
-      return diffInHours + 'h ago';
-    }
+    if (diffInHours < 24) return diffInHours + 'h ago';
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 30) {
-      return diffInDays + 'd ago';
-    }
+    if (diffInDays < 30) return diffInDays + 'd ago';
     const diffInMonths = Math.floor(diffInDays / 30);
-    if (diffInMonths < 12) {
-      return diffInMonths + 'mo ago';
-    }
+    if (diffInMonths < 12) return diffInMonths + 'mo ago';
     const diffInYears = Math.floor(diffInDays / 365);
     return diffInYears + 'y ago';
   }
@@ -549,13 +1622,10 @@
   function updateAllTimestamps() {
     document.querySelectorAll('.time-ago').forEach(el => {
       const ts = el.getAttribute('data-timestamp');
-      if (ts) {
-        el.textContent = formatTimeAgo(ts);
-      }
+      if (ts) el.textContent = formatTimeAgo(ts);
     });
   }
 
-  // Initial update and periodic refresh every 10 seconds
   document.addEventListener('DOMContentLoaded', updateAllTimestamps);
   updateAllTimestamps();
   setInterval(updateAllTimestamps, 10000);
@@ -569,5 +1639,169 @@
       "'": '&#039;'
     };
     return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+
+  function openFullscreenDiscussion(disId) {
+    const cardEl = document.querySelector(`.pe-discussion-card[data-id="${disId}"]`);
+    if (!cardEl) return;
+
+    const modalEl = document.getElementById('fullscreenDiscussionModal');
+    const modalBody = document.getElementById('fullscreenDiscussionModalBody');
+    const subjectBadge = document.getElementById('fsModalSubjectBadge');
+    const tagBadge = document.getElementById('fsModalTagBadge');
+
+    const categoryBadgeText = cardEl.querySelector('.badge.bg-primary-subtle')?.textContent.trim() || 'Live Discussion';
+    const tagBadgeText = cardEl.querySelector('.badge.bg-secondary-subtle')?.textContent.trim() || '# Topic';
+
+    if (subjectBadge) subjectBadge.textContent = categoryBadgeText;
+    if (tagBadge) tagBadge.textContent = tagBadgeText;
+
+    const cardContentClone = cardEl.cloneNode(true);
+    cardContentClone.classList.remove('h-100');
+
+    // Remove the "View Card" button inside modal
+    const fsViewBtn = cardContentClone.querySelector('.view-fullscreen-btn');
+    if (fsViewBtn) fsViewBtn.remove();
+
+    // Make title larger inside modal
+    const modalTitle = cardContentClone.querySelector('h5');
+    if (modalTitle) {
+      modalTitle.className = 'fs-3 fw-bold text-slate-900 mb-3';
+      modalTitle.removeAttribute('onclick');
+      modalTitle.removeAttribute('title');
+    }
+
+    // Expand questions box
+    const qBox = cardContentClone.querySelector('.p-3.bg-light');
+    if (qBox) {
+      qBox.className = 'p-4 bg-light rounded-3 border mb-4';
+    }
+
+    // Expand replies collapse by default inside modal
+    const repliesCollapse = cardContentClone.querySelector('.collapse');
+    if (repliesCollapse) {
+      repliesCollapse.classList.add('show');
+    }
+
+    // Connect form submit
+    const modalReplyForm = cardContentClone.querySelector('form[action="/live-discussion/reply"]');
+    if (modalReplyForm) {
+      modalReplyForm.setAttribute('onsubmit', `submitFsModalReply(event, this, ${disId})`);
+    }
+
+    modalBody.innerHTML = '';
+    
+    const wrapper = document.createElement('div');
+    wrapper.className = 'max-w-4xl mx-auto bg-white rounded-4 p-3 p-md-4 border border-slate-100 shadow-sm';
+    wrapper.appendChild(cardContentClone);
+    
+    modalBody.appendChild(wrapper);
+
+    // Sync button handlers
+    const modalLikeBtn = wrapper.querySelector('.disc-like-btn');
+    const modalDislikeBtn = wrapper.querySelector('.disc-dislike-btn');
+    
+    if (modalLikeBtn) {
+      modalLikeBtn.setAttribute('onclick', `handleFsDiscussionVote(this, ${disId}, 'like')`);
+    }
+    if (modalDislikeBtn) {
+      modalDislikeBtn.setAttribute('onclick', `handleFsDiscussionVote(this, ${disId}, 'dislike')`);
+    }
+
+    wrapper.querySelectorAll('.reply-like-btn').forEach(btn => {
+      const parentNode = btn.closest('.pe-reply-item');
+      if (parentNode) {
+        const replyId = parentNode.getAttribute('data-reply-id');
+        btn.setAttribute('onclick', `handleFsReplyVote(this, ${replyId}, 'like', ${disId})`);
+      }
+    });
+
+    wrapper.querySelectorAll('.reply-dislike-btn').forEach(btn => {
+      const parentNode = btn.closest('.pe-reply-item');
+      if (parentNode) {
+        const replyId = parentNode.getAttribute('data-reply-id');
+        btn.setAttribute('onclick', `handleFsReplyVote(this, ${replyId}, 'dislike', ${disId})`);
+      }
+    });
+
+    const bsModal = new bootstrap.Modal(modalEl);
+    bsModal.show();
+  }
+
+  function handleFsDiscussionVote(btn, disId, voteType) {
+    handleDiscussionVote(btn, disId, voteType);
+    
+    const cardEl = document.querySelector(`.pe-discussion-card[data-id="${disId}"]`);
+    if (cardEl) {
+      const pageLikeCount = cardEl.querySelector('.disc-like-count');
+      const pageDislikeCount = cardEl.querySelector('.disc-dislike-count');
+      const fsLikeCount = btn.closest('.d-flex').querySelector('.disc-like-count');
+      const fsDislikeCount = btn.closest('.d-flex').querySelector('.disc-dislike-count');
+      
+      setTimeout(() => {
+        if (pageLikeCount && fsLikeCount) pageLikeCount.textContent = fsLikeCount.textContent;
+        if (pageDislikeCount && fsDislikeCount) pageDislikeCount.textContent = fsDislikeCount.textContent;
+      }, 50);
+    }
+  }
+
+  function handleFsReplyVote(btn, replyId, voteType, disId) {
+    handleReplyVote(btn, replyId, voteType);
+
+    const pageReplyNode = document.getElementById(`reply-node-${replyId}`);
+    if (pageReplyNode) {
+      const pageLikeCount = pageReplyNode.querySelector('.reply-like-count');
+      const pageDislikeCount = pageReplyNode.querySelector('.reply-dislike-count');
+      const fsLikeCount = btn.closest('.d-flex').querySelector('.reply-like-count');
+      const fsDislikeCount = btn.closest('.d-flex').querySelector('.reply-dislike-count');
+
+      setTimeout(() => {
+        if (pageLikeCount && fsLikeCount) pageLikeCount.textContent = fsLikeCount.textContent;
+        if (pageDislikeCount && fsDislikeCount) pageDislikeCount.textContent = fsDislikeCount.textContent;
+      }, 50);
+    }
+  }
+
+  function submitFsModalReply(e, formEl, disId) {
+    e.preventDefault();
+    const inputEl = formEl.querySelector('.main-reply-input');
+    const content = (inputEl ? inputEl.value : '').trim();
+    if (!content) return;
+
+    fetch('/live-discussion/reply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ discussion_id: disId, content: content })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && data.reply) {
+        if (inputEl) inputEl.value = '';
+        
+        const mainCardRepliesList = document.getElementById(`root-replies-${disId}`);
+        const modalBody = document.getElementById('fullscreenDiscussionModalBody');
+        const modalRepliesList = modalBody ? modalBody.querySelector(`#root-replies-${disId}`) : null;
+
+        const newReplyHtml = createReplyNodeHTML(data.reply, disId, 0);
+
+        if (mainCardRepliesList) {
+          const emptyMsg = mainCardRepliesList.querySelector('.empty-replies-msg');
+          if (emptyMsg) emptyMsg.remove();
+          mainCardRepliesList.insertAdjacentHTML('beforeend', newReplyHtml);
+        }
+
+        if (modalRepliesList) {
+          const emptyMsg = modalRepliesList.querySelector('.empty-replies-msg');
+          if (emptyMsg) emptyMsg.remove();
+          modalRepliesList.insertAdjacentHTML('beforeend', newReplyHtml);
+        }
+
+        updateTopicCardReplyCount(disId, data.totalRepliesCount);
+        updateAllTimestamps();
+      } else {
+        alert(data.message || 'Failed to post reply.');
+      }
+    })
+    .catch(err => console.error('Error submitting modal reply:', err));
   }
 </script>

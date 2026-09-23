@@ -1,30 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const { requireAuth, requireRole, requireSuperAdmin, requirePermission } = require('../middleware/auth');
+const { requireAuth, requireRole, requireSuperAdmin, requirePermission, requireModulePermission } = require('../middleware/auth');
 const { uploadDocFile, uploadCourseThumbnail } = require('../middleware/upload');
 
 // Base admin access: role must be 'admin' or 'superadmin'
 router.use(requireAuth, requireRole('admin'));
 
-router.get('/dashboard', adminController.dashboard);
+router.get('/dashboard', requireModulePermission('MODULE_DASHBOARD'), adminController.dashboard);
 router.get('/profile', adminController.profile);
 
 // ==========================================
-// SUPER ADMIN EXCLUSIVE ROUTES
+// SUPER ADMIN EXCLUSIVE / MANAGEMENT ROUTES
 // ==========================================
-router.get('/admins', requireSuperAdmin, adminController.adminsIndex);
-router.get('/admins/new', requireSuperAdmin, adminController.newAdminView);
-router.post('/admins', requireSuperAdmin, adminController.createAdmin);
+router.get('/admins', requireModulePermission('MODULE_ADMIN_MANAGEMENT'), adminController.adminsIndex);
+router.get('/admins/new', requireModulePermission('MODULE_ADMIN_MANAGEMENT'), adminController.newAdminView);
+router.post('/admins', requireModulePermission('MODULE_ADMIN_MANAGEMENT'), adminController.createAdmin);
 router.get('/admins/:id/permissions', requireSuperAdmin, adminController.adminPermissionsView);
 router.post('/admins/:id/permissions', requireSuperAdmin, adminController.updateAdminPermissions);
-router.post('/admins/:id/toggle-status', requireSuperAdmin, adminController.toggleAdminStatus);
+router.post('/admins/:id/toggle-status', requireModulePermission('MODULE_ADMIN_MANAGEMENT'), adminController.toggleAdminStatus);
+router.post('/admins/:id/delete', requireModulePermission('MODULE_ADMIN_MANAGEMENT'), adminController.deleteAdmin);
+router.post('/admins/:id/restore', requireModulePermission('MODULE_ADMIN_MANAGEMENT'), adminController.restoreAdmin);
+router.post('/admins/:id/permanent-delete', requireSuperAdmin, adminController.permanentDeleteAdmin);
 
-router.get('/instructors', requireSuperAdmin, adminController.instructorsIndex);
+router.get('/instructors', requireModulePermission('MODULE_INSTRUCTOR_PERMISSIONS'), adminController.instructorsIndex);
 router.get('/instructors/:id/permissions', requireSuperAdmin, adminController.instructorPermissionsView);
 router.post('/instructors/:id/permissions', requireSuperAdmin, adminController.updateInstructorPermissions);
 
-router.get('/audit-logs', requireSuperAdmin, adminController.auditLogsIndex);
+router.get('/audit-logs', requireModulePermission('MODULE_AUDIT_LOGS'), adminController.auditLogsIndex);
 router.post('/content-access/assign', requirePermission('COURSE', 'ASSIGN'), adminController.assignContentAccess);
 
 // ==========================================

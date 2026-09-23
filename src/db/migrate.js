@@ -258,6 +258,14 @@ async function migrate() {
           user_agent TEXT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+
+        ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS actor_name TEXT;
+        ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS actor_email TEXT;
+        ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS actor_role TEXT;
+        ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource TEXT;
+        ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_id TEXT;
+        ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS ip_address TEXT;
+        ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS user_agent TEXT;
       `);
 
       // 4. Seed Standard Permissions Registry
