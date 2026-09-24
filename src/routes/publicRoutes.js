@@ -25,9 +25,14 @@ router.get('/learning-modules', publicController.learningModules);
 router.get('/learning-modules/:slug', publicController.learningModuleDetail);
 router.get('/learning-modules/:slug/:type', publicController.learningModuleDetail);
 router.get('/live-discussion', publicController.liveDiscussion);
+router.get('/live-discussion/card/:id', publicController.viewSingleDiscussion);
+router.get('/live-discussion/view/:id', publicController.viewSingleDiscussion);
 router.post('/live-discussion/reply', publicController.addDiscussionReply);
+router.post('/live-discussion/reply/:id/upvote', publicController.upvoteReply);
+router.post('/live-discussion/reply/:id/vote', publicController.voteReply);
 router.post('/live-discussion/create', publicController.createDiscussion);
 router.post('/live-discussion/:id/upvote', publicController.upvoteDiscussion);
+router.post('/live-discussion/:id/vote', publicController.voteDiscussion);
 
 router.get('/live-sessions', publicController.liveSessions);
 router.post('/live-sessions/:id/register', requireAuth, publicController.registerForSession);

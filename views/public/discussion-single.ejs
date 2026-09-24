@@ -1,0 +1,640 @@
+<section class="py-4 py-md-5 bg-light min-vh-100">
+  <div class="container" style="max-width: 960px;">
+
+    <!-- Top Navigation / Breadcrumbs -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <a href="/live-discussion?category=<%= discussion.category || 'all' %>" onclick="if (window.history.length > 1 &amp;&amp; document.referrer &amp;&amp; document.referrer.indexOf('/live-discussion') !== -1) { history.back(); return false; }" class="btn btn-sm btn-outline-secondary rounded-pill px-3.5 py-1.5 text-xs fw-semibold d-inline-flex align-items-center gap-1.5 hover-scale transition-all">
+        <i class="ri-arrow-left-line fs-6"></i> Back
+      </a>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill text-xs fw-bold">
+          <i class="ri-book-open-line me-1"></i> <%= categoryMeta ? categoryMeta.name : 'Academic Subject' %>
+        </span>
+        <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1.5 rounded-pill text-xs fw-medium">
+          <i class="ri-hashtag me-0.5"></i> <%= discussion.tag_label || 'Clinical Topic' %>
+        </span>
+      </div>
+    </div>
+
+    <%
+      const initials = (discussion.author_name || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+      function formatQuestionsMarkdown(txt) {
+        if (!txt) return '';
+        let lines = txt.split('\n');
+        let html = '';
+        let inList = false;
+
+        lines.forEach(line => {
+          let trimmed = line.trim();
+          if (!trimmed) return;
+
+          if (trimmed.startsWith('### ') || trimmed.startsWith('#### ')) {
+            if (inList) { html += '</ul>'; inList = false; }
+            let title = trimmed.replace(/^#+\s*/, '');
+            html += `<h6 class="fw-bold text-slate-900 mt-3 mb-2 fs-6">${title}</h6>`;
+          } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || /^\d+[\.\)]\s*/.test(trimmed)) {
+            if (!inList) { html += '<ul class="text-sm text-slate-800 mb-2 ps-3.5" style="line-height: 1.7;">'; inList = true; }
+            let content = trimmed.replace(/^[\-\*\d\.\)]+\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html += `<li class="mb-1.5">${content}</li>`;
+          } else {
+            if (inList) { html += '</ul>'; inList = false; }
+            let content = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html += `<p class="text-sm text-slate-800 mb-2" style="line-height: 1.7;">${content}</p>`;
+          }
+        });
+
+        if (inList) html += '</ul>';
+        return html;
+      }
+    %>
+
+    <!-- Single Discussion Card -->
+    <div class="card border-0 shadow-md rounded-4 p-4 p-md-5 bg-white position-relative pe-discussion-card mb-5" data-id="<%= discussion.id %>">
+      
+      <!-- Pinned / Featured badge -->
+      <% if (discussion.is_pinned) { %>
+        <div class="mb-3">
+          <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-1 rounded-pill text-xs fw-bold">
+            <i class="ri-pushpin-2-fill me-1"></i> Featured Topic Discussion
+          </span>
+        </div>
+      <% } %>
+
+      <h1 class="fw-bold text-slate-900 fs-2 mb-3" style="line-height: 1.35;">
+        <%= discussion.title %>
+      </h1>
+
+      <p class="text-slate-700 text-base mb-4" style="line-height: 1.7;">
+        <strong class="text-slate-900">Topic Summary & Background:</strong> <%= discussion.summary %>
+      </p>
+
+      <!-- Key Discussion Questions Box -->
+      <div class="p-4 bg-slate-50 rounded-4 border border-slate-200 mb-4">
+        <div class="fw-bold text-slate-900 text-sm text-uppercase mb-2.5" style="letter-spacing: 0.05em;">
+          <i class="ri-focus-3-line text-primary me-1.5 fs-5 align-middle"></i> Key Discussion Questions:
+        </div>
+        <%- formatQuestionsMarkdown(discussion.questions) %>
+      </div>
+
+      <!-- Expert Literature Takeaway -->
+      <% if (discussion.takeaway) { %>
+        <div class="mb-4">
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 text-xs fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#takeaway-single">
+            <i class="ri-book-read-line me-1"></i> View Mentor Literature Rationale <i class="ri-arrow-down-s-line"></i>
+          </button>
+          <div class="collapse show mt-2.5" id="takeaway-single">
+            <div class="p-3.5 rounded-3 bg-primary-subtle text-slate-900 text-sm border border-primary-subtle" style="line-height: 1.6;">
+              <strong class="text-primary-emphasis"><i class="ri-shield-check-line me-1"></i> Standard Clinical Consensus:</strong> <%= discussion.takeaway %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Author, Stats & Action Bar -->
+      <div class="d-flex align-items-center justify-content-between pt-4 border-top mt-2 flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-2.5">
+          <div class="avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px; font-size: 0.9rem;">
+            <%= initials %>
+          </div>
+          <div>
+            <div class="fw-semibold text-slate-900 text-sm"><%= discussion.author_name %></div>
+            <div class="text-muted text-xs">
+              <%= discussion.author_role || 'Faculty / Instructor' %> • <span class="time-ago" data-timestamp="<%= discussion.created_at ? new Date(discussion.created_at).toISOString() : new Date().toISOString() %>">Just now</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action buttons (Like, Dislike, Reply Count) -->
+        <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
+          <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 text-xs disc-like-btn" onclick="handleDiscussionVote(this, <%= discussion.id %>, 'like')" title="Like / Unlike topic">
+            <i class="ri-thumb-up-line me-1"></i> <span class="disc-like-count"><%= discussion.upvotes || 0 %></span>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 text-xs disc-dislike-btn" onclick="handleDiscussionVote(this, <%= discussion.id %>, 'dislike')" title="Dislike / Undislike topic">
+            <i class="ri-thumb-down-line me-1"></i> <span class="disc-dislike-count"><%= discussion.downvotes || 0 %></span>
+          </button>
+          <span class="btn btn-sm btn-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 text-xs fw-bold">
+            <i class="ri-chat-3-line me-1"></i> <span class="reply-count"><%= (discussion.replies ? discussion.replies.length : discussion.replies_count) || 0 %></span> Replies
+          </span>
+        </div>
+      </div>
+
+      <!-- Full Replies Thread -->
+      <div class="mt-4 pt-4 border-top">
+        <h5 class="fw-bold text-slate-900 mb-3 d-flex align-items-center gap-2">
+          <i class="ri-discuss-line text-primary"></i> Peer & Mentor Insights
+        </h5>
+
+        <%
+          function renderSinglePageReplies(nodes, disId, depth) {
+            if (!nodes || nodes.length === 0) return '';
+            let html = '';
+            depth = depth || 0;
+
+            nodes.forEach(rep => {
+              const isMentor = rep.is_mentor === 1;
+              const childCount = rep.replies ? rep.replies.length : 0;
+              const repInitials = (rep.author_name || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+              const timeStr = rep.created_at ? new Date(rep.created_at).toISOString() : new Date().toISOString();
+              const isSubReply = depth > 0;
+              const parentTag = rep.parent_author_name ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0.5 rounded-2 text-xs fw-bold me-1.5 align-middle d-inline-flex align-items-center"><i class="ri-corner-down-right-line me-1 text-primary"></i>Replying to @${rep.parent_author_name}</span> ` : '';
+
+              html += `
+                <div class="pe-reply-item position-relative ${isSubReply ? 'mt-3' : 'mt-2.5'}" id="reply-node-${rep.id}" data-reply-id="${rep.id}" data-discussion-id="${disId}">
+                  <div class="pe-reply-content p-3 ${isMentor ? 'bg-primary-subtle border border-primary-subtle' : 'bg-slate-50 border'} rounded-3 text-xs shadow-2xs ${isSubReply ? 'border-start border-3 border-primary' : ''}">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="avatar rounded-circle ${isMentor ? 'bg-primary text-white' : 'bg-slate-200 text-slate-700'} fw-bold d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.7rem;">
+                          ${repInitials}
+                        </div>
+                        <div>
+                          <span class="fw-bold ${isMentor ? 'text-primary' : 'text-slate-900'} text-xs">${rep.author_name}</span>
+                          ${rep.author_role ? `<span class="text-muted text-xs ms-1">(${rep.author_role})</span>` : ''}
+                          ${isMentor ? `<span class="badge bg-primary text-white rounded-pill px-2 py-0.5 text-xs ms-1.5"><i class="ri-shield-star-line me-0.5"></i>Mentor Verified</span>` : ''}
+                        </div>
+                      </div>
+                      <span class="text-muted text-xs time-ago" data-timestamp="${timeStr}">Just now</span>
+                    </div>
+
+                    <p class="text-slate-800 text-xs mb-2.5 ms-4" style="line-height: 1.6; white-space: pre-line;">${parentTag}${rep.content}</p>
+
+                    <div class="d-flex align-items-center gap-2 ms-4 flex-wrap">
+                      <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn" onclick="handleReplyVote(this, ${rep.id}, 'like')" title="Like / Unlike comment">
+                        <i class="ri-thumb-up-line text-primary"></i> <span class="reply-like-count">${rep.upvotes || 0}</span>
+                      </button>
+
+                      <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn" onclick="handleReplyVote(this, ${rep.id}, 'dislike')" title="Dislike / Undislike comment">
+                        <i class="ri-thumb-down-line text-danger"></i> <span class="reply-dislike-count">${rep.downvotes || 0}</span>
+                      </button>
+
+                      <button type="button" class="btn btn-xs btn-link text-decoration-none text-primary p-0 text-xs fw-semibold d-inline-flex align-items-center gap-1 ms-1" onclick="openInlineReplyBox(this, ${disId}, ${rep.id}, '${(rep.author_name || '').replace(/'/g, "\\'")}')">
+                        <i class="ri-reply-line"></i> Reply
+                      </button>
+
+                      <button type="button" class="btn btn-xs ${childCount > 0 ? 'btn-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-0.5 text-xs fw-bold' : 'btn-link text-decoration-none text-secondary p-0 text-xs fw-medium d-none'} d-inline-flex align-items-center gap-1 toggle-children-btn" onclick="toggleChildReplies(this, ${rep.id})">
+                        <i class="ri-corner-down-right-line me-0.5 text-primary"></i> <span class="child-reply-count">${childCount}</span> ${childCount === 1 ? 'Reply' : 'Replies'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div id="inline-reply-box-${rep.id}" class="mt-2 ms-4 d-none"></div>
+
+                  <div id="child-replies-${rep.id}" class="pe-nested-replies ps-3 ms-3 ms-md-4 border-start border-2 border-primary-subtle d-flex flex-column gap-2 mt-2 pt-1" style="${depth > 2 ? 'margin-left: 8px;' : ''}">
+                    ${renderSinglePageReplies(rep.replies, disId, depth + 1)}
+                  </div>
+                </div>
+              `;
+            });
+
+            return html;
+          }
+        %>
+
+        <div class="d-flex flex-column gap-2 mb-4 pe-replies-list" id="root-replies-<%= discussion.id %>">
+          <% if (discussion.replies && discussion.replies.length > 0) { %>
+            <%- renderSinglePageReplies(discussion.replies, discussion.id, 0) %>
+          <% } else { %>
+            <div class="text-muted text-xs text-center py-3 empty-replies-msg bg-light rounded-3">No replies yet. Be the first to share your clinical reasoning!</div>
+          <% } %>
+        </div>
+
+        <!-- Add Root Reply Form -->
+        <form action="/live-discussion/reply" method="POST" onsubmit="submitSinglePageReply(event, this, <%= discussion.id %>)">
+          <input type="hidden" name="discussion_id" value="<%= discussion.id %>">
+          <div class="input-group input-group-md">
+            <input type="text" name="content" class="form-control text-xs main-reply-input rounded-start-3" placeholder="Add your clinical insight or question..." required>
+            <button class="btn btn-primary fw-semibold px-4 rounded-end-3 submit-root-btn" type="submit">
+              <i class="ri-send-plane-fill me-1"></i> Post Reply
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function handleDiscussionVote(btn, disId, voteType) {
+    const parent = btn.closest('.d-flex');
+    const likeBtn = parent.querySelector('.disc-like-btn');
+    const dislikeBtn = parent.querySelector('.disc-dislike-btn');
+
+    const isLikeActive = likeBtn.classList.contains('active') || likeBtn.classList.contains('btn-primary');
+    const isDislikeActive = dislikeBtn.classList.contains('active') || dislikeBtn.classList.contains('btn-danger');
+
+    let previousState = 'none';
+    if (isLikeActive) previousState = 'liked';
+    else if (isDislikeActive) previousState = 'disliked';
+
+    let action = voteType;
+    if (voteType === 'like' && isLikeActive) action = 'unlike';
+    if (voteType === 'dislike' && isDislikeActive) action = 'undislike';
+
+    const likeSpan = likeBtn.querySelector('.disc-like-count');
+    const dislikeSpan = dislikeBtn.querySelector('.disc-dislike-count');
+    const likeIcon = likeBtn.querySelector('i');
+    const dislikeIcon = dislikeBtn.querySelector('i');
+
+    let currentLikes = parseInt(likeSpan.textContent, 10) || 0;
+    let currentDislikes = parseInt(dislikeSpan.textContent, 10) || 0;
+
+    if (action === 'like') {
+      likeBtn.className = 'btn btn-sm btn-primary text-white rounded-pill px-3 py-1.5 text-xs disc-like-btn active';
+      likeIcon.className = 'ri-thumb-up-fill me-1';
+      currentLikes += 1;
+      if (previousState === 'disliked') {
+        dislikeBtn.className = 'btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 text-xs disc-dislike-btn';
+        dislikeIcon.className = 'ri-thumb-down-line me-1';
+        currentDislikes = Math.max(0, currentDislikes - 1);
+      }
+    } else if (action === 'unlike') {
+      likeBtn.className = 'btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 text-xs disc-like-btn';
+      likeIcon.className = 'ri-thumb-up-line me-1';
+      currentLikes = Math.max(0, currentLikes - 1);
+    } else if (action === 'dislike') {
+      dislikeBtn.className = 'btn btn-sm btn-danger text-white rounded-pill px-3 py-1.5 text-xs disc-dislike-btn active';
+      dislikeIcon.className = 'ri-thumb-down-fill me-1';
+      currentDislikes += 1;
+      if (previousState === 'liked') {
+        likeBtn.className = 'btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 text-xs disc-like-btn';
+        likeIcon.className = 'ri-thumb-up-line me-1';
+        currentLikes = Math.max(0, currentLikes - 1);
+      }
+    } else if (action === 'undislike') {
+      dislikeBtn.className = 'btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 text-xs disc-dislike-btn';
+      dislikeIcon.className = 'ri-thumb-down-line me-1';
+      currentDislikes = Math.max(0, currentDislikes - 1);
+    }
+
+    likeSpan.textContent = currentLikes;
+    dislikeSpan.textContent = currentDislikes;
+
+    fetch(`/live-discussion/${disId}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ action, previousState })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        likeSpan.textContent = data.upvotes;
+        dislikeSpan.textContent = data.downvotes;
+      }
+    })
+    .catch(err => console.error('Error voting discussion:', err));
+  }
+
+  function handleReplyVote(btn, replyId, voteType) {
+    const parent = btn.closest('.d-flex');
+    const likeBtn = parent.querySelector('.reply-like-btn');
+    const dislikeBtn = parent.querySelector('.reply-dislike-btn');
+
+    const isLikeActive = likeBtn.classList.contains('active') || likeBtn.classList.contains('btn-primary');
+    const isDislikeActive = dislikeBtn.classList.contains('active') || dislikeBtn.classList.contains('btn-danger');
+
+    let previousState = 'none';
+    if (isLikeActive) previousState = 'liked';
+    else if (isDislikeActive) previousState = 'disliked';
+
+    let action = voteType;
+    if (voteType === 'like' && isLikeActive) action = 'unlike';
+    if (voteType === 'dislike' && isDislikeActive) action = 'undislike';
+
+    const likeSpan = likeBtn.querySelector('.reply-like-count');
+    const dislikeSpan = dislikeBtn.querySelector('.reply-dislike-count');
+    const likeIcon = likeBtn.querySelector('i');
+    const dislikeIcon = dislikeBtn.querySelector('i');
+
+    let currentLikes = parseInt(likeSpan.textContent, 10) || 0;
+    let currentDislikes = parseInt(dislikeSpan.textContent, 10) || 0;
+
+    if (action === 'like') {
+      likeBtn.className = 'btn btn-xs btn-primary text-white rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn active';
+      likeIcon.className = 'ri-thumb-up-fill';
+      currentLikes += 1;
+      if (previousState === 'disliked') {
+        dislikeBtn.className = 'btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn';
+        dislikeIcon.className = 'ri-thumb-down-line text-danger';
+        currentDislikes = Math.max(0, currentDislikes - 1);
+      }
+    } else if (action === 'unlike') {
+      likeBtn.className = 'btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn';
+      likeIcon.className = 'ri-thumb-up-line text-primary';
+      currentLikes = Math.max(0, currentLikes - 1);
+    } else if (action === 'dislike') {
+      dislikeBtn.className = 'btn btn-xs btn-danger text-white rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn active';
+      dislikeIcon.className = 'ri-thumb-down-fill';
+      currentDislikes += 1;
+      if (previousState === 'liked') {
+        likeBtn.className = 'btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn';
+        likeIcon.className = 'ri-thumb-up-line text-primary';
+        currentLikes = Math.max(0, currentLikes - 1);
+      }
+    } else if (action === 'undislike') {
+      dislikeBtn.className = 'btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn';
+      dislikeIcon.className = 'ri-thumb-down-line text-danger';
+      currentDislikes = Math.max(0, currentDislikes - 1);
+    }
+
+    likeSpan.textContent = currentLikes;
+    dislikeSpan.textContent = currentDislikes;
+
+    fetch(`/live-discussion/reply/${replyId}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ action, previousState })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        likeSpan.textContent = data.upvotes;
+        dislikeSpan.textContent = data.downvotes;
+      }
+    })
+    .catch(err => console.error('Error voting reply:', err));
+  }
+
+  function submitSinglePageReply(e, form, disId) {
+    e.preventDefault();
+    const input = form.querySelector('input[name="content"]');
+    const text = (input ? input.value : '').trim();
+    if (!text) return;
+
+    const submitBtn = form.querySelector('.submit-root-btn');
+    if (submitBtn) submitBtn.disabled = true;
+
+    const list = document.getElementById(`root-replies-${disId}`);
+    const emptyMsg = list ? list.querySelector('.empty-replies-msg') : null;
+
+    fetch('/live-discussion/reply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ discussion_id: disId, content: text })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (submitBtn) submitBtn.disabled = false;
+      if (data.success && data.reply) {
+        if (emptyMsg) emptyMsg.remove();
+        if (input) input.value = '';
+
+        const nodeHTML = createReplyNodeHTML(data.reply, disId, 0);
+        if (list) list.insertAdjacentHTML('beforeend', nodeHTML);
+
+        const countSpan = document.querySelector('.reply-count');
+        if (countSpan) countSpan.textContent = data.totalRepliesCount;
+        updateAllTimestamps();
+      } else {
+        alert(data.message || 'Failed to post reply.');
+      }
+    })
+    .catch(err => {
+      console.error('Reply submission error:', err);
+      if (submitBtn) submitBtn.disabled = false;
+      alert('An error occurred while posting your reply.');
+    });
+  }
+
+  function openInlineReplyBox(disId, parentReplyId, authorName) {
+    document.querySelectorAll('.pe-inline-reply-composer').forEach(box => {
+      box.parentElement.classList.add('d-none');
+      box.remove();
+    });
+
+    const targetContainer = document.getElementById(`inline-reply-box-${parentReplyId}`);
+    if (!targetContainer) return;
+
+    const composerHTML = `
+      <div class="pe-inline-reply-composer p-2.5 bg-white border rounded-3 shadow-sm mb-2">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="text-xs fw-bold text-primary">
+            <i class="ri-reply-fill me-1"></i> Replying to <span class="text-dark">${escapeHtml(authorName)}</span>
+          </span>
+          <button type="button" class="btn-close btn-close-xs" onclick="closeInlineReplyBox(${parentReplyId})"></button>
+        </div>
+        <form onsubmit="submitInlineReply(event, ${disId}, ${parentReplyId})">
+          <div class="mb-2">
+            <textarea class="form-control form-control-sm text-xs rounded-2 reply-content-input" rows="2" placeholder="Write your reply to ${escapeHtml(authorName)}..." required></textarea>
+          </div>
+          <div class="d-flex align-items-center justify-content-end gap-2">
+            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-3" onclick="closeInlineReplyBox(${parentReplyId})">Cancel</button>
+            <button type="submit" class="btn btn-xs btn-primary rounded-pill px-3 fw-semibold submit-reply-btn">
+              <i class="ri-send-plane-fill me-1"></i> Reply
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    targetContainer.innerHTML = composerHTML;
+    targetContainer.classList.remove('d-none');
+
+    const textarea = targetContainer.querySelector('.reply-content-input');
+    if (textarea) textarea.focus();
+  }
+
+  function closeInlineReplyBox(parentReplyId) {
+    const targetContainer = document.getElementById(`inline-reply-box-${parentReplyId}`);
+    if (targetContainer) {
+      targetContainer.innerHTML = '';
+      targetContainer.classList.add('d-none');
+    }
+  }
+
+  function submitInlineReply(event, disId, parentReplyId) {
+    event.preventDefault();
+    const form = event.target;
+    const textarea = form.querySelector('.reply-content-input');
+    const submitBtn = form.querySelector('.submit-reply-btn');
+    const content = (textarea.value || '').trim();
+
+    if (!content) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span> Posting...`;
+
+    fetch('/live-discussion/reply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ discussion_id: disId, parent_id: parentReplyId, content })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && data.reply) {
+        closeInlineReplyBox(parentReplyId);
+
+        const childContainer = document.getElementById(`child-replies-${parentReplyId}`);
+        if (childContainer) {
+          childContainer.classList.remove('d-none');
+          
+          const parentItem = document.getElementById(`reply-node-${parentReplyId}`);
+          let currentDepth = 1;
+          if (parentItem) {
+            let el = parentItem.parentElement;
+            let d = 0;
+            while (el) {
+              if (el.classList && el.classList.contains('pe-nested-replies')) d++;
+              el = el.parentElement;
+            }
+            currentDepth = d > 0 ? d : 1;
+          }
+
+          const newReplyHTML = createReplyNodeHTML(data.reply, disId, currentDepth);
+          childContainer.insertAdjacentHTML('beforeend', newReplyHTML);
+        }
+
+        const countSpan = document.querySelector('.reply-count');
+        if (countSpan) countSpan.textContent = data.totalRepliesCount;
+        updateParentSubThreadCount(parentReplyId);
+        updateAllTimestamps();
+      } else {
+        alert(data.message || 'Failed to post reply.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="ri-send-plane-fill me-1"></i> Reply`;
+      }
+    })
+    .catch(err => {
+      console.error('Error submitting inline reply:', err);
+      alert('An error occurred while posting your reply.');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<i class="ri-send-plane-fill me-1"></i> Reply`;
+    });
+  }
+
+  function createReplyNodeHTML(rep, disId, depth) {
+    depth = depth || 0;
+    const isMentor = rep.is_mentor === 1;
+    const childCount = rep.replies ? rep.replies.length : 0;
+    const repInitials = (rep.author_name || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const timeStr = rep.created_at ? new Date(rep.created_at).toISOString() : new Date().toISOString();
+    const isSubReply = depth > 0;
+    const parentTag = rep.parent_author_name ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0.5 rounded-2 text-xs fw-bold me-1.5 align-middle d-inline-flex align-items-center"><i class="ri-corner-down-right-line me-1 text-primary"></i>Replying to @${escapeHtml(rep.parent_author_name)}</span> ` : '';
+
+    return `
+      <div class="pe-reply-item position-relative ${isSubReply ? 'mt-3' : 'mt-2.5'}" id="reply-node-${rep.id}" data-reply-id="${rep.id}" data-discussion-id="${disId}">
+        <div class="pe-reply-content p-3 ${isMentor ? 'bg-primary-subtle border border-primary-subtle' : 'bg-slate-50 border'} rounded-3 text-xs shadow-2xs ${isSubReply ? 'border-start border-3 border-primary' : ''}">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <div class="avatar rounded-circle ${isMentor ? 'bg-primary text-white' : 'bg-slate-200 text-slate-700'} fw-bold d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.7rem;">
+                ${repInitials}
+              </div>
+              <div>
+                <span class="fw-bold ${isMentor ? 'text-primary' : 'text-slate-900'} text-xs">${escapeHtml(rep.author_name)}</span>
+                ${rep.author_role ? `<span class="text-muted text-xs ms-1">(${escapeHtml(rep.author_role)})</span>` : ''}
+                ${isMentor ? `<span class="badge bg-primary text-white rounded-pill px-2 py-0.5 text-xs ms-1.5"><i class="ri-shield-star-line me-0.5"></i>Mentor Verified</span>` : ''}
+              </div>
+            </div>
+            <span class="text-muted text-xs time-ago" data-timestamp="${timeStr}">Just now</span>
+          </div>
+
+          <p class="text-slate-800 text-xs mb-2.5 ms-4" style="line-height: 1.6; white-space: pre-line;">${parentTag}${escapeHtml(rep.content)}</p>
+
+          <div class="d-flex align-items-center gap-2 ms-4 flex-wrap">
+            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-like-btn" onclick="handleReplyVote(this, ${rep.id}, 'like')" title="Like / Unlike comment">
+              <i class="ri-thumb-up-line text-primary"></i> <span class="reply-like-count">${rep.upvotes || 0}</span>
+            </button>
+
+            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-0.5 text-xs d-inline-flex align-items-center gap-1 reply-dislike-btn" onclick="handleReplyVote(this, ${rep.id}, 'dislike')" title="Dislike / Undislike comment">
+              <i class="ri-thumb-down-line text-danger"></i> <span class="reply-dislike-count">${rep.downvotes || 0}</span>
+            </button>
+
+            <button type="button" class="btn btn-xs btn-link text-decoration-none text-primary p-0 text-xs fw-semibold d-inline-flex align-items-center gap-1 ms-1" onclick="openInlineReplyBox(this, ${disId}, ${rep.id}, '${escapeHtml(rep.author_name).replace(/'/g, "\\'")}')">
+              <i class="ri-reply-line"></i> Reply
+            </button>
+
+            <button type="button" class="btn btn-xs ${childCount > 0 ? 'btn-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-0.5 text-xs fw-bold' : 'btn-link text-decoration-none text-secondary p-0 text-xs fw-medium d-none'} d-inline-flex align-items-center gap-1 toggle-children-btn" onclick="toggleChildReplies(this, ${rep.id})">
+              <i class="ri-corner-down-right-line me-0.5 text-primary"></i> <span class="child-reply-count">${childCount}</span> ${childCount === 1 ? 'Reply' : 'Replies'}
+            </button>
+          </div>
+        </div>
+
+        <div id="inline-reply-box-${rep.id}" class="mt-2 ms-4 d-none"></div>
+
+        <div id="child-replies-${rep.id}" class="pe-nested-replies ps-3 ms-3 ms-md-4 border-start border-2 border-primary-subtle d-flex flex-column gap-2 mt-2 pt-1" style="${depth > 2 ? 'margin-left: 8px;' : ''}">
+          ${(rep.replies && rep.replies.length > 0) ? rep.replies.map(r => createReplyNodeHTML(r, disId, depth + 1)).join('') : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  function toggleChildReplies(replyId) {
+    const childContainer = document.getElementById(`child-replies-${replyId}`);
+    const parentNode = document.getElementById(`reply-node-${replyId}`);
+    const toggleBtn = parentNode ? parentNode.querySelector('.toggle-children-btn') : null;
+
+    if (childContainer) {
+      const isHidden = childContainer.classList.contains('d-none');
+      if (isHidden) {
+        childContainer.classList.remove('d-none');
+        if (toggleBtn) {
+          const icon = toggleBtn.querySelector('i');
+          if (icon) icon.className = 'ri-subtract-line me-0.5';
+        }
+      } else {
+        childContainer.classList.add('d-none');
+        if (toggleBtn) {
+          const icon = toggleBtn.querySelector('i');
+          if (icon) icon.className = 'ri-add-line me-0.5';
+        }
+      }
+    }
+  }
+
+  function updateParentSubThreadCount(parentReplyId) {
+    const parentNode = document.getElementById(`reply-node-${parentReplyId}`);
+    if (!parentNode) return;
+
+    const childContainer = document.getElementById(`child-replies-${parentReplyId}`);
+    const directChildren = childContainer ? childContainer.querySelectorAll(':scope > .pe-reply-item').length : 0;
+
+    let toggleBtn = parentNode.querySelector('.toggle-children-btn');
+    if (toggleBtn) {
+      toggleBtn.classList.remove('d-none');
+      const countSpan = toggleBtn.querySelector('.child-reply-count');
+      if (countSpan) countSpan.textContent = directChildren;
+      const icon = toggleBtn.querySelector('i');
+      if (icon) icon.className = 'ri-subtract-line me-0.5';
+    }
+  }
+
+  function formatTimeAgo(timestamp) {
+    if (!timestamp) return 'Just now';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSec = Math.floor((now - date) / 1000);
+
+    if (diffInSec < 45) return 'Just now';
+    const diffInMin = Math.floor(diffInSec / 60);
+    if (diffInMin < 60) return diffInMin + 'm ago';
+    const diffInHours = Math.floor(diffInMin / 60);
+    if (diffInHours < 24) return diffInHours + 'h ago';
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) return diffInDays + 'd ago';
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) return diffInMonths + 'mo ago';
+    const diffInYears = Math.floor(diffInDays / 365);
+    return diffInYears + 'y ago';
+  }
+
+  function updateAllTimestamps() {
+    document.querySelectorAll('.time-ago').forEach(el => {
+      const ts = el.getAttribute('data-timestamp');
+      if (ts) el.textContent = formatTimeAgo(ts);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', updateAllTimestamps);
+  updateAllTimestamps();
+
+  function escapeHtml(text) {
+    var map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+</script>

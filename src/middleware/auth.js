@@ -14,6 +14,10 @@ async function attachUser(req, res, next) {
     return PermissionService.hasPermissionSync(user, resource, action);
   };
 
+  res.locals.hasModulePermission = (moduleKey) => {
+    return PermissionService.hasModulePermissionSync(user, moduleKey);
+  };
+
   next();
 }
 

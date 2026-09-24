@@ -7,7 +7,7 @@
         </span>
       </div>
       <h1 class="h3 fw-bold text-slate-900 mb-1">Live Discussion & Clinical Case Rounds</h1>
-      <p class="text-muted small mb-0">Create, edit, pin, and moderate clinical discussion topics, case dilemmas, and student replies.</p>
+      <p class="text-muted small mb-0">Create, edit, pin, and moderate subject-wise clinical discussion topics, case dilemmas, and student replies.</p>
     </div>
     <div class="d-flex gap-2">
       <a href="/live-discussion" target="_blank" class="btn btn-outline-primary rounded-pill px-3 py-2 text-sm fw-medium">
@@ -81,10 +81,34 @@
 
 <!-- Main Directory Table Card -->
 <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
-  <div class="card-header bg-transparent border-0 px-4 pt-4 pb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <h5 class="fw-bold text-slate-900 mb-0">Discussion Topics Directory</h5>
-    <div class="d-flex gap-2">
-      <input type="text" id="adminDisSearch" class="form-control form-control-sm rounded-pill px-3" placeholder="Filter topics by title or keyword..." style="max-width: 260px;" oninput="filterAdminDiscussions()">
+  <div class="card-header bg-transparent border-0 px-4 pt-4 pb-3">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+      <h5 class="fw-bold text-slate-900 mb-0">Discussion Topics Directory</h5>
+      <div class="d-flex gap-2">
+        <input type="text" id="adminDisSearch" class="form-control form-control-sm rounded-pill px-3" placeholder="Filter topics by title or subject..." style="max-width: 280px;" oninput="filterAdminDiscussions()">
+      </div>
+    </div>
+
+    <!-- Year-Wise & Category Filter Pills -->
+    <div class="d-flex gap-1.5 overflow-auto pb-1" id="adminYearFilterBar">
+      <button type="button" class="btn btn-xs btn-dark rounded-pill px-3 py-1.5 fw-semibold admin-year-pill active" data-year="all" onclick="filterAdminByYear('all', this)">
+        All Subjects
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-3 py-1.5 fw-medium admin-year-pill" data-year="1" onclick="filterAdminByYear('1', this)">
+        1st Year BPT
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-3 py-1.5 fw-medium admin-year-pill" data-year="2" onclick="filterAdminByYear('2', this)">
+        2nd Year BPT
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-3 py-1.5 fw-medium admin-year-pill" data-year="3" onclick="filterAdminByYear('3', this)">
+        3rd Year BPT
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-3 py-1.5 fw-medium admin-year-pill" data-year="4" onclick="filterAdminByYear('4', this)">
+        4th Year BPT
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill px-3 py-1.5 fw-medium admin-year-pill" data-year="other" onclick="filterAdminByYear('other', this)">
+        Other Subjects & Electives
+      </button>
     </div>
   </div>
 
@@ -93,7 +117,7 @@
       <thead class="bg-light text-muted small text-uppercase">
         <tr>
           <th class="ps-4 py-3">Topic / Case Title</th>
-          <th class="py-3">Specialty</th>
+          <th class="py-3">Academic Subject</th>
           <th class="py-3">Author</th>
           <th class="py-3 text-center">Replies</th>
           <th class="py-3 text-center">Upvotes</th>
@@ -111,13 +135,12 @@
           </tr>
         <% } else { %>
           <% discussions.forEach(dis => { 
-               const catClass = dis.category === 'orthopedics' ? 'bg-primary-subtle text-primary border-primary-subtle' :
-                                dis.category === 'neurology' ? 'bg-danger-subtle text-danger border-danger-subtle' :
-                                dis.category === 'cardiopulmonary' ? 'bg-success-subtle text-success border-success-subtle' :
-                                dis.category === 'sports' ? 'bg-warning-subtle text-warning-emphasis border-warning-subtle' :
-                                'bg-purple-subtle text-purple border-purple-subtle';
+               const matchedCat = (locals.categories || []).find(c => c.slug === dis.category || c.name.toLowerCase() === (dis.category || '').toLowerCase() || (dis.category || '').toLowerCase().includes(c.name.toLowerCase()));
+               const displaySubName = matchedCat ? matchedCat.name : dis.category.replace(/_/g, ' ').toUpperCase();
+               const subYear = matchedCat ? (matchedCat.year > 0 ? matchedCat.year : 'other') : 'other';
+               const isOther = subYear === 'other';
           %>
-            <tr class="hover-bg-light admin-dis-row" data-search="<%= (dis.title + ' ' + dis.category + ' ' + dis.author_name).toLowerCase() %>">
+            <tr class="hover-bg-light admin-dis-row" data-year="<%= subYear %>" data-search="<%= (dis.title + ' ' + dis.category + ' ' + displaySubName + ' ' + dis.author_name + ' ' + (dis.tag_label || '')).toLowerCase() %>">
               <td class="ps-4 py-3">
                 <div class="d-flex align-items-start gap-2">
                   <% if (dis.is_pinned === 1) { %>
@@ -126,14 +149,19 @@
                   <div>
                     <div class="fw-semibold text-slate-900 text-sm mb-0.5"><%= dis.title %></div>
                     <div class="text-muted text-xs text-truncate" style="max-width: 420px;"><%= dis.summary %></div>
-                    <span class="badge bg-light text-secondary border mt-1 text-xs"><%= dis.tag_label || 'Clinical Case' %></span>
+                    <span class="badge bg-light text-secondary border mt-1 text-xs"><i class="ri-hashtag me-0.5"></i><%= dis.tag_label || 'Clinical Case' %></span>
                   </div>
                 </div>
               </td>
               <td>
-                <span class="badge <%= catClass %> border px-2.5 py-1 rounded-pill text-xs fw-semibold text-capitalize">
-                  <%= dis.category.replace(/_/g, ' ') %>
-                </span>
+                <div class="d-flex flex-column align-items-start gap-1">
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill text-xs fw-semibold">
+                    <i class="ri-book-open-line me-1"></i><%= displaySubName %>
+                  </span>
+                  <span class="badge <%= isOther ? 'bg-warning-subtle text-dark border-warning-subtle' : 'bg-secondary-subtle text-secondary' %> px-2 py-0.5 rounded-pill text-xs" style="font-size: 0.68rem;">
+                    <%= isOther ? 'Other Subject' : 'Year ' + subYear + ' BPT' %>
+                  </span>
+                </div>
               </td>
               <td>
                 <div class="fw-semibold text-slate-900 text-xs"><%= dis.author_name %></div>
@@ -203,32 +231,39 @@
 
       <form action="/admin/live-discussions" method="POST">
         <div class="modal-body p-4">
+          
+          <!-- Step 1: Select Academic Year & Target Subject -->
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label font-weight-bold small text-slate-800">Specialty Category <span class="text-danger">*</span></label>
-              <select name="category" class="form-select rounded-3" required>
-                <option value="orthopedics" selected>Orthopedics & MSK</option>
-                <option value="neurology">Neurology & Neuro-Rehab</option>
-                <option value="cardiopulmonary">Cardiopulmonary & ICU</option>
-                <option value="sports">Sports Physiotherapy</option>
-                <option value="pediatrics">Pediatric Physiotherapy</option>
-                <option value="electrotherapy">Electrotherapy & Modalities</option>
-                <option value="exam_prep">Exam Viva, SAQ & LAQ</option>
-                <option value="research">Evidence-Based Practice</option>
+              <label class="form-label font-weight-bold small text-slate-800">Select Academic Year <span class="text-danger">*</span></label>
+              <select id="createAdminYearSelect" class="form-select rounded-3" onchange="filterAdminModalCategories(this.value, 'createAdminCategorySelect')">
+                <option value="all" selected>All Academic Years & Electives</option>
+                <option value="1">1st Year BPT Subjects</option>
+                <option value="2">2nd Year BPT Subjects</option>
+                <option value="3">3rd Year BPT Subjects</option>
+                <option value="4">4th Year BPT Subjects</option>
+                <option value="other">Other Subjects & Electives</option>
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label font-weight-bold small text-slate-800">Discussion Tag / Type</label>
-              <select name="tag_label" class="form-select rounded-3">
-                <option value="Clinical Case Round" selected>Clinical Case Round</option>
-                <option value="Mentor Clinical Pearl">Mentor Clinical Pearl</option>
-                <option value="Differential Diagnosis">Differential Diagnosis</option>
-                <option value="Treatment Protocol">Treatment Protocol</option>
-                <option value="University Exam High-Yield">University Exam High-Yield</option>
-                <option value="ICU Protocols">ICU Protocols</option>
-                <option value="Return-to-Play Criteria">Return-to-Play Criteria</option>
+              <label class="form-label font-weight-bold small text-slate-800">Target Academic Subject <span class="text-danger">*</span></label>
+              <select name="category" id="createAdminCategorySelect" class="form-select rounded-3" required>
+                <% const modalCats = (typeof categories !== 'undefined' && categories && categories.length > 0) ? categories : (locals.categories || []); %>
+                <% modalCats.forEach((cat, idx) => { 
+                     const yVal = (cat.year > 0 ? String(cat.year) : 'other');
+                %>
+                  <option value="<%= cat.slug %>" data-year="<%= yVal %>" <%= idx === 0 ? 'selected' : '' %>>
+                    <%= cat.name %> (<%= yVal === 'other' ? 'Other Subject' : 'Year ' + yVal + ' BPT' %>)
+                  </option>
+                <% }) %>
               </select>
             </div>
+          </div>
+
+          <!-- Step 2: Topic Tag / Unit Name on the NEXT LINE/SENTENCE -->
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Topic Tag / Unit Name <span class="text-danger">*</span></label>
+            <input type="text" name="tag_label" class="form-control rounded-3" placeholder="e.g. Brunnstrom Stage 2 / Pain Catastrophizing / Rotator Interval" required>
           </div>
 
           <div class="mb-3">
@@ -287,24 +322,38 @@
 
       <form id="editDiscussionForm" method="POST">
         <div class="modal-body p-4">
+          
+          <!-- Step 1: Select Academic Year & Target Subject -->
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label font-weight-bold small text-slate-800">Specialty Category</label>
-              <select name="category" id="editDisCategory" class="form-select rounded-3" required>
-                <option value="orthopedics">Orthopedics & MSK</option>
-                <option value="neurology">Neurology & Neuro-Rehab</option>
-                <option value="cardiopulmonary">Cardiopulmonary & ICU</option>
-                <option value="sports">Sports Physiotherapy</option>
-                <option value="pediatrics">Pediatric Physiotherapy</option>
-                <option value="electrotherapy">Electrotherapy & Modalities</option>
-                <option value="exam_prep">Exam Viva, SAQ & LAQ</option>
-                <option value="research">Evidence-Based Practice</option>
+              <label class="form-label font-weight-bold small text-slate-800">Select Academic Year <span class="text-danger">*</span></label>
+              <select id="editAdminYearSelect" class="form-select rounded-3" onchange="filterAdminModalCategories(this.value, 'editDisCategory')">
+                <option value="all">All Academic Years & Electives</option>
+                <option value="1">1st Year BPT Subjects</option>
+                <option value="2">2nd Year BPT Subjects</option>
+                <option value="3">3rd Year BPT Subjects</option>
+                <option value="4">4th Year BPT Subjects</option>
+                <option value="other">Other Subjects & Electives</option>
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label font-weight-bold small text-slate-800">Discussion Tag / Type</label>
-              <input type="text" name="tag_label" id="editDisTag" class="form-control rounded-3" required>
+              <label class="form-label font-weight-bold small text-slate-800">Target Academic Subject <span class="text-danger">*</span></label>
+              <select name="category" id="editDisCategory" class="form-select rounded-3" required>
+                <% (typeof categories !== 'undefined' && categories && categories.length > 0 ? categories : (locals.categories || [])).forEach((cat, idx) => { 
+                     const yVal = (cat.year > 0 ? String(cat.year) : 'other');
+                %>
+                  <option value="<%= cat.slug %>" data-year="<%= yVal %>" <%= idx === 0 ? 'selected' : '' %>>
+                    <%= cat.name %> (<%= yVal === 'other' ? 'Other Subject' : 'Year ' + yVal + ' BPT' %>)
+                  </option>
+                <% }) %>
+              </select>
             </div>
+          </div>
+
+          <!-- Step 2: Topic Tag / Unit Name on the NEXT LINE/SENTENCE -->
+          <div class="mb-3">
+            <label class="form-label font-weight-bold small text-slate-800">Topic Tag / Unit Name <span class="text-danger">*</span></label>
+            <input type="text" name="tag_label" id="editDisTag" class="form-control rounded-3" required>
           </div>
 
           <div class="mb-3">
@@ -397,17 +446,95 @@
 </div>
 
 <script>
+  let activeAdminYearFilter = 'all';
+
+  <% const admCats = (typeof categories !== 'undefined' && categories && categories.length > 0) ? categories : (locals.categories || []); %>
+  const ALL_ADMIN_CATEGORIES = [
+    <% admCats.forEach(function(cat) { 
+         const yKey = (cat.year > 0 ? String(cat.year) : 'other');
+    %>
+      {
+        slug: <%- JSON.stringify(cat.slug) %>,
+        name: <%- JSON.stringify(cat.name) %>,
+        yearKey: '<%= yKey %>'
+      },
+    <% }); %>
+  ];
+
+  function filterAdminModalCategories(yearVal, selectId, targetSlug) {
+    const selectEl = document.getElementById(selectId);
+    if (!selectEl) return;
+
+    const targetYear = (yearVal || 'all').toString();
+    const filtered = ALL_ADMIN_CATEGORIES.filter(c => targetYear === 'all' || c.yearKey.toString() === targetYear);
+
+    if (filtered.length === 0) {
+      selectEl.innerHTML = '<option value="">No subjects found for this year</option>';
+      return;
+    }
+
+    let html = '';
+    filtered.forEach((c, idx) => {
+      const yearLabel = c.yearKey === 'other' ? 'Other Subject' : 'Year ' + c.yearKey + ' BPT';
+      const isSelected = targetSlug ? (c.slug === targetSlug) : (idx === 0);
+      html += `<option value="${c.slug}" data-year="${c.yearKey}" ${isSelected ? 'selected' : ''}>${c.name} (${yearLabel})</option>`;
+    });
+
+    selectEl.innerHTML = html;
+
+    if (targetSlug && filtered.some(c => c.slug === targetSlug)) {
+      selectEl.value = targetSlug;
+    } else if (filtered.length > 0) {
+      selectEl.value = filtered[0].slug;
+    }
+  }
+
+  // Initial setup for Create Modal
+  document.addEventListener('DOMContentLoaded', () => {
+    filterAdminModalCategories('all', 'createAdminCategorySelect');
+    filterAdminModalCategories('all', 'editDisCategory');
+  });
+
+  function filterAdminByYear(yearVal, btn) {
+    activeAdminYearFilter = yearVal || 'all';
+
+    document.querySelectorAll('#adminYearFilterBar .admin-year-pill').forEach(b => {
+      b.classList.remove('btn-dark', 'active');
+      b.classList.add('btn-outline-secondary');
+    });
+
+    const targetPill = btn || document.querySelector(`#adminYearFilterBar .admin-year-pill[data-year="${activeAdminYearFilter}"]`);
+    if (targetPill) {
+      targetPill.classList.remove('btn-outline-secondary');
+      targetPill.classList.add('btn-dark', 'active');
+    }
+
+    filterAdminDiscussions();
+  }
+
   function filterAdminDiscussions() {
     const q = (document.getElementById('adminDisSearch').value || '').toLowerCase().trim();
     document.querySelectorAll('.admin-dis-row').forEach(row => {
       const text = row.getAttribute('data-search') || '';
-      row.style.display = (!q || text.includes(q)) ? '' : 'none';
+      const rowYear = row.getAttribute('data-year') || 'other';
+
+      const matchYear = (activeAdminYearFilter === 'all' || rowYear.toString() === activeAdminYearFilter.toString());
+      const matchSearch = (!q || text.includes(q));
+
+      row.style.display = (matchYear && matchSearch) ? '' : 'none';
     });
   }
 
   function openEditDiscussionModal(dis) {
     document.getElementById('editDiscussionForm').action = '/admin/live-discussions/' + dis.id + '/update';
-    document.getElementById('editDisCategory').value = dis.category;
+    
+    // Find category year from ALL_ADMIN_CATEGORIES
+    const matched = ALL_ADMIN_CATEGORIES.find(c => c.slug === dis.category);
+    const subYear = matched ? matched.yearKey : 'all';
+
+    document.getElementById('editAdminYearSelect').value = subYear;
+    filterAdminModalCategories(subYear, 'editDisCategory', dis.category);
+
     document.getElementById('editDisTag').value = dis.tag_label || 'Clinical Case Round';
     document.getElementById('editDisTitle').value = dis.title;
     document.getElementById('editDisSummary').value = dis.summary;
